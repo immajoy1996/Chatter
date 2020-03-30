@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MessageMenuOptionsFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+        <Button
+            android:id="@+id/sign_in"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="Sign In"
+            android:textColor="#ffffff"
+            android:padding="10dp"
+            android:background="@drawable/option_bubble"
+            android:gravity="center"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            ></Button>
+
+        <Button
+            android:id="@+id/sign_up"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="Sign Up"
+            android:padding="10dp"
+            android:background="@drawable/option_bubble"
+            android:layout_marginTop="10dp"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@+id/sign_in"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            ></Button>
+
+        <Button
+            android:id="@+id/proceed_as_guest"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="Proceed as Guest"
+            android:padding="10dp"
+            android:background="@drawable/option_bubble"
+            android:layout_marginTop="10dp"
+            android:textColor="#ffffff"
+            android:gravity="center"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@+id/sign_up"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            ></Button>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
