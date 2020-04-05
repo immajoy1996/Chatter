@@ -16,19 +16,19 @@ import kotlin.concurrent.schedule
 import kotlin.concurrent.timer
 
 
-class MessageMenuOptionsFragment : Fragment() {
+class MessageMenuOptionsFragment : BaseFragment() {
 
     private val chatterActivity by lazy {
         activity as ChatterActivity
     }
 
     private lateinit var database: DatabaseReference
+    private lateinit var timerTask: TimerTask
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_message_options, container, false)
     }
 
@@ -37,6 +37,16 @@ class MessageMenuOptionsFragment : Fragment() {
         database = FirebaseDatabase.getInstance().reference
         initializeScrollContainerAndOptionButtons()
         checkForEasterEggs()
+    }
+
+    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
+        timerTask = Timer(name, false).schedule(delay) {
+            chatterActivity.runOnUiThread {
+                doit()
+            }
+        }
+        chatterActivity.timerTaskArray.add(timerTask)
+        timerTask
     }
 
     private fun initializeScrollContainerAndOptionButtons() {
@@ -61,6 +71,7 @@ class MessageMenuOptionsFragment : Fragment() {
         option.setOnClickListener {
             chatterActivity.let {
                 it.currentPath = path
+                chatterActivity.removeOptionsMenu()
                 it.handleNewMessageLogic(option.text.toString())
                 getBotResponse(it.currentPath)
             }
@@ -75,97 +86,54 @@ class MessageMenuOptionsFragment : Fragment() {
 
     fun getBotResponse(path: String) {
         chatterActivity.removeOptionsMenu()
-
-        val pathRef = database.child(path + "/botMessage")
-        val messageListener = createMessageListener { botMessage ->
-
-            Timer("showOptionsTimer", false).schedule(700) {
-                chatterActivity.runOnUiThread {
-                    chatterActivity.addSpaceText()
-                    chatterActivity.showBotIsTypingView()
-                }
-            }
-
-            Timer("showOptionsTimer", false).schedule(2000) {
-                chatterActivity.runOnUiThread {
-                    chatterActivity.replaceBotIsTyping(botMessage)
-                    chatterActivity.loadOptionsMenu()
-                }
-            }
+        val pathReference = database.child(path + "/botMessage")
+        chatterActivity.disableNextButton()
+        val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
+            val botMessage = dataSnapshot.value.toString()
+            setTimerTask("showBotIsTyping", 700, {
+                chatterActivity.addSpaceText()
+                chatterActivity.showBotIsTypingView()
+            })
+            setTimerTask("loadOptionsMenu", 2000, {
+                chatterActivity.replaceBotIsTyping(botMessage)
+                chatterActivity.loadOptionsMenu()
+            })
         }
-        pathRef.addValueEventListener(messageListener)
+        pathReference.addValueEventListener(messageListener)
     }
 
     fun checkForEasterEggs() {
         chatterActivity.currentPath.let {
-            val pathRef = database.child(it)
-            val easterEggListener = createEasterEggListener { dataSnapshot ->
-                if (dataSnapshot.hasChild("title") && dataSnapshot.hasChild("points") && dataSnapshot.hasChild("image")) {
+            val pathReference = database.child(it)
+            val easterEggListener = chatterActivity.baseChildEventListener { dataSnapshot ->
+                if (dataSnapshot.hasChild("title") && dataSnapshot.hasChild("points") && dataSnapshot.hasChild(
+                        "image"
+                    )
+                ) {
                     val title = dataSnapshot.child("title").value.toString()
                     val points = dataSnapshot.child("points").value as Long
-                    val image=dataSnapshot.child("image").value.toString()
-                    chatterActivity.loadEasterEggFragment(title, points,image)
+                    val image = dataSnapshot.child("image").value.toString()
+                    chatterActivity.loadEasterEggFragment(title, points, image)
+                    chatterActivity.enableNextButton()
                 }
             }
-            pathRef.addChildEventListener(easterEggListener)
-        }
-    }
-
-    val createEasterEggListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->
-        val messageListener = object : ChildEventListener {
-            override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {
-                doit(dataSnapshot)
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
-                //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-                //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-                //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-        }
-        messageListener
-    }
-
-    val runLogicAfterTimer: ((Unit) -> Unit) -> Unit = { doit ->
-        Timer("showOptionsTimer", false).schedule(1000) {
-            doit
+            pathReference.addChildEventListener(easterEggListener)
+            chatterActivity.disableNextButton()
         }
     }
 
     fun setUpOptionMenuText(path: String, option: TextView) {
-        val pathRef = database.child(path + "/text")
-        val messageListener = createMessageListener { optionText ->
+        val pathReference = database.child(path + "/text")
+        val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
+            val optionText = dataSnapshot.value.toString()
             option.text = optionText
+            chatterActivity.enableNextButton()
         }
-        pathRef.addValueEventListener(messageListener)
-    }
-
-    val createMessageListener: ((String) -> Unit) -> ValueEventListener = { doit ->
-        val messageListener = object : ValueEventListener {
-            override fun onDataChange(data: DataSnapshot) {
-                doit(data.value.toString())
-            }
-
-            override fun onCancelled(data: DatabaseError) {
-                //TODO
-            }
-
-        }
-        messageListener
+        pathReference.addValueEventListener(messageListener)
+        chatterActivity.disableNextButton()
     }
 
     companion object {
-
         fun newInstance(): MessageMenuOptionsFragment {
             return MessageMenuOptionsFragment()
         }

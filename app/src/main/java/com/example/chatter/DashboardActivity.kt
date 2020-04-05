@@ -1,25 +1,34 @@
 package com.example.chatter
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.database.*
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_dashboard.*
+import kotlinx.android.synthetic.main.top_bar.*
 
-class DashboardActivity : AppCompatActivity(), BotClickInterface {
+class DashboardActivity : BaseActivity(), BotClickInterface {
     private lateinit var database: DatabaseReference
     private var titleList = ArrayList<String>()
     private var imageList = ArrayList<String>()
+    private var navigationDrawerFragment = NavigationDrawerFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
         database = FirebaseDatabase.getInstance().reference
-
+        setUpTopBar()
         setUpBotGridView()
         setUpBots()
+    }
+
+    override fun setUpTopBar() {
+        home.setOnClickListener {
+            loadNavigationDrawer()
+        }
+        egg_image.visibility = View.INVISIBLE
+        easter_egg_count.visibility = View.INVISIBLE
     }
 
     private fun setUpBotGridView() {
@@ -27,6 +36,14 @@ class DashboardActivity : AppCompatActivity(), BotClickInterface {
         val botAdapter = BotAdapter(this, imageList, titleList)
         dashboard_recycler.adapter = botAdapter
         dashboard_recycler.addItemDecoration(BotGridItemDecoration(BOT_ITEM_SPACING))
+    }
+
+    private fun loadNavigationDrawer() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(dashboard_root_layout.id, navigationDrawerFragment)
+            .addToBackStack(navigationDrawerFragment.javaClass.name)
+            .commit()
     }
 
     private fun setUpBots() {
@@ -46,31 +63,6 @@ class DashboardActivity : AppCompatActivity(), BotClickInterface {
         val intent = Intent(this, ChatterActivity::class.java)
         intent.putExtra(BOT_TITLE, botTitle)
         startActivity(intent)
-    }
-
-    val createBotListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->
-        val messageListener = object : ChildEventListener {
-            override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {
-                doit(dataSnapshot)
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-        }
-        messageListener
     }
 
     companion object {

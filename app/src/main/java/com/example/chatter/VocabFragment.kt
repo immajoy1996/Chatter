@@ -1,5 +1,7 @@
 package com.example.chatter
 
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,12 +11,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_vocab.*
+import kotlinx.android.synthetic.main.vocab_search_bar.*
 
 class VocabFragment : Fragment() {
     private val spanishWords = ArrayList<String>()
     private val translations = ArrayList<String>()
     private val transliterations = ArrayList<String>()
     private val database: DatabaseReference? = null
+
+    private val chatterActivity by lazy { activity as ChatterActivity }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,6 +30,7 @@ class VocabFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpTopBar()
         setUpSpanishWords()
         setUpSpanishTranslations()
         setUpSpanishTransliterations()
@@ -35,8 +41,15 @@ class VocabFragment : Fragment() {
         setUpNavButtons()
     }
 
+    private fun setUpTopBar(){
+        mic.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+    }
+
     private fun setUpNavButtons() {
-        button_back.setOnClickListener { fragmentManager?.popBackStack() }
+        button_back.setOnClickListener {
+            fragmentManager?.popBackStack()
+            chatterActivity.loadOptionsMenu()
+        }
         button_next.text = "Finish"
         button_next.setOnClickListener { activity?.finish() }
     }

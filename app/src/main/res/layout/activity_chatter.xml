@@ -2,13 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#dcdcdc"
-    android:id="@+id/root_container"
     tools:context=".ChatterActivity">
 
-    <include android:id="@+id/top_bar" layout="@layout/top_bar"/>
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/top_bar" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/messagingScrollView"
@@ -37,6 +39,8 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <include android:id="@+id/bottom_layout" layout="@layout/bottom_nav_bar" />
+    <include
+        android:id="@+id/bottom_layout"
+        layout="@layout/bottom_nav_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

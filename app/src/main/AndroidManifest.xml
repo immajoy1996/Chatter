@@ -9,7 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignInActivity"></activity>
+        <activity android:name=".BaseChatActivity"></activity>
+        <activity android:name=".BaseActivity" />
+        <activity
+            android:name=".SignInActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".GetStartedActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
@@ -21,10 +25,10 @@
         </activity>
         <activity
             android:name=".DashboardActivity"
-            ></activity>
-        <activity android:name=".ChatterActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            />
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".ChatterActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 
 </manifest>

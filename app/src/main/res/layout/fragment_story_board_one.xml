@@ -4,6 +4,10 @@
     android:layout_height="match_parent"
     android:background="#dcdcdc">
 
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/top_bar" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline1"
         android:layout_width="match_parent"

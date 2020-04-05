@@ -1,17 +1,12 @@
 package com.example.chatter
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
@@ -20,29 +15,25 @@ import com.example.chatter.EnterUsernameFragment.Companion.ENTER_PASSWORD
 import com.example.chatter.EnterUsernameFragment.Companion.ENTER_USERNAME
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
-import kotlinx.android.synthetic.main.fragment_enter_username.*
+import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
 
-class SignInActivity : AppCompatActivity() {
+class SignInActivity : BaseChatActivity() {
     private var scenario: Int? = null
     private var menuOptionsFragment = SignInOptionsFragment()
     private var signInErrorFragment = SignInErrorFragment()
     private var usernameFragment = EnterUsernameFragment.newInstance(ENTER_USERNAME)
     private var passwordFragment = EnterUsernameFragment.newInstance(ENTER_PASSWORD)
+    private var retrievingOptionsFragment =
+        RetrievingOptionsFragment.newInstance("Retrieving options")
+    private lateinit var signInPresenter: SignInPresenter
+
+    private lateinit var timerTask: TimerTask
 
     var username: String? = null
     var password: String? = null
     var reenterPassword: String? = null
-
-    private var retrievingOptionsFragment =
-        RetrievingOptionsFragment.newInstance("Retrieving options")
-
-    var prevMsgId = ConstraintSet.PARENT_ID
-    var newMsgId = -1
-    var newSide = "left"
-    var isFirst = true
-    var msgCount = 0
 
     private var profileImgView: ImageView? = null
     private var translationImgView: CircleImageView? = null
@@ -60,13 +51,37 @@ class SignInActivity : AppCompatActivity() {
     var userPosition = 0
     var botPosition = 0
 
-    var login_error:Boolean=false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
+        signInPresenter = SignInPresenter(this)
+        setUpTopBar()
         initializeMessagesContainer()
         showFirstBotMessage()
+    }
+
+    override fun setUpTopBar() {
+        egg_image.visibility = View.INVISIBLE
+        easter_egg_count.visibility = View.INVISIBLE
+    }
+
+    override fun showFirstBotMessage() {
+        handleNewMessageLogic("Hello, what would you like to do?")
+        loadSignInOptions()
+    }
+
+    override fun initializeMessagesContainer() {
+        constraintSet.clone(messagesInnerLayout)
+    }
+
+    override fun addMessage(msg: String) {
+        setUpMessageTextView(msg)
+        setupProfileImgView()
+        addConstraintToProfileImageView()
+        addConstraintsForMessageTextView()
+        addConstraintToTranslationImageView()
+        addGeneralConstraintsForProfileImageAndMessageText()
+        setConstraintsToLayout()
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -105,19 +120,25 @@ class SignInActivity : AppCompatActivity() {
 
     fun getBotResponse() {
         removeOptionsMenu()
-        Timer("showOptionsTimer", false).schedule(700) {
-            runOnUiThread {
-                addSpaceText()
-                showBotIsTypingView()
-            }
-        }
+        setTimerTask("showBotIsTyping", 700, {
+            addSpaceText()
+            showBotIsTypingView()
+        })
 
-        Timer("showOptionsTimer", false).schedule(2000) {
+        setTimerTask("getCurrentOptionsMenu", 2000, {
+            replaceBotIsTyping(botMessagesArray[botPosition++])
+            getCurrentOptionsMenu()
+        })
+    }
+
+    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
+        timerTask = Timer(name, false).schedule(delay) {
             runOnUiThread {
-                replaceBotIsTyping(botMessagesArray[botPosition++])
-                getCurrentOptionsMenu()
+                doit()
             }
         }
+        timerTaskArray.add(timerTask)
+        timerTask
     }
 
     fun loadRetrievingOptionsFragment() {
@@ -130,10 +151,10 @@ class SignInActivity : AppCompatActivity() {
 
     fun loadOptionsFragment(fragment: Fragment) {
         loadRetrievingOptionsFragment()
-        Timer("showOptionsTimer", false).schedule(2000) {
+        setTimerTask("loadOptionsFragment", 2000, {
             removeRetrievingOptionsFragment()
             loadFragment(fragment)
-        }
+        })
     }
 
     private fun getCurrentOptionsMenu() {
@@ -163,19 +184,25 @@ class SignInActivity : AppCompatActivity() {
     fun signIn() {
         retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Logging In")
         loadRetrievingOptionsFragment()
-        Timer("showOptionsTimer", false).schedule(2000) {
+        setTimerTask("signIn", 2000, {
             removeRetrievingOptionsFragment()
+            toggleRestartFlag(false)
             startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
-        }
+        })
     }
 
     fun signInAsGuest() {
         retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Guest Mode")
         loadRetrievingOptionsFragment()
-        Timer("showOptionsTimer", false).schedule(2000) {
+        setTimerTask("signInAsGuest", 2000, {
             removeRetrievingOptionsFragment()
+            toggleRestartFlag(false)
             startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
-        }
+        })
+    }
+
+    private fun toggleRestartFlag(flag: Boolean) {
+        this.shouldRestart = flag
     }
 
     private fun loadPasswordFragment() {
@@ -194,44 +221,12 @@ class SignInActivity : AppCompatActivity() {
         loadOptionsFragment(usernameFragment)
     }
 
-    private fun loadSignInErrorFragment(){
+    private fun loadSignInErrorFragment() {
         supportFragmentManager
             .beginTransaction()
             .replace(optionsPopupContainer.id, signInErrorFragment)
             .addToBackStack(signInErrorFragment.javaClass.name)
             .commit()
-    }
-
-    private fun showFirstBotMessage() {
-        handleNewMessageLogic("Hello, what would you like to do?")
-        loadSignInOptions()
-    }
-
-    private fun initializeMessagesContainer() {
-        constraintSet.clone(messagesInnerLayout)
-    }
-
-    private fun handleNewMessageLogic(str: String) {
-        msgCount++
-        newMsgId = 10 * msgCount
-        addMessage(str)
-        if (newSide == "left") {
-            newSide = "right"
-        } else {
-            newSide = "left"
-        }
-        if (isFirst) isFirst = false
-        prevMsgId = newMsgId
-    }
-
-    private fun addMessage(msg: String) {
-        setUpMessageTextView(msg)
-        setupProfileImgView()
-        addConstraintToProfileImageView()
-        addConstraintsForMessageTextView()
-        addConstraintToTranslationImageView()
-        addGeneralConstraintsForProfileImageAndMessageText()
-        setConstraintsToLayout()
     }
 
     fun setUpMessageTextView(msg: String) {
@@ -408,15 +403,11 @@ class SignInActivity : AppCompatActivity() {
         addViewToLayout(messageTextView as TextView)
     }
 
-    fun refreshSignInFlow(){
+    fun refreshSignInFlow() {
         finish()
         overridePendingTransition(0, 0);
         startActivity(intent)
         overridePendingTransition(0, 0);
-    }
-
-    override fun onBackPressed() {
-        //deactivate back button
     }
 
     companion object {

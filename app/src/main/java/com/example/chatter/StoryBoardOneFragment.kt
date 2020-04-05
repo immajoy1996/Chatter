@@ -12,6 +12,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_story_board_one.*
+import kotlinx.android.synthetic.main.top_bar.*
 
 
 class StoryBoardOneFragment : Fragment() {
@@ -29,8 +30,15 @@ class StoryBoardOneFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
+        setUpTopBar()
         setUpNavButtons()
         fetchStoryBoardMessages()
+    }
+
+    private fun setUpTopBar() {
+        title.setText("Storyboard")
+        egg_image.visibility = View.INVISIBLE
+        easter_egg_count.visibility = View.INVISIBLE
     }
 
     private fun fetchStoryBoardMessages() {

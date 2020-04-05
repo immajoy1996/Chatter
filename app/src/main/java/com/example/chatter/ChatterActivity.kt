@@ -1,18 +1,13 @@
 package com.example.chatter
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
-import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
@@ -22,11 +17,11 @@ import com.google.firebase.database.*
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
 
-
-class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
+class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
     private var constraintSet = ConstraintSet()
 
@@ -39,27 +34,70 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
     private lateinit var easterEggFragment: EasterEggFragment
 
     private lateinit var database: DatabaseReference
+    lateinit var pathReference: DatabaseReference
 
     var currentPath = ""
-
-    var prevMsgId = ConstraintSet.PARENT_ID
-    var newMsgId = -1
-    var newSide = "left"
-    var isFirst = true
-    var msgCount = 0
 
     private var profileImgView: ImageView? = null
     private var translationImgView: CircleImageView? = null
     private var audioImgView: CircleImageView? = null
     private var messageTextView: TextView? = null
 
+    private lateinit var timerTask: TimerTask
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
+        setUpTopBar()
+        setUpEasterEggListener()
         setUpStoryBoardFragments()
         setUpNavButtons()
         loadFirstStoryBoardFragment()
+    }
+
+    override fun setUpTopBar() {
+    }
+
+    override fun showFirstBotMessage() {
+        val pathReference = database.child("botMessage")
+        disableNextButton()
+        val messageListener = baseValueEventListener { dataSnapshot ->
+            val botMessage = dataSnapshot.value.toString()
+            handleNewMessageLogic(botMessage)
+            loadOptionsMenu()
+        }
+        pathReference.addValueEventListener(messageListener)
+    }
+
+    override fun initializeMessagesContainer() {
+        constraintSet.clone(messagesInnerLayout)
+    }
+
+    override fun addMessage(msg: String) {
+        setUpMessageTextView(msg)
+        setupProfileImgView()
+        addConstraintToProfileImageView()
+        addConstraintsForMessageTextView()
+        addConstraintToTranslationImageView()
+        addGeneralConstraintsForProfileImageAndMessageText()
+        setConstraintsToLayout()
+    }
+
+    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
+        timerTask = Timer(name, false).schedule(delay) {
+            runOnUiThread {
+                doit()
+            }
+        }
+        timerTaskArray.add(timerTask)
+        timerTask
+    }
+
+    private fun setUpEasterEggListener() {
+        egg_image.setOnClickListener {
+            loadFragmentIntoRoot(AllEasterEggsFragment())
+        }
     }
 
     private fun setUpStoryBoardFragments() {
@@ -71,6 +109,7 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
     private fun setUpNavButtons() {
         button_back.setOnClickListener { finish() }
         button_next.setOnClickListener {
+            disposeListeners()
             supportFragmentManager.popBackStack()
             loadVocabFragment()
         }
@@ -86,6 +125,10 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
             easterEggFragment.javaClass.name,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
+    }
+
+    fun loadBotDescriptionFragment() {
+        loadFragmentIntoRoot(BotDescriptionFragment())
     }
 
     fun loadVocabFragment() {
@@ -106,31 +149,13 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
         }
     }
 
-    fun loadSecondStoryBoardFragment() {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(root_container.id, storyBoardTwoFragment)
-            .addToBackStack(storyBoardTwoFragment.javaClass.name)
-            .commit()
-    }
-
-    fun loadEasterEggFragment(title: String, points: Long,imageSrc:String) {
-        easterEggFragment = EasterEggFragment.newInstance(title, points,imageSrc)
+    fun loadEasterEggFragment(title: String, points: Long, imageSrc: String) {
+        easterEggFragment = EasterEggFragment.newInstance(title, points, imageSrc)
         supportFragmentManager
             .beginTransaction()
             .replace(root_container.id, easterEggFragment)
             .addToBackStack(easterEggFragment.javaClass.name)
             .commit()
-    }
-
-    private fun showFirstBotMessage() {
-        val firstMessageReference = database.child("botMessage")
-
-        val messageListener = messageOptionsFragment.createMessageListener { botMessage ->
-            handleNewMessageLogic(botMessage)
-            loadOptionsMenu()
-        }
-        firstMessageReference.addValueEventListener(messageListener)
     }
 
     private fun loadFragment(fragment: Fragment) {
@@ -141,152 +166,26 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
             .commit()
     }
 
+    private fun loadFragmentIntoRoot(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(root_container.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
+    }
+
     fun loadOptionsMenu() {
+        disableNextButton()
         loadRetrievingOptionsFragment()
-        Timer("showOptionsTimer", false).schedule(2000) {
+        setTimerTask("loadMessageOptionsFragment", 2000, {
             removeRetrievingOptionsFragment()
             loadFragment(messageOptionsFragment)
-        }
+            enableNextButton()
+        })
     }
 
     fun removeOptionsMenu() {
         supportFragmentManager.popBackStack()
-    }
-
-    fun initializeMessagesContainer() {
-        constraintSet.clone(messagesInnerLayout)
-    }
-
-    fun addMessage(msg: String) {
-        setUpMessageTextView(msg)
-        setupProfileImgView()
-        //setupTranslationImage()
-        //setupAudioImage()
-        addConstraintToProfileImageView()
-        addConstraintsForMessageTextView()
-        addConstraintToTranslationImageView()
-        //addConstraintToAudioImageView()
-        addGeneralConstraintsForProfileImageAndMessageText()
-        //addGeneralConstraintsForTranslationImage()
-        //addGeneralConstraintsForAudioImage()
-        setConstraintsToLayout()
-    }
-
-    fun addGeneralConstraintsForTranslationImage() {
-
-        val textView = messageTextView as TextView
-        val translationImg = translationImgView as ImageView
-        val audioImgView = audioImgView as CircleImageView
-
-        if (newSide == "left") {
-            constraintSet.connect(
-                translationImg.id,
-                ConstraintSet.BOTTOM,
-                textView.id,
-                ConstraintSet.BOTTOM,
-                0
-            )
-
-            constraintSet.connect(
-                translationImg.id,
-                ConstraintSet.TOP,
-                textView.id,
-                ConstraintSet.TOP,
-                0
-            )
-
-            constraintSet.connect(
-                translationImg.id,
-                ConstraintSet.START,
-                textView.id,
-                ConstraintSet.END,
-                TRANSLATION_IMAGE_SPACING
-            )
-
-        } else if (newSide == "right") {
-
-            constraintSet.connect(
-                translationImg.id,
-                ConstraintSet.BOTTOM,
-                textView.id,
-                ConstraintSet.BOTTOM,
-                0
-            )
-
-            constraintSet.connect(
-                translationImg.id,
-                ConstraintSet.TOP,
-                textView.id,
-                ConstraintSet.TOP,
-                0
-            )
-
-            constraintSet.connect(
-                translationImg.id,
-                ConstraintSet.END,
-                audioImgView.id,
-                ConstraintSet.START,
-                TRANSLATION_IMAGE_SPACING
-            )
-        }
-    }
-
-    fun addGeneralConstraintsForAudioImage() {
-        val textView = messageTextView as TextView
-        val audioImgView = audioImgView as CircleImageView
-        val translationImgView = translationImgView as CircleImageView
-
-        if (newSide == "left") {
-            constraintSet.connect(
-                audioImgView.id,
-                ConstraintSet.BOTTOM,
-                textView.id,
-                ConstraintSet.BOTTOM,
-                0
-            )
-
-            constraintSet.connect(
-                audioImgView.id,
-                ConstraintSet.TOP,
-                textView.id,
-                ConstraintSet.TOP,
-                0
-            )
-
-            constraintSet.connect(
-                audioImgView.id,
-                ConstraintSet.START,
-                translationImgView.id,
-                ConstraintSet.END,
-                TRANSLATION_IMAGE_SPACING
-            )
-
-        } else if (newSide == "right") {
-
-            constraintSet.connect(
-                audioImgView.id,
-                ConstraintSet.BOTTOM,
-                textView.id,
-                ConstraintSet.BOTTOM,
-                0
-            )
-
-            constraintSet.connect(
-                audioImgView.id,
-                ConstraintSet.TOP,
-                textView.id,
-                ConstraintSet.TOP,
-                0
-            )
-
-            constraintSet.connect(
-                audioImgView.id,
-                ConstraintSet.END,
-                textView.id,
-                ConstraintSet.START,
-                TRANSLATION_IMAGE_SPACING
-            )
-        }
     }
 
     fun addGeneralConstraintsForProfileImageAndMessageText() {
@@ -348,32 +247,12 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
         addViewToLayout(messageTextView as TextView)
     }
 
-    fun setupTranslationImage() {
-        translationImgView = CircleImageView(this)
-        translationImgView?.apply {
-            id = getIdForTranslationImageView()
-            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.translation))
-            //setBackground(getDrawable(R.drawable.circular_background))
-        }
-        setUpTranslationIconClickListener()
-    }
-
     fun setUpMessageBubbleClickListener() {
         val copyPath = currentPath
         val copySide = newSide
         val copyMessageId = getMessageTextBubbleId()
         val textView = messageTextView
         textView?.setOnClickListener {
-            //(messagesInnerLayout.getViewById(copyMessageId) as TextView).text = "translating ... "
-            showTranslation(copySide, copyPath, copyMessageId)
-        }
-    }
-
-    fun setUpTranslationIconClickListener() {
-        val copyPath = currentPath
-        val copySide = newSide
-        val copyMessageId = getMessageTextBubbleId()
-        (translationImgView as ImageView).setOnClickListener {
             //(messagesInnerLayout.getViewById(copyMessageId) as TextView).text = "translating ... "
             showTranslation(copySide, copyPath, copyMessageId)
         }
@@ -398,7 +277,8 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
         }
         val firstMessageReference = database.child(path).child(translationPath)
 
-        val messageListener = messageOptionsFragment.createMessageListener { translation ->
+        val messageListener = baseValueEventListener { dataSnapshot ->
+            val translation = dataSnapshot.value.toString()
             val customText = SpannableString(translation)
             if (shouldTranslateToSpanish) {
                 customText.setSpan(RelativeSizeSpan(.1f), 0, 2, 0)
@@ -408,25 +288,8 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
         firstMessageReference.addValueEventListener(messageListener)
     }
 
-    fun setupAudioImage() {
-        audioImgView = CircleImageView(this)
-        audioImgView?.apply {
-            id = getIdForAudioImageView()
-            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.audio))
-            //setBackground(getDrawable(R.drawable.circular_background))
-        }
-    }
-
     fun addConstraintToTranslationImageView() {
         translationImgView?.apply {
-            constraintSet.constrainHeight(id, TRANSLATION_IMAGE_SIZE)
-            constraintSet.constrainWidth(id, TRANSLATION_IMAGE_SIZE)
-            addViewToLayout(this)
-        }
-    }
-
-    fun addConstraintToAudioImageView() {
-        audioImgView?.apply {
             constraintSet.constrainHeight(id, TRANSLATION_IMAGE_SIZE)
             constraintSet.constrainWidth(id, TRANSLATION_IMAGE_SIZE)
             addViewToLayout(this)
@@ -438,6 +301,7 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
         profileImgView?.apply {
             id = getIdProfileImageView()
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.business_profile))
+            setOnClickListener { loadBotDescriptionFragment() }
         }
     }
 
@@ -474,26 +338,8 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
         }
     }
 
-    fun removeBotIsTypingView() {
-        val textViewId = getIdForBotIsTypingTextView()
-        val textView = findViewById<TextView>(textViewId)
-        messagesInnerLayout.removeView(textView)
-    }
-
-    fun getIdForBotIsTypingTextView(): Int {
-        return 10 * msgCount + 9
-    }
-
     fun getIdProfileImageView(): Int {
         return 10 * msgCount + 1
-    }
-
-    fun getIdForTranslationImageView(): Int {
-        return 10 * msgCount + 3
-    }
-
-    fun getIdForAudioImageView(): Int {
-        return 10 * msgCount + 7
     }
 
     private fun getIdForSpaceView(): Int {
@@ -506,42 +352,6 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
 
     fun removeRetrievingOptionsFragment() {
         supportFragmentManager.popBackStack()
-    }
-
-    fun applyConstraintsToBotIsTypingTextView() {
-        messageTextView?.let {
-            constraintSet.constrainHeight(it.id, ViewGroup.LayoutParams.WRAP_CONTENT)
-            constraintSet.constrainWidth(it.id, MESSAGE_BUBBLE_WIDTH)
-        }
-        var position = -1
-        if (isFirst) position = ConstraintSet.TOP
-        else position = ConstraintSet.BOTTOM
-
-        if (newSide == "left") {
-            constraintSet.connect(
-                (messageTextView as TextView).id,
-                ConstraintSet.TOP,
-                prevMsgId,
-                position,
-                MESSAGE_VERTICAL_SPACING
-            )
-        }
-    }
-
-    fun showBotIsTypingTextView() {
-        val textViewId = getIdForBotIsTypingTextView()
-        messageTextView = TextView(this)
-        messageTextView?.apply {
-            setPadding(MESSAGE_PADDING)
-            setId(textViewId)
-            text = "CleverBot is typing ..."
-            isFocusableInTouchMode = true
-            textSize = BOT_IS_TYPING_MESSAGE_SIZE
-            requestFocus()
-            setTextColor(Color.parseColor("#0084FF"))
-        }
-        addViewToLayout(messageTextView as TextView)
-        applyConstraintsToBotIsTypingTextView()
     }
 
     private fun addViewToLayout(view: View) {
@@ -559,19 +369,6 @@ class ChatterActivity : AppCompatActivity(), StoryBoardFinishedInterface {
     fun replaceBotIsTyping(msg: String) {
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
-    }
-
-    fun handleNewMessageLogic(str: String) {
-        msgCount++
-        newMsgId = 10 * msgCount
-        addMessage(str)
-        if (newSide == "left") {
-            newSide = "right"
-        } else {
-            newSide = "left"
-        }
-        if (isFirst) isFirst = false
-        prevMsgId = newMsgId
     }
 
     fun addSpaceText() {
