@@ -36,9 +36,8 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun setUpTopBar() {
-        title.setText("Storyboard")
-        egg_image.visibility = View.INVISIBLE
-        easter_egg_count.visibility = View.INVISIBLE
+        top_bar_title.setText("Storyboard")
+        top_bar_mic.visibility = View.INVISIBLE
     }
 
     private fun fetchStoryBoardMessages() {

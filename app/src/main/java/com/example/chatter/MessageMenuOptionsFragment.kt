@@ -133,6 +133,20 @@ class MessageMenuOptionsFragment : BaseFragment() {
         chatterActivity.disableNextButton()
     }
 
+    fun selectOptionsWithVoice(text: String) {
+        when (text) {
+            "hermano" -> {
+                optionA.performClick()
+            }
+            "amigo" -> {
+                optionB.performClick()
+            }
+            "gato" -> {
+                optionC.performClick()
+            }
+        }
+    }
+
     companion object {
         fun newInstance(): MessageMenuOptionsFragment {
             return MessageMenuOptionsFragment()

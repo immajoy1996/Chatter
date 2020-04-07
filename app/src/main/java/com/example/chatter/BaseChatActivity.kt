@@ -1,14 +1,17 @@
 package com.example.chatter
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import java.util.*
 
-abstract class BaseChatActivity : AppCompatActivity() {
+abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
 
     var prevMsgId = ConstraintSet.PARENT_ID
     var newMsgId = -1
@@ -20,6 +23,10 @@ abstract class BaseChatActivity : AppCompatActivity() {
     var childEventListenerArray = arrayListOf<Pair<DatabaseReference, ChildEventListener>>()
     var valueEventListenerArray = arrayListOf<Pair<DatabaseReference, ValueEventListener>>()
     var shouldRestart = true
+
+    private lateinit var speech: SpeechRecognizer
+    private var isVocabFragment: Boolean = false
+    private var isChatterActivity: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,5 +151,73 @@ abstract class BaseChatActivity : AppCompatActivity() {
 
     fun enableNextButton() {
         button_next.setClickable(true)
+    }
+
+    fun toggleRestartFlag(flag: Boolean) {
+        this.shouldRestart = flag
+    }
+
+    fun toggleIsVocabFragmentFlag(flag: Boolean) {
+        this.isVocabFragment = flag
+    }
+
+    fun toggleIsChatterActivity(flag: Boolean) {
+        this.isChatterActivity = flag
+    }
+
+    fun isVocabFragment(): Boolean {
+        return isVocabFragment
+    }
+
+    fun isChatterActivity(): Boolean {
+        return isChatterActivity
+    }
+
+    fun isMatch(inputString: String, targetString: String): Boolean {
+        return (inputString.toLowerCase()).equals((targetString.toLowerCase()))
+    }
+
+    fun startListening() {
+        speech = SpeechRecognizer.createSpeechRecognizer(this)
+        speech.setRecognitionListener(this)
+        val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "es")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "es");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please start speaking...");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName())
+        recognizerIntent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
+        );
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        speech.startListening(recognizerIntent)
+    }
+
+    override fun onBeginningOfSpeech() {
+    }
+
+    override fun onReadyForSpeech(params: Bundle?) {
+    }
+
+    override fun onBufferReceived(buffer: ByteArray?) {
+    }
+
+    override fun onEndOfSpeech() {
+    }
+
+    override fun onError(error: Int) {
+    }
+
+    override fun onEvent(eventType: Int, params: Bundle?) {
+    }
+
+    override fun onPartialResults(partialResults: Bundle?) {
+    }
+
+    override fun onResults(results: Bundle?) {
+    }
+
+    override fun onRmsChanged(rmsdB: Float) {
     }
 }

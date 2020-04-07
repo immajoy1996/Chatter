@@ -1,23 +1,36 @@
 package com.example.chatter
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_vocab.*
+import kotlinx.android.synthetic.main.top_bar.*
+import kotlinx.android.synthetic.main.top_bar.top_bar_mic
 import kotlinx.android.synthetic.main.vocab_search_bar.*
+import java.util.Collections.copy
 
-class VocabFragment : Fragment() {
-    private val spanishWords = ArrayList<String>()
-    private val translations = ArrayList<String>()
-    private val transliterations = ArrayList<String>()
-    private val database: DatabaseReference? = null
+class VocabFragment : BaseFragment() {
+    private val spanishWords = arrayListOf<String>()
+    private val translations = arrayListOf<String>()
+    private val transliterations = arrayListOf<String>()
+    private val audioSrc = arrayListOf<String>()
+    private lateinit var vocabAdapter: VocabAdapter
+    private lateinit var database: DatabaseReference
+
+    private var searchSpanishWords = arrayListOf<String>()
+    private var searchTranslations = arrayListOf<String>()
+    private var searchTransliterations = arrayListOf<String>()
+    private var searchAudioSrc = arrayListOf<String>()
 
     private val chatterActivity by lazy { activity as ChatterActivity }
 
@@ -30,76 +43,118 @@ class VocabFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
-        setUpSpanishWords()
-        setUpSpanishTranslations()
-        setUpSpanishTransliterations()
-        vocab_recycler.layoutManager = LinearLayoutManager(context)
-        context?.let {
-            vocab_recycler.adapter = VocabAdapter(it, spanishWords, translations, transliterations)
-        }
         setUpNavButtons()
+        setUpVocabRecycler()
     }
 
-    private fun setUpTopBar(){
-        mic.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+    private fun setUpTopBar() {
+        search_submit.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        top_bar_mic.setOnClickListener {
+            chatterActivity.toggleRestartFlag(false)
+            chatterActivity.toggleIsVocabFragmentFlag(true)
+            chatterActivity.startListening()
+        }
+        vocab_search_text.setOnClickListener {
+            val userInput = vocab_search_text.text?.toString()
+            userInput?.let {
+                doSearch(it)
+            }
+        }
     }
 
     private fun setUpNavButtons() {
         button_back.setOnClickListener {
+            stopMediaPlayer()
             fragmentManager?.popBackStack()
             chatterActivity.loadOptionsMenu()
         }
         button_next.text = "Finish"
-        button_next.setOnClickListener { activity?.finish() }
+        button_next.setOnClickListener {
+            stopMediaPlayer()
+            chatterActivity.toggleRestartFlag(false)
+            activity?.finish()
+        }
+    }
+
+    private fun stopMediaPlayer() {
+        if (vocabAdapter.mediaPlayer.isPlaying) {
+            vocabAdapter.mediaPlayer.stop()
+            vocabAdapter.mediaPlayer.release()
+        }
+    }
+
+    fun clearVocab() {
+        audioSrc.clear()
+        spanishWords.clear()
+        translations.clear()
+        transliterations.clear()
+    }
+
+    fun clearSearchLists() {
+        searchAudioSrc.clear()
+        searchSpanishWords.clear()
+        searchTranslations.clear()
+        searchTransliterations.clear()
     }
 
     fun setUpVocabRecycler() {
-        val vocabListener = createVocabListener { dataSnapshot ->
+        clearVocab()
+        vocab_recycler.layoutManager = LinearLayoutManager(context)
+        context?.let {
+            vocabAdapter = VocabAdapter(it, audioSrc, spanishWords, translations, transliterations)
+            vocab_recycler.adapter = vocabAdapter
+        }
+        val botTitle = chatterActivity.getCurrentBotTitle()
+        val pathReference = database.child(VOCAB.plus(botTitle))
+        val vocabListener = baseChildEventListener { dataSnapshot ->
             spanishWords.add(dataSnapshot.child(SPANISH_WORD).value.toString())
             translations.add(dataSnapshot.child(TRANSLATION).value.toString())
             transliterations.add(dataSnapshot.child(TRANSLITERATION).value.toString())
+            audioSrc.add(dataSnapshot.child(AUDIO).value.toString())
+            vocab_recycler.adapter?.notifyDataSetChanged()
         }
-
+        pathReference.addChildEventListener(vocabListener)
     }
 
-    val createVocabListener: ((DataSnapshot) -> Unit) -> ValueEventListener = { doit ->
-        val vocabListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                doit(dataSnapshot)
-            }
+    fun setUpSearch(text: String) {
+        vocab_search_text.setText(text)
+        doSearch(text)
+    }
 
-            override fun onCancelled(data: DatabaseError) {
-                //TODO
+    private fun doSearch(text: String) {
+        clearSearchLists()
+        val end = spanishWords.size
+        for (i in 0 until end) {
+            var str = spanishWords[i]
+            if (chatterActivity.isMatch(text, str)) {
+                var curTranslation = translations[i]
+                var curTransliteration = transliterations[i]
+                var curAudio = audioSrc[i]
+                searchSpanishWords.add(str)
+                searchTranslations.add(curTranslation)
+                searchTransliterations.add(curTransliteration)
+                searchAudioSrc.add(curAudio)
             }
         }
-        vocabListener
-    }
-
-    fun setUpSpanishWords() {
-        spanishWords.add("tener")
-        spanishWords.add("hacer")
-        spanishWords.add("ver")
-        spanishWords.add("buscar")
-    }
-
-    fun setUpSpanishTranslations() {
-        translations.add("to have")
-        translations.add("to do")
-        translations.add("to see")
-        translations.add("to look")
-    }
-
-    fun setUpSpanishTransliterations() {
-        transliterations.add("(ten-er)")
-        transliterations.add("(has-er)")
-        transliterations.add("(ver)")
-        transliterations.add("(boos-car)")
+        clearVocab()
+        val searchEnd = searchSpanishWords.size
+        for (i in 0 until searchEnd) {
+            spanishWords.add(searchSpanishWords[i])
+            translations.add(searchTranslations[i])
+            transliterations.add(searchTransliterations[i])
+            audioSrc.add(searchAudioSrc[i])
+        }
+        vocab_recycler.adapter?.notifyDataSetChanged()
     }
 
     companion object {
         private const val SPANISH_WORD = "spanishWord"
         private const val TRANSLATION = "translation"
         private const val TRANSLITERATION = "transliteration"
+        private const val AUDIO = "audio"
+        private const val VOCAB = "Vocab/"
+        const val RESULT_SPEECH = 3
     }
 }

@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/top_bar_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -28,25 +28,12 @@
         app:layout_constraintStart_toEndOf="@id/home"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/easter_egg_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10"
-        android:textColor="#0084FF"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        android:layout_marginEnd="10dp"
-        app:layout_constraintEnd_toStartOf="@id/egg_image"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-         />
 
     <ImageView
-        android:id="@+id/egg_image"
+        android:id="@+id/top_bar_mic"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:src="@drawable/egg"
+        android:src="@drawable/mic"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"

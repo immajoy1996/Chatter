@@ -61,8 +61,8 @@ class SignInActivity : BaseChatActivity() {
     }
 
     override fun setUpTopBar() {
-        egg_image.visibility = View.INVISIBLE
-        easter_egg_count.visibility = View.INVISIBLE
+        top_bar_title.text = "Sign In"
+        top_bar_mic.visibility = View.INVISIBLE
     }
 
     override fun showFirstBotMessage() {
@@ -199,10 +199,6 @@ class SignInActivity : BaseChatActivity() {
             toggleRestartFlag(false)
             startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
         })
-    }
-
-    private fun toggleRestartFlag(flag: Boolean) {
-        this.shouldRestart = flag
     }
 
     private fun loadPasswordFragment() {

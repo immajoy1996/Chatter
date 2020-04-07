@@ -1,25 +1,33 @@
 package com.example.chatter
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.google.firebase.database.*
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.fragment_message_options.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
+
 
 class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
@@ -34,29 +42,34 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     private lateinit var easterEggFragment: EasterEggFragment
 
     private lateinit var database: DatabaseReference
-    lateinit var pathReference: DatabaseReference
 
     var currentPath = ""
 
     private var profileImgView: ImageView? = null
     private var translationImgView: CircleImageView? = null
-    private var audioImgView: CircleImageView? = null
     private var messageTextView: TextView? = null
 
     private lateinit var timerTask: TimerTask
+    private lateinit var botTitle: String
+
+    private var isPressed: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
-        setUpEasterEggListener()
         setUpStoryBoardFragments()
         setUpNavButtons()
         loadFirstStoryBoardFragment()
     }
 
     override fun setUpTopBar() {
+        top_bar_title.text = "Chatter"
+        top_bar_mic.setOnClickListener {
+            toggleIsChatterActivity(true)
+            startListening()
+        }
     }
 
     override fun showFirstBotMessage() {
@@ -94,20 +107,17 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         timerTask
     }
 
-    private fun setUpEasterEggListener() {
-        egg_image.setOnClickListener {
-            loadFragmentIntoRoot(AllEasterEggsFragment())
-        }
-    }
-
     private fun setUpStoryBoardFragments() {
-        val botTitle = intent.getStringExtra(BOT_TITLE)
+        botTitle = intent.getStringExtra(BOT_TITLE)
         storyBoardOneFragment = StoryBoardOneFragment.newInstance(botTitle)
         storyBoardTwoFragment = StoryBoardTwoFragment.newInstance(botTitle)
     }
 
     private fun setUpNavButtons() {
-        button_back.setOnClickListener { finish() }
+        button_back.setOnClickListener {
+            toggleRestartFlag(false)
+            finish()
+        }
         button_next.setOnClickListener {
             disposeListeners()
             supportFragmentManager.popBackStack()
@@ -383,6 +393,10 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         setConstraintsToLayout()
     }
 
+    fun getCurrentBotTitle(): String {
+        return botTitle
+    }
+
     private fun setUpSpaceView(spaceId: Int) {
         messageTextView = TextView(this)
         messageTextView?.apply {
@@ -420,6 +434,23 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
             constraintSet.constrainWidth(id, MESSAGE_BUBBLE_WIDTH)
         }
         addViewToLayout(messageTextView as TextView)
+    }
+
+    override fun onResults(results: Bundle?) {
+        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        if (isVocabFragment()) {
+            matches?.let {
+                vocabFragment.setUpSearch(it[0])
+            }
+            toggleIsVocabFragmentFlag(false)
+        } else if (isChatterActivity()) {
+            if (messageOptionsFragment.isVisible) {
+                matches?.let {
+                    messageOptionsFragment.selectOptionsWithVoice(it[0])
+                    toggleIsVocabFragmentFlag(false)
+                }
+            }
+        }
     }
 
     companion object {

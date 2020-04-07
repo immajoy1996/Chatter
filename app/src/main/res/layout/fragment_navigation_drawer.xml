@@ -43,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="immajoy1996@gmail.com"
+                android:text="immajoy1996"
                 android:textColor="#000000"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -95,28 +95,119 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/settings"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/drawer_settings_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/navigation_option"
-        android:gravity="center"
-        android:text="Settings"
-        android:textColor="#696969"
-        android:textSize="20sp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/header_layout" />
+        app:layout_constraintTop_toBottomOf="@id/header_layout">
 
-    <Button
-        android:id="@+id/my_subscription"
+        <ImageView
+            android:id="@+id/drawer_settings_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/settings"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/drawer_settings_text"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/drawer_settings_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Settings"
+            android:textAllCaps="false"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/drawer_my_subscription_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/navigation_option"
+        app:layout_constraintTop_toBottomOf="@id/drawer_settings_layout">
+
+        <ImageView
+            android:id="@+id/drawer_my_subscription_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/card"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/drawer_my_subscription_text"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/drawer_my_subscription_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="My Subscription"
+            android:textAllCaps="false"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/drawer_logout_text"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/navigation_option"
         android:gravity="center"
-        android:text="My Subscription"
+        android:text="Logout"
+        android:textAllCaps="false"
         android:textColor="#696969"
         android:textSize="20sp"
-        android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/settings" />
+        app:layout_constraintTop_toBottomOf="@id/drawer_my_subscription_layout" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/drawer_close_layout"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:background="@drawable/navigation_option"
+        app:layout_constraintTop_toBottomOf="@id/drawer_logout_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <ImageView
+            android:id="@+id/drawer_close_image"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/exit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/drawer_close_text"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/drawer_close_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Close"
+            android:textAllCaps="false"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

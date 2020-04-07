@@ -27,8 +27,8 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         home.setOnClickListener {
             loadNavigationDrawer()
         }
-        egg_image.visibility = View.INVISIBLE
-        easter_egg_count.visibility = View.INVISIBLE
+        top_bar_title.text = "Dashboard"
+        top_bar_mic.visibility = View.INVISIBLE
     }
 
     private fun setUpBotGridView() {
@@ -63,6 +63,10 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         val intent = Intent(this, ChatterActivity::class.java)
         intent.putExtra(BOT_TITLE, botTitle)
         startActivity(intent)
+    }
+
+    override fun onBackPressed() {
+        //no implementation
     }
 
     companion object {
