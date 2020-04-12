@@ -7,12 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import com.example.chatter.EnterUsernameFragment.Companion.CHOOSE_PASSWORD
+import com.example.chatter.EnterUsernameFragment.Companion.ENTER_EMAIL
 import com.example.chatter.EnterUsernameFragment.Companion.ENTER_PASSWORD
 import com.example.chatter.EnterUsernameFragment.Companion.ENTER_USERNAME
+import com.example.chatter.EnterUsernameFragment.Companion.REENTER_PASSWORD
+import com.example.chatter.NavigationDrawerFragment.Companion.USERS
+import com.example.chatter.SignInOptionsFragment.Companion.SIGN_IN
+import com.example.chatter.SignInOptionsFragment.Companion.SIGN_UP
+import com.example.chatter.SignInOptionsFragment.Companion.SIGN_UP_INDIVIDUAL
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.top_bar.*
@@ -22,9 +34,14 @@ import kotlin.concurrent.schedule
 class SignInActivity : BaseChatActivity() {
     private var scenario: Int? = null
     private var menuOptionsFragment = SignInOptionsFragment()
+    private var signUpOptionsFragment = SignUpOptionsFragment()
     private var signInErrorFragment = SignInErrorFragment()
     private var usernameFragment = EnterUsernameFragment.newInstance(ENTER_USERNAME)
     private var passwordFragment = EnterUsernameFragment.newInstance(ENTER_PASSWORD)
+    private var emailFragment = EnterUsernameFragment.newInstance(ENTER_EMAIL)
+    private var choosePasswordFragment = EnterUsernameFragment.newInstance(CHOOSE_PASSWORD)
+    private var reenterPasswordFragment = EnterUsernameFragment.newInstance(REENTER_PASSWORD)
+    private var enterPinFragment = EnterPinFragment()
     private var retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Retrieving options")
     private lateinit var signInPresenter: SignInPresenter
@@ -41,12 +58,34 @@ class SignInActivity : BaseChatActivity() {
 
     private var constraintSet = ConstraintSet()
 
-    val userMessagesFragmentArray = arrayListOf<Int>(0, 1)
-    val botMessagesArray = arrayListOf<String>(
+    private lateinit var auth: FirebaseAuth
+    private lateinit var databaseReference: DatabaseReference
+
+    val signInUserMessagesFragments =
+        arrayListOf<Int>(FRAGMENT_ENTER_USERNAME, FRAGMENT_ENTER_PASSWORD)
+    val signInbotMessages = arrayListOf<String>(
         "Ok. What's your username?",
         "Ok. What's your password?",
         "Ok, you're all set! Logging in."
     )
+
+    val signUpIndividualUserMessagesFragments =
+        arrayListOf<Int>(
+            FRAGMENT_ENTER_EMAIL,
+            FRAGMENT_CHOOSE_PASSWORD,
+            FRAGMENT_REENTER_PASSWORD,
+            FRAGMENT_ENTER_PIN
+        )
+    val signUpIndividualBotMessages = arrayListOf<String>(
+        "Ok. Enter your email.",
+        "Ok. Choose your password?",
+        "Ok, please reenter your password for confirmation.",
+        "Ok, you're all set! We sent a 4 digit pin to your email. Please enter it below."
+    )
+
+    var userMessagesFragmentArray =
+        arrayListOf<Int>()
+    var botMessagesArray = arrayListOf<String>()
 
     var userPosition = 0
     var botPosition = 0
@@ -54,7 +93,8 @@ class SignInActivity : BaseChatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
-        signInPresenter = SignInPresenter(this)
+        auth = FirebaseAuth.getInstance()
+        databaseReference = FirebaseDatabase.getInstance().reference
         setUpTopBar()
         initializeMessagesContainer()
         showFirstBotMessage()
@@ -114,8 +154,47 @@ class SignInActivity : BaseChatActivity() {
         getBotResponse()
     }
 
+    fun runMessageFlowSignUp(msg: String) {
+        handleNewMessageLogic(msg)
+        getBotResponseForSignUp()
+    }
+
     fun removeOptionsMenu() {
         supportFragmentManager.popBackStack()
+    }
+
+    fun setUserAndBotResponseArrays() {
+        botPosition = 0
+        userPosition = 0
+        botMessagesArray.clear()
+        userMessagesFragmentArray.clear()
+        when (scenario) {
+            SIGN_IN -> {
+                botMessagesArray = signInbotMessages
+                userMessagesFragmentArray = signInUserMessagesFragments
+            }
+            SIGN_UP_INDIVIDUAL -> {
+                botMessagesArray = signUpIndividualBotMessages
+                userMessagesFragmentArray = signUpIndividualUserMessagesFragments
+            }
+        }
+    }
+
+    fun getBotResponseForSignUp() {
+        removeOptionsMenu()
+        setTimerTask("showBotIsTyping", 700, {
+            addSpaceText()
+            showBotIsTypingView()
+        })
+
+        setTimerTask("getCurrentOptionsMenu", 2000, {
+            replaceBotIsTyping("How would you like to sign up?")
+            loadSignUpOptionsFragment()
+        })
+    }
+
+    private fun loadSignUpOptionsFragment() {
+        loadOptionsFragment(signUpOptionsFragment)
     }
 
     fun getBotResponse() {
@@ -160,17 +239,29 @@ class SignInActivity : BaseChatActivity() {
     private fun getCurrentOptionsMenu() {
         if (userPosition > userMessagesFragmentArray.size) return
         else if (userPosition == userMessagesFragmentArray.size) {
-            if (credentialsAreValid()) signIn()
+            if (credentialsAreValid()) signInExistingUser()
             else {
                 loadSignInErrorFragment()
             }
         } else {
             when (userMessagesFragmentArray[userPosition]) {
-                0 -> {
+                FRAGMENT_ENTER_USERNAME -> {
                     loadUsernameFragment()
                 }
-                1 -> {
+                FRAGMENT_ENTER_PASSWORD -> {
                     loadPasswordFragment()
+                }
+                FRAGMENT_ENTER_EMAIL -> {
+                    loadEmailFragment()
+                }
+                FRAGMENT_CHOOSE_PASSWORD -> {
+                    loadChoosePasswordFragment()
+                }
+                FRAGMENT_REENTER_PASSWORD -> {
+                    loadReenterPasswordFragment()
+                }
+                FRAGMENT_ENTER_PIN -> {
+                    loadEnterPinFragment()
                 }
             }
             userPosition++
@@ -178,7 +269,56 @@ class SignInActivity : BaseChatActivity() {
     }
 
     private fun credentialsAreValid(): Boolean {
-        return (username == "test" && password == "password")
+        return (username != null && password != null)
+    }
+
+    private fun navigateToUserDashboard() {
+        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Signing Up")
+        loadRetrievingOptionsFragment()
+        setTimerTask("signUp", 2000, {
+            removeRetrievingOptionsFragment()
+            toggleRestartFlag(false)
+            startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+        })
+    }
+
+    fun signUpNewUser() {
+        auth.createUserWithEmailAndPassword(username as String, password as String)
+            .addOnSuccessListener {
+                createUserDatabaseEntry(
+                    auth.uid as String,
+                    username as String,
+                    password as String,
+                    2000
+                )
+            }.addOnFailureListener {
+                Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
+                loadSignInErrorFragment()
+            }
+    }
+
+    private fun createUserDatabaseEntry(
+        userId: String,
+        email: String,
+        password: String,
+        pointsRemaining: Int
+    ) {
+        databaseReference.child(USERS.plus(userId)).setValue(User(email, password, pointsRemaining))
+            .addOnSuccessListener {
+                navigateToUserDashboard()
+            }.addOnFailureListener {
+                Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
+            }
+    }
+
+    fun signInExistingUser() {
+        auth.signInWithEmailAndPassword(username as String, password as String)
+            .addOnSuccessListener {
+                signIn()
+            }.addOnFailureListener {
+                Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
+                loadSignInErrorFragment()
+            }
     }
 
     fun signIn() {
@@ -215,6 +355,22 @@ class SignInActivity : BaseChatActivity() {
 
     private fun loadUsernameFragment() {
         loadOptionsFragment(usernameFragment)
+    }
+
+    private fun loadEmailFragment() {
+        loadOptionsFragment(emailFragment)
+    }
+
+    private fun loadChoosePasswordFragment() {
+        loadOptionsFragment(choosePasswordFragment)
+    }
+
+    private fun loadReenterPasswordFragment() {
+        loadOptionsFragment(reenterPasswordFragment)
+    }
+
+    private fun loadEnterPinFragment() {
+        loadOptionsFragment(enterPinFragment)
     }
 
     private fun loadSignInErrorFragment() {
@@ -408,5 +564,11 @@ class SignInActivity : BaseChatActivity() {
 
     companion object {
         const val SIGN_IN_SEQUENCE = 0
+        const val FRAGMENT_ENTER_USERNAME = 10
+        const val FRAGMENT_ENTER_PASSWORD = 20
+        const val FRAGMENT_ENTER_EMAIL = 30
+        const val FRAGMENT_CHOOSE_PASSWORD = 40
+        const val FRAGMENT_REENTER_PASSWORD = 50
+        const val FRAGMENT_ENTER_PIN = 60
     }
 }

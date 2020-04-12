@@ -3,7 +3,9 @@ package com.example.chatter
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_dashboard.*
 import kotlinx.android.synthetic.main.top_bar.*
@@ -12,13 +14,18 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     private lateinit var database: DatabaseReference
     private var titleList = ArrayList<String>()
     private var imageList = ArrayList<String>()
+    private var isEnabledInGuestMode = ArrayList<Boolean>()
     private var navigationDrawerFragment = NavigationDrawerFragment()
+
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+        auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
+        //setUpCategories()
         setUpBotGridView()
         setUpBots()
     }
@@ -28,12 +35,18 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
             loadNavigationDrawer()
         }
         top_bar_title.text = "Dashboard"
-        top_bar_mic.visibility = View.INVISIBLE
+        top_bar_mic.visibility = View.GONE
+        //category_spinner.visibility = View.VISIBLE
+    }
+
+    private fun setUpCategories() {
+        //val items = arrayListOf<String>("funny", "beginner")
+        //category_spinner.adapter = ArrayAdapter<String>(this, R.layout.category_item_layout, items)
     }
 
     private fun setUpBotGridView() {
         dashboard_recycler.layoutManager = GridLayoutManager(this, NUM_COLUMNS)
-        val botAdapter = BotAdapter(this, imageList, titleList)
+        val botAdapter = BotAdapter(this, imageList, titleList, isEnabledInGuestMode)
         dashboard_recycler.adapter = botAdapter
         dashboard_recycler.addItemDecoration(BotGridItemDecoration(BOT_ITEM_SPACING))
     }
@@ -46,14 +59,19 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
             .commit()
     }
 
+    private fun isGuestMode(): Boolean {
+        return true
+    }
+
     private fun setUpBots() {
         database.child("BotCatalog").addChildEventListener(createBotListener {
             val botImage = it.child("botImage").value.toString()
             val botTitle = it.child("botTitle").value.toString()
+            val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
             imageList.add(botImage)
             titleList.add(botTitle)
-
-            val botAdapter = BotAdapter(this, imageList, titleList)
+            isEnabledInGuestMode.add(isEnabledGuest)
+            val botAdapter = BotAdapter(this, imageList, titleList, isEnabledInGuestMode)
             dashboard_recycler.adapter = botAdapter
             dashboard_recycler?.adapter?.notifyDataSetChanged()
         })

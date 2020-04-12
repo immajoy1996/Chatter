@@ -1,19 +1,20 @@
 package com.example.chatter
 
+import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
+import android.view.animation.AnimationUtils
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintSet
-import com.google.firebase.database.*
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.fragment_message_options.*
-import kotlinx.android.synthetic.main.fragment_message_options.view.*
 import java.util.*
 import kotlin.concurrent.schedule
-import kotlin.concurrent.timer
 
 
 class MessageMenuOptionsFragment : BaseFragment() {
@@ -57,7 +58,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         }
     }
 
-    fun setUpOptionsMenu(currentPath: String) {
+    private fun setUpOptionsMenu(currentPath: String) {
         val pathA = currentPath + "optionA"
         val pathB = currentPath + "optionB"
         val pathC = currentPath + "optionC"
@@ -66,7 +67,11 @@ class MessageMenuOptionsFragment : BaseFragment() {
         setUpOptionMenuText(pathC, optionC)
     }
 
-    fun setUpMenuOptionClickListener(currentPath: String, option: TextView, optionType: String) {
+    private fun setUpMenuOptionClickListener(
+        currentPath: String,
+        option: TextView,
+        optionType: String
+    ) {
         val path = currentPath + optionType + "/"
         option.setOnClickListener {
             chatterActivity.let {
@@ -78,13 +83,13 @@ class MessageMenuOptionsFragment : BaseFragment() {
         }
     }
 
-    fun setUpAllOptionClickListeners(currentPath: String) {
+    private fun setUpAllOptionClickListeners(currentPath: String) {
         setUpMenuOptionClickListener(currentPath, optionA, "optionA")
         setUpMenuOptionClickListener(currentPath, optionB, "optionB")
         setUpMenuOptionClickListener(currentPath, optionC, "optionC")
     }
 
-    fun getBotResponse(path: String) {
+    private fun getBotResponse(path: String) {
         chatterActivity.removeOptionsMenu()
         val pathReference = database.child(path + "/botMessage")
         chatterActivity.disableNextButton()
@@ -102,7 +107,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         pathReference.addValueEventListener(messageListener)
     }
 
-    fun checkForEasterEggs() {
+    private fun checkForEasterEggs() {
         chatterActivity.currentPath.let {
             val pathReference = database.child(it)
             val easterEggListener = chatterActivity.baseChildEventListener { dataSnapshot ->
@@ -137,14 +142,36 @@ class MessageMenuOptionsFragment : BaseFragment() {
         when (text) {
             "hermano" -> {
                 optionA.performClick()
+                showScoreBoostAnimation(false)
             }
             "amigo" -> {
                 optionB.performClick()
+                showScoreBoostAnimation(false)
             }
             "gato" -> {
                 optionC.performClick()
+                showScoreBoostAnimation(false)
             }
         }
+    }
+
+    private fun showScoreBoostAnimation(fromEasterEgg: Boolean) {
+        chatterActivity.score_boost_layout.visibility = View.VISIBLE
+        if (fromEasterEgg) {
+            chatterActivity.score_boost.setTextColor(Color.WHITE)
+        }
+        val aniFade = AnimationUtils.loadAnimation(
+            context,
+            R.anim.fade_out
+        )
+        chatterActivity.score_boost_layout.startAnimation(aniFade)
+        aniFade.setAnimationListener(object : AnimationListener {
+            override fun onAnimationStart(arg0: Animation) {}
+            override fun onAnimationRepeat(arg0: Animation) {}
+            override fun onAnimationEnd(arg0: Animation) {
+                chatterActivity.score_boost_layout.visibility = View.GONE
+            }
+        })
     }
 
     companion object {

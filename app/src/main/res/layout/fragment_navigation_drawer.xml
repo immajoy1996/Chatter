@@ -39,7 +39,7 @@
                 app:layout_constraintTop_toBottomOf="@id/user_badge" />
 
             <TextView
-                android:id="@+id/username"
+                android:id="@+id/navigation_drawer_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -57,10 +57,10 @@
                 android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/username">
+                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_username">
 
                 <TextView
-                    android:id="@+id/user_score"
+                    android:id="@+id/navigation_drawer_user_score"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
@@ -69,14 +69,14 @@
                     android:textSize="20sp" />
 
                 <ImageView
-                    android:id="@+id/egg"
+                    android:id="@+id/navigation_drawer_egg"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="5dp"
                     android:src="@drawable/egg"
-                    app:layout_constraintBottom_toBottomOf="@id/user_score"
-                    app:layout_constraintStart_toEndOf="@id/user_score"
-                    app:layout_constraintTop_toTopOf="@id/user_score" />
+                    app:layout_constraintBottom_toBottomOf="@id/navigation_drawer_user_score"
+                    app:layout_constraintStart_toEndOf="@id/navigation_drawer_user_score"
+                    app:layout_constraintTop_toTopOf="@id/navigation_drawer_user_score" />
 
                 <TextView
                     android:id="@+id/remaining"
@@ -86,8 +86,17 @@
                     android:text="left"
                     android:textColor="#0084FF"
                     android:textSize="20sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/egg" />
+                    app:layout_constraintStart_toEndOf="@id/navigation_drawer_egg" />
+
+                <TextView
+                    android:id="@+id/until_next_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="until next level"
+                    android:textColor="#0084FF"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="@id/navigation_drawer_user_score"
+                    app:layout_constraintTop_toBottomOf="@id/remaining" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -106,23 +115,23 @@
             android:id="@+id/drawer_settings_image"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/settings"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/drawer_settings_text"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/drawer_settings_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="100dp"
             android:gravity="center"
             android:text="Settings"
             android:textAllCaps="false"
             android:textColor="#696969"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -139,50 +148,68 @@
             android:id="@+id/drawer_my_subscription_image"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/card"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/drawer_my_subscription_text"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/drawer_my_subscription_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="100dp"
             android:gravity="center"
             android:text="My Subscription"
             android:textAllCaps="false"
             android:textColor="#696969"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/drawer_logout_text"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/drawer_my_logout_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/navigation_option"
-        android:gravity="center"
-        android:text="Logout"
-        android:textAllCaps="false"
-        android:textColor="#696969"
-        android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/drawer_my_subscription_layout" />
+        app:layout_constraintTop_toBottomOf="@id/drawer_my_subscription_layout">
+
+        <ImageView
+            android:id="@+id/drawer_logout_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="30dp"
+            android:src="@drawable/logout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/drawer_logout_text"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginStart="100dp"
+            android:gravity="center"
+            android:text="Logout"
+            android:textAllCaps="false"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_close_layout"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:background="@drawable/navigation_option"
-        app:layout_constraintTop_toBottomOf="@id/drawer_logout_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        >
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/drawer_my_logout_layout">
 
         <ImageView
             android:id="@+id/drawer_close_image"

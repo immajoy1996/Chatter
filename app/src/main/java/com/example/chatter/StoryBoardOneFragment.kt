@@ -80,6 +80,7 @@ class StoryBoardOneFragment : Fragment() {
     private fun setUpNavButtons() {
         button_back.setOnClickListener {
             fragmentManager?.popBackStack()
+            (activity as? ChatterActivity)?.toggleRestartFlag(false)
             (activity as? ChatterActivity)?.finish()
         }
 

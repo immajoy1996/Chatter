@@ -1,6 +1,8 @@
 package com.example.chatter
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +19,8 @@ import kotlinx.android.synthetic.main.bot_layout.view.*
 class BotAdapter(
     val context: Context,
     var imageList: ArrayList<String>,
-    var botTitles: ArrayList<String>
+    var botTitles: ArrayList<String>,
+    var isGuestModeEnabled: ArrayList<Boolean>
 ) :
     RecyclerView.Adapter<BotAdapter.BotViewHolder>() {
 
@@ -34,7 +37,8 @@ class BotAdapter(
     override fun onBindViewHolder(holder: BotViewHolder, position: Int) {
         val imagePath = imageList[position]
         val title = botTitles[position]
-        holder.bind(imagePath, title)
+        var isAllowedInGuestMode = isGuestModeEnabled[position]
+        holder.bind(imagePath, title, isAllowedInGuestMode)
     }
 
     override fun getItemCount(): Int = botTitles.size
@@ -48,11 +52,14 @@ class BotAdapter(
             botTitle = view.title
         }
 
-        fun bind(imagePath: String, title: String) {
+        fun bind(imagePath: String, title: String, isAllowedInGuestMode: Boolean) {
             botImage?.let {
                 Glide.with(context)
                     .load(imagePath)
                     .into(it)
+            }
+            if (!isAllowedInGuestMode) {
+                botImage?.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
             }
             botTitle?.text = title
             setOnClickListener()

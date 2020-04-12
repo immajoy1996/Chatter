@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">Chatter</string>
+    <string name="category_prompt">Choose a party</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="categories">
+        <item>Beginner</item>
+        <item>Intermediate</item>
+        <item>Advanced</item>
+        <item>Famous People</item>
+        <item>Funny</item>
+        <item>Intellectual</item>
+        <item>Political</item>
+    </string-array>
 </resources>

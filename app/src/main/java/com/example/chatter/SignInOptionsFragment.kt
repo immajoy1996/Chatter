@@ -25,7 +25,13 @@ class SignInOptionsFragment : Fragment() {
         sign_in.setOnClickListener {
             (activity as? SignInActivity)?.let {
                 it.setScenario(SIGN_IN)
+                it.setUserAndBotResponseArrays()
                 it.runMessageFlow(sign_in.text.toString())
+            }
+        }
+        sign_up.setOnClickListener {
+            (activity as? SignInActivity)?.let {
+                it.runMessageFlowSignUp(sign_up.text.toString())
             }
         }
         proceed_as_guest.setOnClickListener {
@@ -37,8 +43,9 @@ class SignInOptionsFragment : Fragment() {
     }
 
     companion object {
-        private const val SIGN_IN = 1
-        private const val SIGN_UP = 2
-        private const val PROCEED_AS_GUEST = 3
+        const val SIGN_IN = 1
+        const val SIGN_UP = 2
+        const val PROCEED_AS_GUEST = 3
+        const val SIGN_UP_INDIVIDUAL = 4
     }
 }

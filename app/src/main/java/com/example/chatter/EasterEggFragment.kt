@@ -1,14 +1,18 @@
 package com.example.chatter
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bot_layout.*
 import kotlinx.android.synthetic.main.fragment_easter_egg.*
 
@@ -30,13 +34,13 @@ class EasterEggFragment : Fragment() {
         database = FirebaseDatabase.getInstance().reference
         setUpButtons()
         setUpViews()
+        showEasterEggAnimation()
     }
 
     private fun setUpButtons() {
         exit.setOnClickListener {
             (activity as? ChatterActivity)?.let {
                 it.closeEasterEggFragment()
-                //it.loadOptionsMenu()
             }
         }
     }
@@ -49,6 +53,23 @@ class EasterEggFragment : Fragment() {
                 .load(imageSrc)
                 .into(emotion)
         }
+    }
+
+    private fun showEasterEggAnimation() {
+        val aniFade = AnimationUtils.loadAnimation(
+            context,
+            R.anim.fade_out_long
+        )
+        easter_egg_layout.startAnimation(aniFade)
+        aniFade.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(arg0: Animation) {}
+            override fun onAnimationRepeat(arg0: Animation) {}
+            override fun onAnimationEnd(arg0: Animation) {
+                (activity as? ChatterActivity)?.let {
+                    it.closeEasterEggFragment()
+                }
+            }
+        })
     }
 
     companion object {

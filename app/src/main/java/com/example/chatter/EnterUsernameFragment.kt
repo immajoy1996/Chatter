@@ -44,15 +44,16 @@ class EnterUsernameFragment : Fragment() {
         submit.setOnClickListener {
             var userInput = user_input.text.toString()
             when (fragmentType) {
-                ENTER_USERNAME -> (activity as? SignInActivity)?.username = userInput
-                ENTER_PASSWORD -> (activity as? SignInActivity)?.password = userInput
+                ENTER_USERNAME, ENTER_EMAIL -> (activity as? SignInActivity)?.username = userInput
+                ENTER_PASSWORD, CHOOSE_PASSWORD -> (activity as? SignInActivity)?.password =
+                    userInput
             }
             (activity as? SignInActivity)?.let {
                 user_input.hideKeyboard()
                 it.runMessageFlow(user_input.text.toString())
             }
         }
-        restart.setOnClickListener{
+        restart.setOnClickListener {
             (activity as? SignInActivity)?.refreshSignInFlow()
         }
     }
@@ -60,8 +61,11 @@ class EnterUsernameFragment : Fragment() {
     companion object {
         fun newInstance(fragmentType: String): EnterUsernameFragment {
             when (fragmentType) {
-                ENTER_USERNAME -> return newInstance(fragmentType, "Enter your username")
+                ENTER_USERNAME -> return newInstance(fragmentType, "Enter your email")
                 ENTER_PASSWORD -> return newInstance(fragmentType, "Enter your password")
+                ENTER_EMAIL -> return newInstance(fragmentType, "Enter your email")
+                CHOOSE_PASSWORD -> return newInstance(fragmentType, "Choose your password")
+                REENTER_PASSWORD -> return newInstance(fragmentType, "Reenter your password")
             }
             return newInstance("ERROR", "")
         }
@@ -78,7 +82,10 @@ class EnterUsernameFragment : Fragment() {
             return fragment
         }
 
-        const val ENTER_USERNAME = "ENTER_USERNAME"
-        const val ENTER_PASSWORD = "ENTER_PASSWORD"
+        const val ENTER_USERNAME = "Enter username"
+        const val ENTER_PASSWORD = "Enter password"
+        const val ENTER_EMAIL = "Enter your email"
+        const val CHOOSE_PASSWORD = "Choose your password"
+        const val REENTER_PASSWORD = "Renter password"
     }
 }

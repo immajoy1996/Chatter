@@ -1,10 +1,8 @@
 package com.example.chatter
 
-import android.content.Intent
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
@@ -12,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
@@ -23,7 +20,6 @@ import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
-import kotlinx.android.synthetic.main.fragment_message_options.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
@@ -73,7 +69,8 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     }
 
     override fun showFirstBotMessage() {
-        val pathReference = database.child("botMessage")
+        currentPath = "$BOT_CONVERSATIONS/$botTitle/"
+        val pathReference = database.child(currentPath.plus("botMessage"))
         disableNextButton()
         val messageListener = baseValueEventListener { dataSnapshot ->
             val botMessage = dataSnapshot.value.toString()
@@ -459,10 +456,8 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         const val TEXT_SIZE_MESSAGE = 20f
         const val PROFILE_IMAGE_SIZE = 100
         const val MESSAGE_PADDING = 35
-        const val BOT_IS_TYPING_MESSAGE_SIZE = 17f
-        const val TRANSLATION_IMAGE_SPACING = 70
         const val TRANSLATION_IMAGE_SIZE = 100
-        const val BOT_CATALOG = "BOT_CATALOG"
         const val BOT_TITLE = "BOT_TITLE"
+        const val BOT_CONVERSATIONS = "BotConversations"
     }
 }
