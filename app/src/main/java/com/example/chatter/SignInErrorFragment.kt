@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.fragment_enter_username.*
 
 
 class SignInErrorFragment : Fragment() {
+    var errorMessage: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -19,8 +20,24 @@ class SignInErrorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        restart.setOnClickListener{
+        setUpErrorMessage()
+        restart.setOnClickListener {
             (activity as? SignInActivity)?.refreshSignInFlow()
+        }
+    }
+
+    private fun setUpErrorMessage() {
+        errorMessage?.let {
+            error.visibility = View.VISIBLE
+            error.text = errorMessage
+        }
+    }
+
+    companion object {
+        fun newInstance(errorMessage: String): SignInErrorFragment {
+            val fragment = SignInErrorFragment()
+            fragment.errorMessage = errorMessage
+            return fragment
         }
     }
 }

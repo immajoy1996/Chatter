@@ -10,6 +10,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import java.util.*
+import kotlin.concurrent.schedule
 
 abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
 
@@ -19,7 +20,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
     var isFirst = true
     var msgCount = 0
 
-    var timerTaskArray = arrayListOf<TimerTask>()
     var childEventListenerArray = arrayListOf<Pair<DatabaseReference, ChildEventListener>>()
     var valueEventListenerArray = arrayListOf<Pair<DatabaseReference, ValueEventListener>>()
     var shouldRestart = true
@@ -27,6 +27,8 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var speech: SpeechRecognizer
     private var isVocabFragment: Boolean = false
     private var isChatterActivity: Boolean = false
+    var timerTaskArray = arrayListOf<TimerTask>()
+    private lateinit var timerTask: TimerTask
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,6 +145,16 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
 
         }
         valueEventListener
+    }
+
+    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
+        timerTask = Timer(name, false).schedule(delay) {
+            runOnUiThread {
+                doit()
+            }
+        }
+        timerTaskArray.add(timerTask)
+        timerTask
     }
 
     fun disableNextButton() {

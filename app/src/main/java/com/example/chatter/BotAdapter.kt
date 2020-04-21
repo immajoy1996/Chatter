@@ -3,12 +3,14 @@ package com.example.chatter
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.text.Layout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.firebase.ui.storage.images.FirebaseImageLoader
@@ -20,6 +22,7 @@ class BotAdapter(
     val context: Context,
     var imageList: ArrayList<String>,
     var botTitles: ArrayList<String>,
+    var levelList: ArrayList<String>,
     var isGuestModeEnabled: ArrayList<Boolean>
 ) :
     RecyclerView.Adapter<BotAdapter.BotViewHolder>() {
@@ -37,8 +40,9 @@ class BotAdapter(
     override fun onBindViewHolder(holder: BotViewHolder, position: Int) {
         val imagePath = imageList[position]
         val title = botTitles[position]
+        var level = levelList[position]
         var isAllowedInGuestMode = isGuestModeEnabled[position]
-        holder.bind(imagePath, title, isAllowedInGuestMode)
+        holder.bind(imagePath, title, level, isAllowedInGuestMode)
     }
 
     override fun getItemCount(): Int = botTitles.size
@@ -46,23 +50,32 @@ class BotAdapter(
     inner class BotViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var botImage: ImageView? = null
         private var botTitle: TextView? = null
+        private var botLevel: TextView? = null
+        private var botLayout: ConstraintLayout? = null
 
         init {
             botImage = view.image
             botTitle = view.title
+            botLevel = view.bot_level
+            botLayout = view.bot_item_layout
         }
 
-        fun bind(imagePath: String, title: String, isAllowedInGuestMode: Boolean) {
+        fun bind(imagePath: String, title: String, level: String, isEnabled: Boolean) {
             botImage?.let {
                 Glide.with(context)
                     .load(imagePath)
                     .into(it)
             }
-            if (!isAllowedInGuestMode) {
-                botImage?.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
-            }
             botTitle?.text = title
-            setOnClickListener()
+            if (!isEnabled) {
+                botImage?.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+                itemView.setClickable(false)
+                botLevel?.visibility = View.VISIBLE
+                botLevel?.setText("Level: ".plus(level))
+            } else {
+                itemView.setClickable(true)
+                setOnClickListener()
+            }
         }
 
         fun setOnClickListener() {

@@ -13,11 +13,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/restart"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/refresh"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/user_input_title"
+            />
+
         <TextView
             android:id="@+id/user_input_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Enter your username"
+            android:textColor="#696969"
             android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -29,6 +41,7 @@
             android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:maxLines="1"
             android:background="@drawable/enter_username_background"
             android:cursorVisible="true"
             android:gravity="center"
@@ -51,16 +64,16 @@
             app:layout_constraintTop_toTopOf="@id/user_input" />
 
         <TextView
-            android:id="@+id/restart"
-            android:layout_width="wrap_content"
+            android:id="@+id/error"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Restart"
-            android:textSize="20sp"
-            android:textColor="#ffffff"
+            android:text="Sorry that username is already taken"
+            android:textSize="15sp"
+            android:textColor="#FF0000"
+            android:visibility="gone"
+            android:gravity="center"
             android:layout_marginTop="10dp"
-            android:background="@drawable/option_bubble"
             android:padding="10dp"
-            android:clickable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/user_input"

@@ -32,9 +32,16 @@ class EasterEggFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
+        updateUserTotalScore()
         setUpButtons()
         setUpViews()
         showEasterEggAnimation()
+    }
+
+    private fun updateUserTotalScore(){
+        points?.let {
+            (activity as? ChatterActivity)?.updateTotalScore(it)
+        }
     }
 
     private fun setUpButtons() {

@@ -9,13 +9,11 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_enter_username.*
 
-
 class EnterUsernameFragment : Fragment() {
 
     private var title: String? = null
     private var hint: String? = null
     private var fragmentType: String? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,19 +41,78 @@ class EnterUsernameFragment : Fragment() {
     private fun setUpButtons() {
         submit.setOnClickListener {
             var userInput = user_input.text.toString()
+            user_input.hideKeyboard()
             when (fragmentType) {
                 ENTER_USERNAME, ENTER_EMAIL -> (activity as? SignInActivity)?.username = userInput
                 ENTER_PASSWORD, CHOOSE_PASSWORD -> (activity as? SignInActivity)?.password =
                     userInput
+                REENTER_PASSWORD -> (activity as? SignInActivity)?.reenterPassword = userInput
             }
             (activity as? SignInActivity)?.let {
-                user_input.hideKeyboard()
-                it.runMessageFlow(user_input.text.toString())
+                when (fragmentType) {
+                    ENTER_USERNAME, ENTER_EMAIL -> {
+                        if (isValidEmail(userInput)) {
+                            it.runMessageFlow(userInput)
+                        }
+                    }
+                    ENTER_PASSWORD, CHOOSE_PASSWORD -> {
+                        if (isValidPassword(userInput)) {
+                            it.runMessageFlow(userInput)
+                        }
+                    }
+                    REENTER_PASSWORD -> {
+                        var myPassword = (activity as? SignInActivity)?.password
+                        if (myPassword != null) {
+                            if (isValidReenterPassword(userInput, myPassword)) {
+                                it.runMessageFlow(userInput)
+                            }
+                        }
+                    }
+                }
             }
         }
         restart.setOnClickListener {
             (activity as? SignInActivity)?.refreshSignInFlow()
         }
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        if (email.isEmpty()) {
+            showError("Your email cannot be empty")
+            return false
+        }
+        hideErrorView()
+        return true
+    }
+
+    private fun isValidPassword(password: String): Boolean {
+        if (password.isEmpty()) {
+            showError("Your password cannot be empty")
+            return false
+        } else if (password.length < 6) {
+            showError("Your password must be at least 6 characters")
+            return false
+        }
+        hideErrorView()
+        return true
+    }
+
+    private fun isValidReenterPassword(reenterPassword: String, password: String): Boolean {
+        if (reenterPassword != password) {
+            showError("Your passwords must match")
+            return false
+        }
+        hideErrorView()
+        return true
+    }
+
+    private fun showError(errorMsg: String) {
+        error.visibility = View.VISIBLE
+        error.text = errorMsg
+    }
+
+    private fun hideErrorView() {
+        error.visibility = View.GONE
     }
 
     companion object {

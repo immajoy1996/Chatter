@@ -6,10 +6,19 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/restart"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/refresh"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
 
         <TextView
             android:id="@+id/please_enter_title"
@@ -18,11 +27,13 @@
             android:layout_marginTop="10dp"
             android:gravity="center"
             android:padding="5dp"
+            android:textColor="#696969"
             android:text="Please enter the verification code sent to ******@gmail.com"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/restart"
+            />
 
         <com.chaos.view.PinView
             android:id="@+id/firstPinView"
@@ -35,6 +46,7 @@
             android:textColor="#696969"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:layout_marginBottom="5dp"
             app:cursorColor="#696969"
             app:cursorWidth="2dp"
             app:hideLineWhenFilled="false"
@@ -48,15 +60,45 @@
             app:layout_constraintStart_toStartOf="parent"
             />
 
+        <TextView
+            android:id="@+id/resend_pin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#0084FF"
+            android:text="Resend"
+            android:textSize="15sp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toEndOf="@id/firstPinView"
+            app:layout_constraintBottom_toBottomOf="@id/firstPinView"
+            />
+
         <Button
             android:id="@+id/validate_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="30dp"
             android:text="Validate"
+            android:textColor="#ffffff"
+            android:background="@drawable/message_bubble"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/pin_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#FF0000"
+            android:text="Invalid pin"
+            android:textSize="15sp"
+            android:layout_marginTop="5dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/validate_button"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

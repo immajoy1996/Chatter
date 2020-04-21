@@ -15,6 +15,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         >
 
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/restart"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/refresh"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
         <Button
             android:id="@+id/sign_in"
             android:layout_width="350dp"
@@ -25,10 +34,10 @@
             android:background="@drawable/option_bubble"
             android:gravity="center"
             android:textSize="20sp"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/restart"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-
             ></Button>
 
         <Button

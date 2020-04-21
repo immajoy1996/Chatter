@@ -1,8 +1,14 @@
 package com.example.chatter
 
 import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -29,6 +35,10 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
+import javax.mail.*
+import javax.mail.Message
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
 import kotlin.concurrent.schedule
 
 class SignInActivity : BaseChatActivity() {
@@ -89,10 +99,14 @@ class SignInActivity : BaseChatActivity() {
 
     var userPosition = 0
     var botPosition = 0
+    var pin: String? = null
+
+    private lateinit var appExecutors: AppExecutors
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
+        appExecutors = AppExecutors()
         auth = FirebaseAuth.getInstance()
         databaseReference = FirebaseDatabase.getInstance().reference
         setUpTopBar()
@@ -146,7 +160,41 @@ class SignInActivity : BaseChatActivity() {
     }
 
     private fun showBotIsTypingView() {
-        handleNewMessageLogic("bot is typing ...")
+        val setStr = "bot is typing"
+        handleNewMessageLogic(setStr)
+        val botIsTypingId = getMessageTextBubbleId()
+        var botIsTypingTextView: TextView = findViewById<TextView>(botIsTypingId)
+        showTypingAnimation(botIsTypingTextView, 300)
+    }
+
+    private fun showTypingAnimation(botIsTypingTextView: TextView, delay: Long) {
+        var typingMessage = "bot is typing ".plus("...")
+        val handler = Handler()
+        var start = "bot is typing ".length
+        var pos = 0
+        val characterAdder: Runnable = object : Runnable {
+            override fun run() {
+                if (botIsTypingTextView.text.contains("bot is typing")) {
+                    var setStr = typingMessage.subSequence(0, start + pos + 1)
+                    val spannableString = SpannableString(setStr)
+                    spannableString.setSpan(
+                        ForegroundColorSpan(Color.BLACK),
+                        setStr.length - 1,
+                        setStr.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    botIsTypingTextView.setText(spannableString)
+                    pos++
+                    if (pos == 3) {
+                        pos = 0
+                    }
+                    handler.postDelayed(this, delay)
+                }
+            }
+        }
+
+        handler.removeCallbacks(characterAdder);
+        handler.postDelayed(characterAdder, delay)
     }
 
     fun runMessageFlow(msg: String) {
@@ -180,7 +228,7 @@ class SignInActivity : BaseChatActivity() {
         }
     }
 
-    fun getBotResponseForSignUp() {
+    private fun getBotResponseForSignUp() {
         removeOptionsMenu()
         setTimerTask("showBotIsTyping", 700, {
             addSpaceText()
@@ -210,21 +258,11 @@ class SignInActivity : BaseChatActivity() {
         })
     }
 
-    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
-        timerTask = Timer(name, false).schedule(delay) {
-            runOnUiThread {
-                doit()
-            }
-        }
-        timerTaskArray.add(timerTask)
-        timerTask
-    }
-
-    fun loadRetrievingOptionsFragment() {
+    private fun loadRetrievingOptionsFragment() {
         loadFragment(retrievingOptionsFragment)
     }
 
-    fun removeRetrievingOptionsFragment() {
+    private fun removeRetrievingOptionsFragment() {
         supportFragmentManager.popBackStack()
     }
 
@@ -241,7 +279,7 @@ class SignInActivity : BaseChatActivity() {
         else if (userPosition == userMessagesFragmentArray.size) {
             if (credentialsAreValid()) signInExistingUser()
             else {
-                loadSignInErrorFragment()
+                loadSignInErrorFragment("Username and password cannot be empty")
             }
         } else {
             when (userMessagesFragmentArray[userPosition]) {
@@ -261,10 +299,67 @@ class SignInActivity : BaseChatActivity() {
                     loadReenterPasswordFragment()
                 }
                 FRAGMENT_ENTER_PIN -> {
-                    loadEnterPinFragment()
+                    if (username != null && password != null) {
+                        sendEmail(username as String)
+                        loadEnterPinFragment()
+                    }
                 }
             }
             userPosition++
+        }
+    }
+
+    private fun createRandomPin(): String {
+        var result = ""
+        for (i in 1..4) {
+            result = result.plus((Math.random() * 10).toInt().toString())
+        }
+        return result
+    }
+
+    fun sendEmail(email: String) {
+        appExecutors.diskIO().execute {
+            val props = System.getProperties()
+            props.put("mail.smtp.host", "smtp.gmail.com")
+            props.put("mail.smtp.socketFactory.port", "465")
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory")
+            props.put("mail.smtp.auth", "true")
+            props.put("mail.smtp.port", "465")
+
+            val session = Session.getInstance(props,
+                object : javax.mail.Authenticator() {
+                    //Authenticating the password
+                    override fun getPasswordAuthentication(): PasswordAuthentication {
+                        return PasswordAuthentication("ijoy4136@gmail.com", "ch#Ristos33")
+                    }
+                })
+
+            try {
+                //Creating MimeMessage object
+                val mm = MimeMessage(session)
+                //Setting sender address
+                mm.setFrom(InternetAddress("ijoy4136@gmail.com"))
+                //Adding receiver
+                mm.addRecipient(
+                    Message.RecipientType.TO,
+                    InternetAddress(email)
+                )
+                //Adding subject
+                mm.subject = "Your Chatter Pin"
+                //Adding message
+                pin = createRandomPin()
+                mm.setText("Your pin is ".plus(pin))
+
+                //Sending email
+                Transport.send(mm)
+
+                appExecutors.mainThread().execute {
+                    //Something that should be executed on main thread.
+                }
+
+            } catch (e: MessagingException) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -273,8 +368,6 @@ class SignInActivity : BaseChatActivity() {
     }
 
     private fun navigateToUserDashboard() {
-        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Signing Up")
-        loadRetrievingOptionsFragment()
         setTimerTask("signUp", 2000, {
             removeRetrievingOptionsFragment()
             toggleRestartFlag(false)
@@ -283,6 +376,8 @@ class SignInActivity : BaseChatActivity() {
     }
 
     fun signUpNewUser() {
+        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Signing Up")
+        loadRetrievingOptionsFragment()
         auth.createUserWithEmailAndPassword(username as String, password as String)
             .addOnSuccessListener {
                 createUserDatabaseEntry(
@@ -292,8 +387,8 @@ class SignInActivity : BaseChatActivity() {
                     2000
                 )
             }.addOnFailureListener {
-                Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
-                loadSignInErrorFragment()
+                removeRetrievingOptionsFragment()
+                loadSignInErrorFragment(it.localizedMessage)
             }
     }
 
@@ -311,19 +406,19 @@ class SignInActivity : BaseChatActivity() {
             }
     }
 
-    fun signInExistingUser() {
+    private fun signInExistingUser() {
+        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Logging In")
+        loadRetrievingOptionsFragment()
         auth.signInWithEmailAndPassword(username as String, password as String)
             .addOnSuccessListener {
                 signIn()
             }.addOnFailureListener {
-                Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
-                loadSignInErrorFragment()
+                removeRetrievingOptionsFragment()
+                loadSignInErrorFragment(it.localizedMessage)
             }
     }
 
     fun signIn() {
-        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Logging In")
-        loadRetrievingOptionsFragment()
         setTimerTask("signIn", 2000, {
             removeRetrievingOptionsFragment()
             toggleRestartFlag(false)
@@ -337,7 +432,9 @@ class SignInActivity : BaseChatActivity() {
         setTimerTask("signInAsGuest", 2000, {
             removeRetrievingOptionsFragment()
             toggleRestartFlag(false)
-            startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+            var intent = Intent(this@SignInActivity, DashboardActivity::class.java)
+            intent.putExtra("GUEST_MODE", true)
+            startActivity(intent)
         })
     }
 
@@ -373,7 +470,8 @@ class SignInActivity : BaseChatActivity() {
         loadOptionsFragment(enterPinFragment)
     }
 
-    private fun loadSignInErrorFragment() {
+    private fun loadSignInErrorFragment(errorMessage: String) {
+        signInErrorFragment = SignInErrorFragment.newInstance(errorMessage)
         supportFragmentManager
             .beginTransaction()
             .replace(optionsPopupContainer.id, signInErrorFragment)
@@ -527,7 +625,7 @@ class SignInActivity : BaseChatActivity() {
             setId(spaceId)
             text = "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
                     "dfsdfdsfdsfdsfdsfdsfdsdsfdsfds" +
-                    "dsfdsfdsfds"
+                    "dsfdsfdsfdshelloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd"
             textSize = ChatterActivity.TEXT_SIZE_MESSAGE
             isFocusableInTouchMode = true
             requestFocus()

@@ -4,7 +4,21 @@
     android:layout_height="125dp"
     android:background="@drawable/message_bubble_selector"
     android:clickable="true"
+    android:id="@+id/bot_item_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/bot_level"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Level: Rook"
+        android:layout_marginTop="10dp"
+        android:textColor="#0084FF"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <ImageView
         android:id="@+id/image"

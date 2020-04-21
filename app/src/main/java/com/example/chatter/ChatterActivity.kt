@@ -1,28 +1,31 @@
 package com.example.chatter
 
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
+import android.os.Handler
 import android.speech.SpeechRecognizer
+import android.text.Spannable
 import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
-import java.util.*
-import kotlin.concurrent.schedule
 
 
 class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
@@ -37,23 +40,26 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     private lateinit var storyBoardTwoFragment: StoryBoardTwoFragment
     private lateinit var easterEggFragment: EasterEggFragment
 
-    private lateinit var database: DatabaseReference
-
     var currentPath = ""
 
     private var profileImgView: ImageView? = null
     private var translationImgView: CircleImageView? = null
     private var messageTextView: TextView? = null
 
-    private lateinit var timerTask: TimerTask
     private lateinit var botTitle: String
 
-    private var isPressed: Boolean = false
+    private var auth = FirebaseAuth.getInstance()
+    private lateinit var database: DatabaseReference
+    private lateinit var preferences: Preferences
+
+    var botMessages = arrayListOf<String>()
+    var userMessages = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
+        preferences = Preferences(this)
         setUpTopBar()
         setUpStoryBoardFragments()
         setUpNavButtons()
@@ -94,14 +100,131 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         setConstraintsToLayout()
     }
 
-    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
-        timerTask = Timer(name, false).schedule(delay) {
-            runOnUiThread {
-                doit()
-            }
+    fun refreshChatMessages() {
+        finish()
+        overridePendingTransition(0, 0);
+        startActivity(intent)
+        overridePendingTransition(0, 0);
+    }
+
+    private fun resetStoredMessageChat() {
+        auth.currentUser?.uid?.let {
+            preferences.resetMessageChat(it, botTitle)
         }
-        timerTaskArray.add(timerTask)
-        timerTask
+    }
+
+    private fun retrieveSavedChatState() {
+        auth.currentUser?.uid?.let {
+            showFirstBotMessage()
+            /*currentPath = preferences.getStoredPath(it, botTitle) ?: ""
+            if (currentPath.isNotEmpty()) {
+                var result = preferences.getStoredMessages(it, botTitle)
+                botMessages = result.first
+                userMessages = result.second
+                restoreMessages()
+            } else {
+                showFirstBotMessage()
+            }*/
+        }
+    }
+
+    private fun restoreMessages() {
+        var bm = 0
+        var um = 0
+        var isBotsTurn = true
+        while (bm < botMessages.size && um < userMessages.size) {
+            Log.d("Whose turn ", "" + isBotsTurn)
+            if (isBotsTurn) {
+                handleNewMessageLogic(botMessages[bm++])
+            } else {
+                handleNewMessageLogic(userMessages[um++])
+            }
+            isBotsTurn = !isBotsTurn
+        }
+
+        messagesInnerLayout.findViewById<TextView>(newMsgId).isFocusableInTouchMode
+        messagesInnerLayout.findViewById<TextView>(newMsgId).requestFocus()
+        if ((bm + um) % 2 == 0) {
+            getBotResponse(currentPath)
+        } else {
+            loadOptionsMenu()
+        }
+    }
+
+    private fun getBotResponse(path: String) {
+        val pathReference = database.child(path.plus("/botMessage"))
+        disableNextButton()
+        val messageListener = baseValueEventListener { dataSnapshot ->
+            val botMessage = dataSnapshot.value.toString()
+            setTimerTask("showBotIsTyping", 700, {
+                addSpaceText()
+                showBotIsTypingView()
+            })
+            setTimerTask("loadOptionsMenu", 2000, {
+                replaceBotIsTyping(botMessage)
+                if (preferences.getEnglishTranslation(botMessage).isEmpty()) {
+                    getAndStoreTranslation(botMessage, path, true)
+                }
+                if (preferences.getAudio(botMessage).isEmpty()) {
+                    getAndStoreAudio(botMessage, path, true)
+                }
+                //addBotMessages(botMessage)
+                loadOptionsMenu()
+                //storeChatMessages()
+            })
+        }
+        pathReference.addListenerForSingleValueEvent(messageListener)
+    }
+
+    fun getAndStoreTranslation(botMessage: String, path: String, isBotResponse: Boolean) {
+        var translationRef: DatabaseReference? = null
+        if (isBotResponse) {
+            translationRef = database.child(path.plus("/botTranslation"))
+        } else {
+            translationRef = database.child(path.plus("/translation"))
+        }
+        val translationListener = baseValueEventListener { dataSnapshot ->
+            val translation = dataSnapshot.value.toString()
+            preferences.storeEnglishTranslations(botMessage, translation)
+            preferences.storeSpanishTranslations(translation, botMessage)
+        }
+        translationRef.addListenerForSingleValueEvent(translationListener)
+    }
+
+    fun getAndStoreAudio(botMessage: String, path: String, isBotResponse: Boolean) {
+        var audioRef: DatabaseReference? = null
+        if (isBotResponse) {
+            audioRef = database.child(path.plus("/botAudio"))
+        } else {
+            audioRef = database.child(path.plus("/audio"))
+        }
+
+        val audioListener = baseValueEventListener { dataSnapshot ->
+            val audio = dataSnapshot.value.toString()
+            preferences.storeAudios(botMessage, audio)
+        }
+        audioRef.addListenerForSingleValueEvent(audioListener)
+    }
+
+
+    fun storeCurrentPath() {
+        auth.currentUser?.uid?.let {
+            preferences.storeChatStatePath(it, botTitle, currentPath)
+        }
+    }
+
+    fun addUserMessage(str: String) {
+        userMessages.add(str)
+    }
+
+    fun addBotMessages(str: String) {
+        botMessages.add(str)
+    }
+
+    fun storeChatMessages() {
+        auth.currentUser?.uid?.let {
+            preferences.storeChatMessages(it, botTitle, botMessages, userMessages)
+        }
     }
 
     private fun setUpStoryBoardFragments() {
@@ -124,7 +247,8 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
     override fun onStoriesFinished() {
         initializeMessagesContainer()
-        showFirstBotMessage()
+        //resetStoredMessageChat()
+        retrieveSavedChatState()
     }
 
     fun closeEasterEggFragment() {
@@ -134,11 +258,11 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         )
     }
 
-    fun loadBotDescriptionFragment() {
+    private fun loadBotDescriptionFragment() {
         loadFragmentIntoRoot(BotDescriptionFragment())
     }
 
-    fun loadVocabFragment() {
+    private fun loadVocabFragment() {
         supportFragmentManager
             .beginTransaction()
             .replace(root_container.id, vocabFragment)
@@ -195,7 +319,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         supportFragmentManager.popBackStack()
     }
 
-    fun addGeneralConstraintsForProfileImageAndMessageText() {
+    private fun addGeneralConstraintsForProfileImageAndMessageText() {
         var position = -1
         if (isFirst) position = ConstraintSet.TOP
         else position = ConstraintSet.BOTTOM
@@ -246,7 +370,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         }
     }
 
-    fun addConstraintsForMessageTextView() {
+    private fun addConstraintsForMessageTextView() {
         messageTextView?.apply {
             constraintSet.constrainHeight(id, ViewGroup.LayoutParams.WRAP_CONTENT)
             constraintSet.constrainWidth(id, MESSAGE_BUBBLE_WIDTH)
@@ -254,22 +378,25 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         addViewToLayout(messageTextView as TextView)
     }
 
-    fun setUpMessageBubbleClickListener() {
-        val copyPath = currentPath
-        val copySide = newSide
-        val copyMessageId = getMessageTextBubbleId()
+    private fun setUpMessageBubbleClickListener() {
         val textView = messageTextView
         textView?.setOnClickListener {
-            //(messagesInnerLayout.getViewById(copyMessageId) as TextView).text = "translating ... "
-            showTranslation(copySide, copyPath, copyMessageId)
+            val messageText = textView.text.toString()
+            var translationEn = preferences.getEnglishTranslation(messageText)
+            if (translationEn.isNotEmpty()) {
+                textView.text = translationEn
+            } else {
+                var translationEs = preferences.getSpanishTranslation(messageText)
+                textView.text = translationEs
+            }
         }
     }
 
-    fun getMessageTextBubbleId(): Int {
+    private fun getMessageTextBubbleId(): Int {
         return 10 * msgCount
     }
 
-    fun showTranslation(side: String, path: String, msgId: Int) {
+    private fun showTranslation(side: String, path: String, msgId: Int) {
         val curText = (messagesInnerLayout.getViewById(msgId) as TextView).text
         var translationPath = ""
         var shouldTranslateToSpanish: Boolean = false
@@ -295,7 +422,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         firstMessageReference.addValueEventListener(messageListener)
     }
 
-    fun addConstraintToTranslationImageView() {
+    private fun addConstraintToTranslationImageView() {
         translationImgView?.apply {
             constraintSet.constrainHeight(id, TRANSLATION_IMAGE_SIZE)
             constraintSet.constrainWidth(id, TRANSLATION_IMAGE_SIZE)
@@ -303,7 +430,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         }
     }
 
-    fun setupProfileImgView() {
+    private fun setupProfileImgView() {
         profileImgView = ImageView(this)
         profileImgView?.apply {
             id = getIdProfileImageView()
@@ -312,7 +439,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         }
     }
 
-    fun setUpMessageTextView(msg: String) {
+    private fun setUpMessageTextView(msg: String, shouldFocus: Boolean = true) {
         messageTextView = TextView(this)
         messageTextView?.apply {
             if (newSide == "right") {
@@ -370,7 +497,41 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     }
 
     fun showBotIsTypingView() {
-        handleNewMessageLogic("bot is typing ...")
+        val setStr = "bot is typing"
+        handleNewMessageLogic(setStr)
+        val botIsTypingId = getMessageTextBubbleId()
+        var botIsTypingTextView: TextView = findViewById<TextView>(botIsTypingId)
+        showTypingAnimation(botIsTypingTextView, 300)
+    }
+
+    private fun showTypingAnimation(botIsTypingTextView: TextView, delay: Long) {
+        var typingMessage = "bot is typing ".plus("...")
+        val handler = Handler()
+        var start = "bot is typing ".length
+        var pos = 0
+        val characterAdder: Runnable = object : Runnable {
+            override fun run() {
+                if (botIsTypingTextView.text.contains("bot is typing")) {
+                    var setStr = typingMessage.subSequence(0, start + pos + 1)
+                    val spannableString = SpannableString(setStr)
+                    spannableString.setSpan(
+                        ForegroundColorSpan(Color.BLACK),
+                        setStr.length - 1,
+                        setStr.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    botIsTypingTextView.setText(spannableString)
+                    pos++
+                    if (pos == 3) {
+                        pos = 0
+                    }
+                    handler.postDelayed(this, delay)
+                }
+            }
+        }
+
+        handler.removeCallbacks(characterAdder);
+        handler.postDelayed(characterAdder, delay)
     }
 
     fun replaceBotIsTyping(msg: String) {
@@ -394,7 +555,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         return botTitle
     }
 
-    private fun setUpSpaceView(spaceId: Int) {
+    private fun setUpSpaceView(spaceId: Int, shouldFocus: Boolean = true) {
         messageTextView = TextView(this)
         messageTextView?.apply {
             if (newSide == "left") {
@@ -405,7 +566,9 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
             setId(spaceId)
             text = "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
                     "dfsdfdsfdsfdsfdsfdsfdsdsfdsfds" +
-                    "dsfdsfdsfds"
+                    "dsfdsfdsfds" +
+                    "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
+                    "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd"
             textSize = TEXT_SIZE_MESSAGE
             isFocusableInTouchMode = true
             requestFocus()
@@ -450,6 +613,50 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         }
     }
 
+    fun updateTotalScore(pointsAdded: Long) {
+        val userUid = auth.currentUser?.uid.toString()
+        val pathRef = database.child(USERS).child(userUid).child("pointsRemaining")
+        val pointsListener = baseValueEventListener { dataSnapshot ->
+            val totalScore = dataSnapshot.value as Long
+            Toast.makeText(this, "" + totalScore, Toast.LENGTH_SHORT).show()
+            if (totalScore > pointsAdded) {
+                addScoreBoostToTotalScore(userUid, totalScore - pointsAdded)
+            } else {
+                updateLevel(userUid)
+            }
+        }
+        pathRef.addListenerForSingleValueEvent(pointsListener)
+    }
+
+    private fun addScoreBoostToTotalScore(userUid: String, score: Long) {
+        database.child(USERS).child(userUid).child("pointsRemaining").setValue(score)
+        Toast.makeText(this, "" + score, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setNextLevel(userUid: String, nextLevel: String) {
+        database.child(USERS).child(userUid).child("level").setValue(nextLevel)
+        preferences.storeUserLevel(nextLevel)
+    }
+
+    private fun updateLevel(userUid: String) {
+        val pathRef = database.child(USERS).child(userUid).child("level")
+        val levelListener = baseValueEventListener { dataSnapshot ->
+            val curLevel = dataSnapshot.value.toString()
+            val nextLevel = getNextLevel(curLevel)
+            setNextLevel(userUid, nextLevel)
+            addScoreBoostToTotalScore(userUid, getRemainingPoints(nextLevel))
+        }
+        pathRef.addListenerForSingleValueEvent(levelListener)
+    }
+
+    private fun getNextLevel(curLevel: String): String {
+        return preferences.getNextLevel(curLevel)
+    }
+
+    private fun getRemainingPoints(curLevel: String): Long {
+        return preferences.getCurrentLevelPoints(curLevel)
+    }
+
     companion object {
         const val MESSAGE_VERTICAL_SPACING = 100
         const val MESSAGE_BUBBLE_WIDTH = 800
@@ -459,5 +666,6 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         const val TRANSLATION_IMAGE_SIZE = 100
         const val BOT_TITLE = "BOT_TITLE"
         const val BOT_CONVERSATIONS = "BotConversations"
+        const val USERS = "Users"
     }
 }

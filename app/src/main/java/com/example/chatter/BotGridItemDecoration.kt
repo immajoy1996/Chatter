@@ -4,11 +4,14 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class BotGridItemDecoration(space: Int) : RecyclerView.ItemDecoration() {
-    private var spacing: Int? = null
+class BotGridItemDecoration(horizontalSpace: Int, verticalSpace: Int) :
+    RecyclerView.ItemDecoration() {
+    private var horizontalSpacing: Int? = null
+    private var verticalSpacing: Int? = null
 
     init {
-        spacing = space
+        horizontalSpacing = horizontalSpace
+        verticalSpacing = verticalSpace
     }
 
     override fun getItemOffsets(
@@ -18,9 +21,11 @@ class BotGridItemDecoration(space: Int) : RecyclerView.ItemDecoration() {
         state: RecyclerView.State
     ) {
 
-        spacing?.let {
+        horizontalSpacing?.let {
             outRect.left = it
-            outRect.top=it
+        }
+        verticalSpacing?.let {
+            outRect.top = it
         }
     }
 }

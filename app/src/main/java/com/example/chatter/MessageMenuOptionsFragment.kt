@@ -16,15 +16,14 @@ import kotlinx.android.synthetic.main.fragment_message_options.*
 import java.util.*
 import kotlin.concurrent.schedule
 
-
 class MessageMenuOptionsFragment : BaseFragment() {
-
     private val chatterActivity by lazy {
         activity as ChatterActivity
     }
 
     private lateinit var database: DatabaseReference
     private lateinit var timerTask: TimerTask
+    private lateinit var preferences: Preferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,8 +35,40 @@ class MessageMenuOptionsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
+        context?.let {
+            preferences = Preferences(it)
+        }
+        setUpRestartButton()
+        checkIfConversationEnd()
+    }
+
+    private fun setUpMenu() {
+        makeLayoutVisible()
         initializeScrollContainerAndOptionButtons()
         checkForEasterEggs()
+    }
+
+    private fun makeLayoutVisible() {
+        options_menu_layout.visibility = View.VISIBLE
+        conversation_end_message.visibility = View.GONE
+    }
+
+    private fun checkIfConversationEnd() {
+        val pathRef = database.child(chatterActivity.currentPath)
+        val messageListener = baseValueEventListener { dataSnapshot ->
+            if (!dataSnapshot.hasChild("optionA")) {
+                showErrorMessage()
+            } else {
+                setUpMenu()
+            }
+        }
+        pathRef.addListenerForSingleValueEvent(messageListener)
+    }
+
+    private fun setUpRestartButton() {
+        restart.setOnClickListener {
+            chatterActivity.refreshChatMessages()
+        }
     }
 
     val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
@@ -77,7 +108,11 @@ class MessageMenuOptionsFragment : BaseFragment() {
             chatterActivity.let {
                 it.currentPath = path
                 chatterActivity.removeOptionsMenu()
-                it.handleNewMessageLogic(option.text.toString())
+                val userText = option.text.toString()
+                chatterActivity.storeCurrentPath()
+                chatterActivity.addUserMessage(userText)
+                chatterActivity.storeChatMessages()
+                it.handleNewMessageLogic(userText)
                 getBotResponse(it.currentPath)
             }
         }
@@ -99,12 +134,18 @@ class MessageMenuOptionsFragment : BaseFragment() {
                 chatterActivity.addSpaceText()
                 chatterActivity.showBotIsTypingView()
             })
-            setTimerTask("loadOptionsMenu", 2000, {
+            setTimerTask("loadOptionsMenu", 3000, {
                 chatterActivity.replaceBotIsTyping(botMessage)
+                if (preferences.getEnglishTranslation(botMessage).isEmpty()) {
+                    chatterActivity.getAndStoreTranslation(botMessage, path, true)
+                }
+                if (preferences.getAudio(botMessage).isEmpty()) {
+                    chatterActivity.getAndStoreAudio(botMessage, path, true)
+                }
                 chatterActivity.loadOptionsMenu()
             })
         }
-        pathReference.addValueEventListener(messageListener)
+        pathReference.addListenerForSingleValueEvent(messageListener)
     }
 
     private fun checkForEasterEggs() {
@@ -127,14 +168,23 @@ class MessageMenuOptionsFragment : BaseFragment() {
         }
     }
 
-    fun setUpOptionMenuText(path: String, option: TextView) {
+    private fun showErrorMessage() {
+        options_menu_layout.visibility = View.VISIBLE
+        optionA.visibility = View.GONE
+        optionB.visibility = View.GONE
+        optionC.visibility = View.GONE
+        conversation_end_message.visibility = View.VISIBLE
+
+    }
+
+    private fun setUpOptionMenuText(path: String, option: TextView) {
         val pathReference = database.child(path + "/text")
         val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
             val optionText = dataSnapshot.value.toString()
             option.text = optionText
             chatterActivity.enableNextButton()
         }
-        pathReference.addValueEventListener(messageListener)
+        pathReference.addListenerForSingleValueEvent(messageListener)
         chatterActivity.disableNextButton()
     }
 
