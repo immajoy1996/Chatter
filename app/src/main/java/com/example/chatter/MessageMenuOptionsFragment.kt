@@ -109,9 +109,11 @@ class MessageMenuOptionsFragment : BaseFragment() {
                 it.currentPath = path
                 chatterActivity.removeOptionsMenu()
                 val userText = option.text.toString()
-                chatterActivity.storeCurrentPath()
+                chatterActivity.getAndStoreTranslation(userText, it.currentPath, false)
+                chatterActivity.getAndStoreAudio(userText, it.currentPath, false)
+                //chatterActivity.storeCurrentPath()
                 chatterActivity.addUserMessage(userText)
-                chatterActivity.storeChatMessages()
+                //chatterActivity.storeChatMessages()
                 it.handleNewMessageLogic(userText)
                 getBotResponse(it.currentPath)
             }
@@ -136,12 +138,8 @@ class MessageMenuOptionsFragment : BaseFragment() {
             })
             setTimerTask("loadOptionsMenu", 3000, {
                 chatterActivity.replaceBotIsTyping(botMessage)
-                if (preferences.getEnglishTranslation(botMessage).isEmpty()) {
-                    chatterActivity.getAndStoreTranslation(botMessage, path, true)
-                }
-                if (preferences.getAudio(botMessage).isEmpty()) {
-                    chatterActivity.getAndStoreAudio(botMessage, path, true)
-                }
+                chatterActivity.getAndStoreTranslation(botMessage, path, true)
+                chatterActivity.getAndStoreAudio(botMessage, path, true)
                 chatterActivity.loadOptionsMenu()
             })
         }

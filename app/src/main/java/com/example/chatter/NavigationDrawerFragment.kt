@@ -95,7 +95,6 @@ class NavigationDrawerFragment : BaseFragment() {
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()
             auth.signOut()
-            startActivity(Intent(context, SignInActivity::class.java))
         }
         drawer_close_layout.setOnClickListener {
             fragmentManager?.popBackStack()

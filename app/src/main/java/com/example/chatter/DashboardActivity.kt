@@ -65,6 +65,10 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         loadBots()
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        Toast.makeText(this,"an idiot",Toast.LENGTH_SHORT).show()
+    }
+
     override fun setUpTopBar() {
         home.setOnClickListener {
             loadNavigationDrawer()

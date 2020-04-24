@@ -1,6 +1,7 @@
 package com.example.chatter
 
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.speech.SpeechRecognizer
@@ -26,7 +27,6 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
-
 
 class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
@@ -54,6 +54,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
     var botMessages = arrayListOf<String>()
     var userMessages = arrayListOf<String>()
+    private var mediaPlayer = MediaPlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +82,8 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         val messageListener = baseValueEventListener { dataSnapshot ->
             val botMessage = dataSnapshot.value.toString()
             handleNewMessageLogic(botMessage)
+            getAndStoreTranslation(botMessage, currentPath, true)
+            getAndStoreAudio(botMessage, currentPath, true)
             loadOptionsMenu()
         }
         pathReference.addValueEventListener(messageListener)
@@ -185,8 +188,10 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         }
         val translationListener = baseValueEventListener { dataSnapshot ->
             val translation = dataSnapshot.value.toString()
-            preferences.storeEnglishTranslations(botMessage, translation)
-            preferences.storeSpanishTranslations(translation, botMessage)
+            translation?.let {
+                preferences.storeEnglishTranslations(botMessage, it)
+                preferences.storeSpanishTranslations(it, botMessage)
+            }
         }
         translationRef.addListenerForSingleValueEvent(translationListener)
     }
@@ -228,7 +233,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     }
 
     private fun setUpStoryBoardFragments() {
-        botTitle = intent.getStringExtra(BOT_TITLE)
+        botTitle = intent?.getStringExtra(BOT_TITLE) ?: ""
         storyBoardOneFragment = StoryBoardOneFragment.newInstance(botTitle)
         storyBoardTwoFragment = StoryBoardTwoFragment.newInstance(botTitle)
     }
@@ -389,6 +394,32 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
                 var translationEs = preferences.getSpanishTranslation(messageText)
                 textView.text = translationEs
             }
+        }
+        textView?.setOnLongClickListener {
+            val messageText = textView.text.toString()
+            var audioSrc = preferences.getAudio(messageText)
+            if (audioSrc.isEmpty()) {
+                var actualText = preferences.getSpanishTranslation(messageText)
+                audioSrc = preferences.getAudio(actualText)
+            }
+            try {
+                playMedia(audioSrc)
+            } catch (exception: Exception) {
+            }
+            true
+        }
+    }
+
+    private fun playMedia(audio: String) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(audio)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener {
+            mediaPlayer.start()
         }
     }
 

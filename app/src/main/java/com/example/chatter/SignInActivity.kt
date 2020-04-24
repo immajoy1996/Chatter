@@ -434,6 +434,7 @@ class SignInActivity : BaseChatActivity() {
             toggleRestartFlag(false)
             var intent = Intent(this@SignInActivity, DashboardActivity::class.java)
             intent.putExtra("GUEST_MODE", true)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         })
     }
