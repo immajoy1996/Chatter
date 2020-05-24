@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.chatter.SignUpOptionsFragment.Companion.SIGN_UP_INDIVIDUAL
+import com.example.chatter.SignUpOptionsFragment.Companion.SIGN_UP_STUDENT
 import kotlinx.android.synthetic.main.fragment_enter_pin.*
 import kotlinx.android.synthetic.main.fragment_enter_pin.restart
 
@@ -31,9 +33,15 @@ class EnterPinFragment : Fragment() {
 
     private fun setUpButtons() {
         validate_button.setOnClickListener {
-            val pin = (activity as? SignInActivity)?.pin
-            pin?.let {
-                checkPinAndSignIn(firstPinView.text.toString(), pin)
+            val scenario=(activity as? SignInActivity)?.getScenario()
+            when(scenario) {
+                    SIGN_UP_INDIVIDUAL, SIGN_UP_STUDENT -> {
+                        val pin = (activity as? SignInActivity)?.pin
+                        pin?.let {
+                            checkPinAndSignIn(firstPinView.text.toString(), pin)
+                        }
+                    }
+
             }
         }
         restart.setOnClickListener {

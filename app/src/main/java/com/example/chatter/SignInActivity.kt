@@ -1,8 +1,6 @@
 package com.example.chatter
 
 import android.content.Intent
-import android.content.pm.PackageInstaller
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -21,14 +19,15 @@ import androidx.fragment.app.Fragment
 import com.example.chatter.EnterUsernameFragment.Companion.CHOOSE_PASSWORD
 import com.example.chatter.EnterUsernameFragment.Companion.ENTER_EMAIL
 import com.example.chatter.EnterUsernameFragment.Companion.ENTER_PASSWORD
+import com.example.chatter.EnterUsernameFragment.Companion.ENTER_SCHOOL_NAME
 import com.example.chatter.EnterUsernameFragment.Companion.ENTER_USERNAME
 import com.example.chatter.EnterUsernameFragment.Companion.REENTER_PASSWORD
 import com.example.chatter.NavigationDrawerFragment.Companion.USERS
 import com.example.chatter.SignInOptionsFragment.Companion.SIGN_IN
-import com.example.chatter.SignInOptionsFragment.Companion.SIGN_UP
-import com.example.chatter.SignInOptionsFragment.Companion.SIGN_UP_INDIVIDUAL
-import com.google.android.gms.tasks.OnCompleteListener
+import com.example.chatter.SignUpOptionsFragment.Companion.SIGN_UP_INDIVIDUAL
+import com.example.chatter.SignUpOptionsFragment.Companion.SIGN_UP_STUDENT
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
@@ -39,7 +38,6 @@ import javax.mail.*
 import javax.mail.Message
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
-import kotlin.concurrent.schedule
 
 class SignInActivity : BaseChatActivity() {
     private var scenario: Int? = null
@@ -51,6 +49,7 @@ class SignInActivity : BaseChatActivity() {
     private var emailFragment = EnterUsernameFragment.newInstance(ENTER_EMAIL)
     private var choosePasswordFragment = EnterUsernameFragment.newInstance(CHOOSE_PASSWORD)
     private var reenterPasswordFragment = EnterUsernameFragment.newInstance(REENTER_PASSWORD)
+    private var enterSchoolNameFragment = EnterUsernameFragment.newInstance(ENTER_SCHOOL_NAME)
     private var enterPinFragment = EnterPinFragment()
     private var retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Retrieving options")
@@ -58,6 +57,7 @@ class SignInActivity : BaseChatActivity() {
 
     private lateinit var timerTask: TimerTask
 
+    var schoolName: String? = null
     var username: String? = null
     var password: String? = null
     var reenterPassword: String? = null
@@ -88,6 +88,22 @@ class SignInActivity : BaseChatActivity() {
         )
     val signUpIndividualBotMessages = arrayListOf<String>(
         "Ok. Enter your email.",
+        "Ok. Choose your password?",
+        "Ok, please reenter your password for confirmation.",
+        "Ok, you're all set! We sent a 4 digit pin to your email. Please enter it below."
+    )
+
+    val signUpThroughMySchoolUserMessages = arrayListOf<Int>(
+        FRAGMENT_ENTER_YOUR_SCHOOL_NAME,
+        FRAGMENT_ENTER_EMAIL,
+        FRAGMENT_CHOOSE_PASSWORD,
+        FRAGMENT_REENTER_PASSWORD,
+        FRAGMENT_ENTER_PIN
+    )
+
+    val signUpThroughMySchoolBotMessages = arrayListOf<String>(
+        "Ok. Enter your school name.",
+        "Ok. Enter your email",
         "Ok. Choose your password?",
         "Ok, please reenter your password for confirmation.",
         "Ok, you're all set! We sent a 4 digit pin to your email. Please enter it below."
@@ -150,6 +166,10 @@ class SignInActivity : BaseChatActivity() {
         scenario = curScenario
     }
 
+    fun getScenario(): Int {
+        return scenario ?: -1
+    }
+
     private fun replaceBotIsTyping(msg: String) {
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
@@ -197,9 +217,13 @@ class SignInActivity : BaseChatActivity() {
         handler.postDelayed(characterAdder, delay)
     }
 
-    fun runMessageFlow(msg: String) {
+    fun runMessageFlow(msg: String, shouldCheckSchoolName: Boolean? = false) {
         handleNewMessageLogic(msg)
-        getBotResponse()
+        if (shouldCheckSchoolName == true) {
+            checkIfSchoolOnRecordAndContinueMessaging()
+        } else {
+            getBotResponse()
+        }
     }
 
     fun runMessageFlowSignUp(msg: String) {
@@ -224,6 +248,10 @@ class SignInActivity : BaseChatActivity() {
             SIGN_UP_INDIVIDUAL -> {
                 botMessagesArray = signUpIndividualBotMessages
                 userMessagesFragmentArray = signUpIndividualUserMessagesFragments
+            }
+            SIGN_UP_STUDENT -> {
+                botMessagesArray = signUpThroughMySchoolBotMessages
+                userMessagesFragmentArray = signUpThroughMySchoolUserMessages
             }
         }
     }
@@ -264,6 +292,7 @@ class SignInActivity : BaseChatActivity() {
 
     private fun removeRetrievingOptionsFragment() {
         supportFragmentManager.popBackStack()
+        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Retrieving Options")
     }
 
     fun loadOptionsFragment(fragment: Fragment) {
@@ -303,6 +332,9 @@ class SignInActivity : BaseChatActivity() {
                         sendEmail(username as String)
                         loadEnterPinFragment()
                     }
+                }
+                FRAGMENT_ENTER_YOUR_SCHOOL_NAME -> {
+                    loadEnterSchoolNameFragment()
                 }
             }
             userPosition++
@@ -375,6 +407,29 @@ class SignInActivity : BaseChatActivity() {
         })
     }
 
+    private fun checkIfSchoolOnRecordAndContinueMessaging() {
+        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Verifying School")
+        loadRetrievingOptionsFragment()
+        val schoolRef = databaseReference.child("Schools").child(schoolName as String)
+        val schoolListener = baseValueEventListener { dataSnapshot ->
+            setTimerTask("schoolTimer", 2000, {
+                runSchoolNameCheckLogic(dataSnapshot)
+            })
+        }
+        schoolRef.addListenerForSingleValueEvent(schoolListener)
+    }
+
+    private fun runSchoolNameCheckLogic(dataSnapshot: DataSnapshot) {
+        if (dataSnapshot.hasChild("schoolName")) {
+            removeRetrievingOptionsFragment()
+            Toast.makeText(this,"Verified!",Toast.LENGTH_SHORT).show()
+            getBotResponse()
+        } else {
+            removeRetrievingOptionsFragment()
+            loadSignInErrorFragment("We don't have your school on record")
+        }
+    }
+
     fun signUpNewUser() {
         retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Signing Up")
         loadRetrievingOptionsFragment()
@@ -384,7 +439,9 @@ class SignInActivity : BaseChatActivity() {
                     auth.uid as String,
                     username as String,
                     password as String,
-                    2000
+                    2000,
+                    schoolName ?: "none",
+                    "Pawn"
                 )
             }.addOnFailureListener {
                 removeRetrievingOptionsFragment()
@@ -396,9 +453,12 @@ class SignInActivity : BaseChatActivity() {
         userId: String,
         email: String,
         password: String,
-        pointsRemaining: Int
+        pointsRemaining: Int,
+        schoolName: String,
+        level: String
     ) {
-        databaseReference.child(USERS.plus(userId)).setValue(User(email, password, pointsRemaining))
+        databaseReference.child(USERS.plus(userId))
+            .setValue(User(email, password, pointsRemaining, schoolName, level))
             .addOnSuccessListener {
                 navigateToUserDashboard()
             }.addOnFailureListener {
@@ -469,6 +529,10 @@ class SignInActivity : BaseChatActivity() {
 
     private fun loadEnterPinFragment() {
         loadOptionsFragment(enterPinFragment)
+    }
+
+    private fun loadEnterSchoolNameFragment() {
+        loadOptionsFragment(enterSchoolNameFragment)
     }
 
     private fun loadSignInErrorFragment(errorMessage: String) {
@@ -662,12 +726,12 @@ class SignInActivity : BaseChatActivity() {
     }
 
     companion object {
-        const val SIGN_IN_SEQUENCE = 0
         const val FRAGMENT_ENTER_USERNAME = 10
         const val FRAGMENT_ENTER_PASSWORD = 20
         const val FRAGMENT_ENTER_EMAIL = 30
         const val FRAGMENT_CHOOSE_PASSWORD = 40
         const val FRAGMENT_REENTER_PASSWORD = 50
         const val FRAGMENT_ENTER_PIN = 60
+        const val FRAGMENT_ENTER_YOUR_SCHOOL_NAME = 70
     }
 }

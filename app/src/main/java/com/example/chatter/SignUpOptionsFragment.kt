@@ -33,7 +33,7 @@ class SignUpOptionsFragment : Fragment() {
             (activity as? SignInActivity)?.let {
                 it.setScenario(SIGN_UP_STUDENT)
                 it.setUserAndBotResponseArrays()
-                //it.runMessageFlowSignUp(sign_up_student.text.toString())
+                it.runMessageFlow(sign_up_student.text.toString())
             }
         }
         sign_up_school.setOnClickListener {

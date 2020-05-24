@@ -12,7 +12,7 @@ import kotlin.concurrent.schedule
 abstract class BaseActivity : AppCompatActivity() {
     var guestMode: Boolean = false
     private lateinit var timerTask: TimerTask
-    var timerTaskArray = arrayListOf<TimerTask>()
+    private var timerTaskArray = arrayListOf<TimerTask>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

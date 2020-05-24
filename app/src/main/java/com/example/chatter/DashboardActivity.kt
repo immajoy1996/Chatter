@@ -5,15 +5,12 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
-import android.widget.GridLayout
-import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_dashboard.*
 import kotlinx.android.synthetic.main.top_bar.*
-
 
 class DashboardActivity : BaseActivity(), BotClickInterface {
     private lateinit var database: DatabaseReference
@@ -63,10 +60,6 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         setUpTopBar()
         setUpBotGridView()
         loadBots()
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        Toast.makeText(this,"an idiot",Toast.LENGTH_SHORT).show()
     }
 
     override fun setUpTopBar() {
@@ -264,10 +257,6 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         val intent = Intent(this, ChatterActivity::class.java)
         intent.putExtra(BOT_TITLE, botTitle)
         startActivity(intent)
-    }
-
-    override fun onBackPressed() {
-        //no implementation
     }
 
     companion object {

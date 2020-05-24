@@ -37,6 +37,32 @@ class NavigationDrawerFragment : BaseFragment() {
         setUpUserInfo()
         setUpNavigationOptionButtons()
         setUpButtons()
+        setUpProfileButtons()
+    }
+
+    private fun setUpProfileButtons() {
+        sound_effects_button.setOnClickListener {
+            if (sound_effects_button.text == "ON") {
+                sound_effects_button.setBackgroundResource(R.drawable.circle_disabled)
+                sound_effects_button.text = "OFF"
+                sound_effects_button.setTextColor(Color.parseColor("#696969"))
+            } else {
+                sound_effects_button.setBackgroundResource(R.drawable.circle_enabled)
+                sound_effects_button.text = "ON"
+                sound_effects_button.setTextColor(Color.parseColor("#ffffff"))
+            }
+        }
+        stories_button.setOnClickListener {
+            if (stories_button.text == "ON") {
+                stories_button.setBackgroundResource(R.drawable.circle_disabled)
+                stories_button.text = "OFF"
+                stories_button.setTextColor(Color.parseColor("#696969"))
+            } else {
+                stories_button.setBackgroundResource(R.drawable.circle_enabled)
+                stories_button.text = "ON"
+                stories_button.setTextColor(Color.parseColor("#ffffff"))
+            }
+        }
     }
 
     private fun setUpUserInfo() {
@@ -57,10 +83,10 @@ class NavigationDrawerFragment : BaseFragment() {
                 emailRef.addListenerForSingleValueEvent(emailListener)
                 pointsRemainingRef.addListenerForSingleValueEvent(pointsRemainingListener)
                 user_level.setText(preferences.getUserLevel())
-                setUpUserLevelImage()
+                //setUpUserLevelImage()
             }
         } else {
-            setUserBadge(R.drawable.pawn)
+            //setUserBadge(R.drawable.pawn)
             navigation_drawer_username.text = "Guest"
             navigation_drawer_user_score.text = "1000"
             user_level.setText("Pawn")
@@ -87,19 +113,25 @@ class NavigationDrawerFragment : BaseFragment() {
 
     private fun setUpNavigationOptionButtons() {
         drawer_my_subscription_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
-        drawer_settings_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        //drawer_settings_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         drawer_logout_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
     }
 
     private fun setUpButtons() {
+        drawer_settings_layout.setOnClickListener {
+            context?.startActivity(Intent(context, SettingsActivity::class.java))
+        }
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()
             auth.signOut()
+            val intent = Intent(context, SignInActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
         }
         drawer_close_layout.setOnClickListener {
             fragmentManager?.popBackStack()
         }
-        drawer_close_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        //drawer_close_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
     }
 
     companion object {

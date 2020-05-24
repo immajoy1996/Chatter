@@ -13,48 +13,122 @@
         android:background="@drawable/navigation_option">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sound_effects_button_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintCircle="@id/user_badge_layout"
+            app:layout_constraintCircleAngle="220"
+            app:layout_constraintCircleRadius="120dp">
+
+            <TextView
+                android:id="@+id/sound_effects_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_disabled"
+                android:gravity="center"
+                android:text="OFF"
+                android:textColor="#696969"
+                app:layout_constraintEnd_toEndOf="@id/sound_effects_text"
+                app:layout_constraintStart_toStartOf="@id/sound_effects_text" />
+
+            <TextView
+                android:id="@+id/sound_effects_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sound effects"
+                android:textColor="#696969"
+                app:layout_constraintTop_toBottomOf="@id/sound_effects_button" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/stories_button_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintCircle="@id/user_badge_layout"
+            app:layout_constraintCircleAngle="140"
+            app:layout_constraintCircleRadius="120dp">
+
+            <TextView
+                android:id="@+id/stories_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_enabled"
+                android:gravity="center"
+                android:text="ON"
+                android:textColor="#ffffff"
+                app:layout_constraintEnd_toEndOf="@id/stories_text"
+                app:layout_constraintStart_toStartOf="@id/stories_text" />
+
+            <TextView
+                android:id="@+id/stories_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stories"
+                android:textColor="#696969"
+                app:layout_constraintTop_toBottomOf="@id/stories_button" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/user_badge_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/sound_effects_button_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/user_badge"
-                android:layout_width="50dp"
-                android:layout_height="55dp"
-                android:src="@drawable/logo"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="15dp" />
 
             <TextView
                 android:id="@+id/user_level"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Manny Joy"
                 android:textColor="#696969"
                 android:textSize="15sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_badge"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/business_profile"
+                android:layout_marginBottom="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/user_badge" />
+                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_username"
+                tools:layout_editor_absoluteY="15dp" />
+
+            <ImageView
+                android:id="@+id/edit_pencil_badge"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="50dp"
+                android:src="@drawable/camera"
+                app:layout_constraintStart_toStartOf="@id/user_badge"
+                app:layout_constraintTop_toTopOf="@id/user_badge" />
 
             <TextView
                 android:id="@+id/navigation_drawer_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:text="Manny Joy"
+                android:layout_marginBottom="10dp"
                 android:textColor="#000000"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/user_level" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/navigation_drawer_username">
@@ -87,16 +161,6 @@
                     android:textSize="20sp"
                     app:layout_constraintStart_toEndOf="@id/navigation_drawer_egg" />
 
-                <TextView
-                    android:id="@+id/until_next_level"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="until next level"
-                    android:textColor="#0084FF"
-                    android:textSize="20sp"
-                    app:layout_constraintStart_toStartOf="@id/navigation_drawer_user_score"
-                    app:layout_constraintTop_toBottomOf="@id/remaining" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -115,7 +179,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="30dp"
-            android:src="@drawable/settings"
+            android:src="@drawable/gem"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -126,7 +190,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="100dp"
             android:gravity="center"
-            android:text="Settings"
+            android:text="Level"
             android:textAllCaps="false"
             android:textColor="#696969"
             android:textSize="20sp"
@@ -200,39 +264,58 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageView
+        android:id="@+id/chest"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/chest"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/drawer_my_logout_layout" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_close_layout"
         android:layout_width="150dp"
         android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/navigation_option"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/drawer_my_logout_layout">
+        app:layout_constraintTop_toBottomOf="@id/chest">
 
-        <ImageView
-            android:id="@+id/drawer_close_image"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginEnd="5dp"
-            android:src="@drawable/exit"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/drawer_close_text"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/drawer_close_text"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="Close"
-            android:textAllCaps="false"
-            android:textColor="#696969"
-            android:textSize="20sp"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/drawer_close_image"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/coin"
+                app:layout_constraintStart_toEndOf="@id/drawer_close_text" />
+
+            <TextView
+                android:id="@+id/drawer_close_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="10000"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

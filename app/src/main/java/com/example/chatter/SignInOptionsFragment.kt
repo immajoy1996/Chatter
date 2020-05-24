@@ -44,8 +44,6 @@ class SignInOptionsFragment : Fragment() {
 
     companion object {
         const val SIGN_IN = 1
-        const val SIGN_UP = 2
         const val PROCEED_AS_GUEST = 3
-        const val SIGN_UP_INDIVIDUAL = 4
     }
 }

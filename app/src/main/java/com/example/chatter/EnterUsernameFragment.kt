@@ -47,9 +47,15 @@ class EnterUsernameFragment : Fragment() {
                 ENTER_PASSWORD, CHOOSE_PASSWORD -> (activity as? SignInActivity)?.password =
                     userInput
                 REENTER_PASSWORD -> (activity as? SignInActivity)?.reenterPassword = userInput
+                ENTER_SCHOOL_NAME -> (activity as? SignInActivity)?.schoolName = userInput
             }
             (activity as? SignInActivity)?.let {
                 when (fragmentType) {
+                    ENTER_SCHOOL_NAME -> {
+                        if (isValidSchoolName(userInput)) {
+                            it.runMessageFlow(userInput, true)
+                        }
+                    }
                     ENTER_USERNAME, ENTER_EMAIL -> {
                         if (isValidEmail(userInput)) {
                             it.runMessageFlow(userInput)
@@ -74,6 +80,15 @@ class EnterUsernameFragment : Fragment() {
         restart.setOnClickListener {
             (activity as? SignInActivity)?.refreshSignInFlow()
         }
+    }
+
+    private fun isValidSchoolName(school: String): Boolean {
+        if (school.isEmpty()) {
+            showError("Your school name cannot be empty")
+            return false
+        }
+        hideErrorView()
+        return true
     }
 
     private fun isValidEmail(email: String): Boolean {
@@ -123,6 +138,7 @@ class EnterUsernameFragment : Fragment() {
                 ENTER_EMAIL -> return newInstance(fragmentType, "Enter your email")
                 CHOOSE_PASSWORD -> return newInstance(fragmentType, "Choose your password")
                 REENTER_PASSWORD -> return newInstance(fragmentType, "Reenter your password")
+                ENTER_SCHOOL_NAME -> return newInstance(fragmentType, "Enter your school name")
             }
             return newInstance("ERROR", "")
         }
@@ -144,5 +160,6 @@ class EnterUsernameFragment : Fragment() {
         const val ENTER_EMAIL = "Enter your email"
         const val CHOOSE_PASSWORD = "Choose your password"
         const val REENTER_PASSWORD = "Renter password"
+        const val ENTER_SCHOOL_NAME = "Enter school name"
     }
 }
