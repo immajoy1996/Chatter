@@ -15,6 +15,7 @@
         android:layout_marginBottom="50dp"
         android:textSize="20sp"
         android:textColor="#696969"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/message_layout1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
