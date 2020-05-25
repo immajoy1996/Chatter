@@ -24,10 +24,10 @@
                 android:id="@+id/sound_effects_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/circle_disabled"
+                android:background="@drawable/circle_enabled"
                 android:gravity="center"
-                android:text="OFF"
-                android:textColor="#696969"
+                android:text="ON"
+                android:textColor="#ffffff"
                 app:layout_constraintEnd_toEndOf="@id/sound_effects_text"
                 app:layout_constraintStart_toStartOf="@id/sound_effects_text" />
 
@@ -83,7 +83,6 @@
                 android:id="@+id/user_level"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Manny Joy"
                 android:textColor="#696969"
                 android:textSize="15sp"
                 android:visibility="gone"

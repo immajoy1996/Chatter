@@ -18,7 +18,7 @@
             android:id="@+id/home"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/logo" />
+            android:src="@drawable/coin" />
 
         <ImageView
             android:id="@+id/back"

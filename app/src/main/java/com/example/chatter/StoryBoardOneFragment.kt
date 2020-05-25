@@ -20,6 +20,9 @@ class StoryBoardOneFragment : Fragment() {
 
     var botTitle: String? = null
     private lateinit var database: DatabaseReference
+    private var topMessage1 = "Tap Bear to see what he has to say"
+    private var topMessage2 = "Tap Bear one more time"
+    private var continueMessage = "Click Next to start"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,9 +34,20 @@ class StoryBoardOneFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
+        top_message.text = topMessage1
         setUpTopBar()
         setUpNavButtons()
-        fetchStoryBoardMessages()
+        setUpBearClick()
+    }
+
+    private fun setUpBearClick() {
+        bear_profile.setOnClickListener {
+            if (top_message.text == topMessage1) {
+                fetchStoryBoardMessageOne()
+            } else {
+                fetchStoryBoardMessageTwo()
+            }
+        }
     }
 
     private fun setUpTopBar() {
@@ -41,20 +55,26 @@ class StoryBoardOneFragment : Fragment() {
         top_bar_mic.visibility = View.INVISIBLE
     }
 
-    private fun fetchStoryBoardMessages() {
+    private fun fetchStoryBoardMessageOne() {
         val storyReference1 = database.child(BOT_CATALOG.plus(botTitle).plus("/storyboardText1"))
-        val storyReference2 = database.child(BOT_CATALOG.plus(botTitle).plus("/storyboardText2"))
 
         val storyboardListener1 = createStoryboardListener { dataSnapshot ->
             val storyText1 = dataSnapshot.value.toString()
-            setUpStoryText1(storyText1)
+            setUpStoryText(storyText1)
+            top_message.text = topMessage2
         }
+        storyReference1.addListenerForSingleValueEvent(storyboardListener1)
+    }
+
+    private fun fetchStoryBoardMessageTwo() {
+        val storyReference2 = database.child(BOT_CATALOG.plus(botTitle).plus("/storyboardText2"))
+
         val storyboardListener2 = createStoryboardListener { dataSnapshot ->
             val storyText2 = dataSnapshot.value.toString()
-            setUpStoryText2(storyText2)
+            setUpStoryText(storyText2)
+            top_message.text = continueMessage
         }
-        storyReference1.addValueEventListener(storyboardListener1)
-        storyReference2.addValueEventListener(storyboardListener2)
+        storyReference2.addListenerForSingleValueEvent(storyboardListener2)
     }
 
     val createStoryboardListener: ((DataSnapshot) -> Unit) -> ValueEventListener = { doit ->
@@ -70,7 +90,8 @@ class StoryBoardOneFragment : Fragment() {
         storyboardListener
     }
 
-    private fun setUpStoryText1(text: String) {
+    private fun setUpStoryText(text: String) {
+        story_message1.visibility = View.VISIBLE
         story_message1.text = text
     }
 
