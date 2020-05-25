@@ -3,6 +3,7 @@ package com.example.chatter
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -54,6 +55,10 @@ class VocabFragment : BaseFragment() {
         top_bar_mic.setOnClickListener {
             chatterActivity.toggleRestartFlag(false)
             chatterActivity.toggleIsVocabFragmentFlag(true)
+            activity?.runOnUiThread {
+                top_bar_mic.setImageResource(R.drawable.microphone_listening)
+                (top_bar_mic.drawable as AnimationDrawable).start()
+            }
             chatterActivity.startListening()
         }
         vocab_search_text.setOnClickListener {

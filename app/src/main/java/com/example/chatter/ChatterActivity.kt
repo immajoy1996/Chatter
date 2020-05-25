@@ -1,6 +1,7 @@
 package com.example.chatter
 
 import android.graphics.Color
+import android.graphics.drawable.AnimationDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -72,6 +73,10 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         top_bar_mic.setOnClickListener {
             toggleIsChatterActivity(true)
             startListening()
+            this.runOnUiThread {
+                top_bar_mic.setImageResource(R.drawable.microphone_listening)
+                (top_bar_mic.drawable as AnimationDrawable).start()
+            }
         }
     }
 

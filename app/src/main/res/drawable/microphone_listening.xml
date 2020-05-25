@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item
+        android:drawable="@drawable/microphone_listening_0"
+        android:duration="200" />
+    <item
+        android:drawable="@drawable/microphone_listening_1"
+        android:duration="200" />
+    <item
+        android:drawable="@drawable/microphone_listening_2"
+        android:duration="200" />
+    <item
+        android:drawable="@drawable/microphone_listening_3"
+        android:duration="200" />
+    <item
+        android:drawable="@drawable/microphone_listening_2"
+        android:duration="200" />
+    <item
+        android:drawable="@drawable/microphone_listening_1"
+        android:duration="200" />
+
+</animation-list>

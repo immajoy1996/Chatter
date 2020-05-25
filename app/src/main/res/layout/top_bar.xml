@@ -45,11 +45,11 @@
 
     <ImageView
         android:id="@+id/top_bar_mic"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="10dp"
-        android:src="@drawable/mic"
+        android:src="@drawable/microphone_listening"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
