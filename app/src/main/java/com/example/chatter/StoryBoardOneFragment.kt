@@ -1,16 +1,12 @@
 package com.example.chatter
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import com.google.firebase.database.*
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_story_board_one.*
 import kotlinx.android.synthetic.main.top_bar.*
@@ -84,7 +80,7 @@ class StoryBoardOneFragment : Fragment() {
             }
 
             override fun onCancelled(p0: DatabaseError) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
         }
         storyboardListener

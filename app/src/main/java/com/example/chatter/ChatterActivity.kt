@@ -57,6 +57,8 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     var userMessages = arrayListOf<String>()
     private var mediaPlayer = MediaPlayer()
 
+    private var isMicActive = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
@@ -71,11 +73,15 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     override fun setUpTopBar() {
         top_bar_title.text = "Chatter"
         top_bar_mic.setOnClickListener {
-            toggleIsChatterActivity(true)
-            startListening()
-            this.runOnUiThread {
+            if (!isMicActive) {
+                isMicActive = true
+                toggleIsChatterActivity(true)
                 top_bar_mic.setImageResource(R.drawable.microphone_listening)
                 (top_bar_mic.drawable as AnimationDrawable).start()
+                startListening()
+            } else {
+                isMicActive = false
+                top_bar_mic.setImageResource(R.drawable.microphone_listening)
             }
         }
     }
@@ -632,8 +638,15 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         addViewToLayout(messageTextView as TextView)
     }
 
+    /*override fun onError(error: Int) {
+        top_bar_mic.setImageResource(R.drawable.microphone_listening)
+        isMicActive = false
+    }*/
+
     override fun onResults(results: Bundle?) {
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        top_bar_mic.setImageResource(R.drawable.microphone_listening)
+        isMicActive = false
         if (isVocabFragment()) {
             matches?.let {
                 vocabFragment.setUpSearch(it[0])

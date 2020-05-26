@@ -53,7 +53,6 @@ class SignInActivity : BaseChatActivity() {
     private var enterPinFragment = EnterPinFragment()
     private var retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Retrieving options")
-    private lateinit var signInPresenter: SignInPresenter
 
     private lateinit var timerTask: TimerTask
 
@@ -492,7 +491,7 @@ class SignInActivity : BaseChatActivity() {
         setTimerTask("signInAsGuest", 2000, {
             removeRetrievingOptionsFragment()
             toggleRestartFlag(false)
-            var intent = Intent(this@SignInActivity, DashboardActivity::class.java)
+            var intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             intent.putExtra("GUEST_MODE", true)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)

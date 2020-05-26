@@ -21,6 +21,7 @@ class BotGridItemDecoration(horizontalSpace: Int, verticalSpace: Int) :
         state: RecyclerView.State
     ) {
 
+        outRect.setEmpty()
         horizontalSpacing?.let {
             outRect.left = it
         }

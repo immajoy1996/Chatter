@@ -119,7 +119,7 @@ class NavigationDrawerFragment : BaseFragment() {
 
     private fun setUpButtons() {
         drawer_settings_layout.setOnClickListener {
-            context?.startActivity(Intent(context, SettingsActivity::class.java))
+            context?.startActivity(Intent(context, LevelActivity::class.java))
         }
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()
@@ -129,7 +129,10 @@ class NavigationDrawerFragment : BaseFragment() {
             startActivity(intent)
         }
         drawer_close_layout.setOnClickListener {
-            fragmentManager?.popBackStack()
+            activity?.finish()
+            val intent = Intent(context, MyStashActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
         }
         //drawer_close_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
     }

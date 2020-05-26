@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -29,6 +30,8 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
     private var isChatterActivity: Boolean = false
     var timerTaskArray = arrayListOf<TimerTask>()
     private lateinit var timerTask: TimerTask
+
+    private var isMicActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -34,6 +34,7 @@ class VocabFragment : BaseFragment() {
     private var searchAudioSrc = arrayListOf<String>()
 
     private val chatterActivity by lazy { activity as ChatterActivity }
+    private var isMicActive = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,13 +54,18 @@ class VocabFragment : BaseFragment() {
     private fun setUpTopBar() {
         search_submit.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         top_bar_mic.setOnClickListener {
-            chatterActivity.toggleRestartFlag(false)
-            chatterActivity.toggleIsVocabFragmentFlag(true)
-            activity?.runOnUiThread {
+            if (!isMicActive) {
+                isMicActive = true
+                chatterActivity.toggleRestartFlag(false)
+                chatterActivity.toggleIsVocabFragmentFlag(true)
                 top_bar_mic.setImageResource(R.drawable.microphone_listening)
                 (top_bar_mic.drawable as AnimationDrawable).start()
+                chatterActivity.startListening()
             }
-            chatterActivity.startListening()
+            else{
+                isMicActive=false
+                top_bar_mic.setImageResource(R.drawable.microphone_listening)
+            }
         }
         vocab_search_text.setOnClickListener {
             val userInput = vocab_search_text.text?.toString()
