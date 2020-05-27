@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="50dp"
+    android:id="@+id/nations_item_layout"
     android:background="@drawable/nation_item_view_background">
 
     <ImageView
@@ -34,5 +35,17 @@
         app:layout_constraintBottom_toBottomOf="@id/country"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/country" />
+
+    <TextView
+        android:id="@+id/language_selector_filled"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:visibility="gone"
+        android:background="@drawable/circle_enabled"
+        app:layout_constraintBottom_toBottomOf="@id/language_selector"
+        app:layout_constraintEnd_toEndOf="@id/language_selector"
+        app:layout_constraintTop_toTopOf="@id/language_selector"
+        app:layout_constraintStart_toStartOf="@id/language_selector"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

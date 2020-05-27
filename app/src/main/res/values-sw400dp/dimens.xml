@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bot_item_layout_dimen">133dp</dimen>
+    <dimen name="bot_item_dimen">118dp</dimen>
+</resources>

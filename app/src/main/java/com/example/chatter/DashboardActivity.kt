@@ -136,7 +136,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         val botAdapter = BotAdapter(this, imageList, titleList, levelList, isEnabledInGuestMode)
         dashboard_recycler.adapter = botAdapter
         botItemSpacing?.let {
-            dashboard_recycler.addItemDecoration(BotGridItemDecoration(it, BOT_ITEM_SPACING))
+            //dashboard_recycler.addItemDecoration(BotGridItemDecoration(0, 20))
         }
     }
 

@@ -268,7 +268,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="5dp"
-        android:src="@drawable/chest"
+        android:src="@drawable/jackpot"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -276,9 +276,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_close_layout"
-        android:layout_width="150dp"
+        android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
+        android:padding="10dp"
         android:background="@drawable/navigation_option"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

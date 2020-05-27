@@ -1,15 +1,20 @@
 package com.example.chatter
 
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_story_board_one.*
 import kotlinx.android.synthetic.main.top_bar.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class StoryBoardOneFragment : Fragment() {
@@ -19,6 +24,10 @@ class StoryBoardOneFragment : Fragment() {
     private var topMessage1 = "Tap Bear to see what he has to say"
     private var topMessage2 = "Tap Bear one more time"
     private var continueMessage = "Click Next to start"
+
+    private var bearPersonality = "Nice"
+    private var quotesArray = arrayListOf<String>()
+    private var quoteIndex = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,20 +39,47 @@ class StoryBoardOneFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
-        top_message.text = topMessage1
         setUpTopBar()
         setUpNavButtons()
+        setUpPersonalityButtons()
         setUpBearClick()
+    }
+
+    private fun sayInstruction() {
+        (activity as? ChatterActivity)?.letBearSpeak(quotesArray[quoteIndex])
+        quoteIndex = (quoteIndex + 1) % quotesArray.size
     }
 
     private fun setUpBearClick() {
         bear_profile.setOnClickListener {
-            if (top_message.text == topMessage1) {
-                fetchStoryBoardMessageOne()
+            if (bearPersonality == "Nice") {
+                botTitle?.let {
+                    quotesArray = (activity as? ChatterActivity)?.getBotStories(it)
+                        ?: arrayListOf<String>("I have no idea about ".plus(it))
+                    sayInstruction()
+                }
             } else {
-                fetchStoryBoardMessageTwo()
+                (activity as? ChatterActivity)?.sayBearsNextQuote()
             }
         }
+    }
+
+    private fun setUpPersonalityButtons() {
+        good_bear_button.setOnClickListener {
+            if (bearPersonality != "Nice") {
+                good_bear_button.setBackgroundResource(R.drawable.bear_personality_background_enabled)
+                bad_bear_button.setBackgroundResource(R.drawable.bear_personality_background_disabled)
+                bearPersonality = "Nice"
+            }
+        }
+        bad_bear_button.setOnClickListener {
+            if (bearPersonality != "Mean") {
+                good_bear_button.setBackgroundResource(R.drawable.bear_personality_background_disabled)
+                bad_bear_button.setBackgroundResource(R.drawable.bear_personality_background_enabled)
+                bearPersonality = "Mean"
+            }
+        }
+
     }
 
     private fun setUpTopBar() {
@@ -87,7 +123,7 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun setUpStoryText(text: String) {
-        story_message1.visibility = View.VISIBLE
+        //story_message1.visibility = View.VISIBLE
         story_message1.text = text
     }
 

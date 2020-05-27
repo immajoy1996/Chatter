@@ -9,8 +9,9 @@ import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 class LanguageSelectionActivity : BaseActivity() {
-    private var nations = arrayListOf<String>("Spanish")
-    private var flagImages = arrayListOf<Int>(R.drawable.spanishflag)
+    private var nations = arrayListOf<String>("Spanish", "French", "German","Arabic")
+    private var flagImages =
+        arrayListOf<Int>(R.drawable.spanishflag, R.drawable.frenchflag, R.drawable.germanflag,R.drawable.spanishflag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

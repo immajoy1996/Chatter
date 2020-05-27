@@ -10,42 +10,40 @@
 
     <TextView
         android:id="@+id/top_message"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
-        android:textSize="20sp"
+        android:text="Tap Bear Bot to see what he has to say. Also change Bear's personality with the buttons"
         android:textColor="#696969"
+        android:textSize="20sp"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintBottom_toTopOf="@id/message_layout1"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".3"
-        />
+        app:layout_constraintGuide_percent=".3" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".6"
-        />
+        app:layout_constraintGuide_percent=".6" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/message_layout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/story_message1"
@@ -63,9 +61,8 @@
             android:id="@+id/bear_profile"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/business_profile"
             android:clickable="true"
-            />
+            android:src="@drawable/business_profile" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -75,9 +72,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/guideline2">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/story_message2"
@@ -97,6 +94,39 @@
             app:layout_constraintBottom_toBottomOf="@id/story_message2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/good_bear_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bear_personality_background_enabled"
+        android:text="Nice"
+        android:textColor="#ffffff"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@id/guideline_buttons"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/bad_bear_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bear_personality_background_disabled"
+        android:text="Mean"
+        android:textColor="#ffffff"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline_buttons" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".75" />
 
     <include layout="@layout/bottom_nav_bar" />
 

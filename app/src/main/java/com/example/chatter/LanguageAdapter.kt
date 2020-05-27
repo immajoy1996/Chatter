@@ -13,6 +13,7 @@ class LanguageAdapter(
     var flags: ArrayList<Int>
 ) :
     RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
+    private var selectedPos = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
         return LanguageViewHolder(
@@ -27,15 +28,14 @@ class LanguageAdapter(
     override fun onBindViewHolder(holder: LanguageViewHolder, position: Int) {
         val nation = nations[position]
         val flagImg = flags[position]
-        holder.itemView.setOnClickListener {
-            showFullLanguageList()
+        holder.itemView.nations_item_layout.setOnClickListener {
+            selectLanguageItem(position)
         }
-        holder.bind(nation, flagImg)
+        holder.bind(nation, flagImg, position)
     }
 
-    private fun showFullLanguageList() {
-        nations = arrayListOf("Spanish", "French", "German")
-        flags = arrayListOf(R.drawable.spanishflag, R.drawable.frenchflag, R.drawable.germanflag)
+    private fun selectLanguageItem(position: Int) {
+        selectedPos = position
         notifyDataSetChanged()
     }
 
@@ -43,9 +43,14 @@ class LanguageAdapter(
 
     inner class LanguageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind(nation: String, flagResId: Int) {
+        fun bind(nation: String, flagResId: Int, position: Int) {
             itemView.country.text = nation
             itemView.flagImg.setImageResource(flagResId)
+            if (selectedPos == position) {
+                itemView.language_selector_filled.visibility = View.VISIBLE
+            } else {
+                itemView.language_selector_filled.visibility = View.GONE
+            }
         }
     }
 }

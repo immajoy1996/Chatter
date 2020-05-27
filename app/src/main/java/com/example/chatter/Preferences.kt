@@ -12,6 +12,47 @@ class Preferences(val context: Context) {
     private val levelNames = arrayListOf<String>("Pawn", "Knight", "Bishop", "Rook")
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
 
+    private val quotesArray = arrayListOf<String>(
+        "Hi, I'm Bear Bot. I'm here to help because you really suck at Spanish",
+        "Who ever thought talking to a bear was a good idea?",
+        "You think you're amazing. Think again",
+        "Unfortunately, they don't pay me enough to be positive",
+        "Woah you're amazing. One new word a week. Simply spectacular!",
+        "Sometimes I'm encouraging. Not today!",
+        "I haven't had honey in so long. Can you get me some?"
+    )
+
+    private var quoteIndex = 0
+
+    private var storiesHashmap = HashMap<String,ArrayList<String>>()
+
+    fun setUpPreferences(){
+        setUpStoriesHashmap()
+    }
+
+    private fun setUpStoriesHashmap(){
+        storiesHashmap.put("Hiker Harry", arrayListOf("You will be talking to Harry. Harry loves to hike","Be careful however. Harry may seem friendly but he's also quite the troublemaker."))
+    }
+
+    fun getBotStories(botTitle: String):ArrayList<String>{
+        Log.d("BotStories",botTitle)
+        return storiesHashmap.get(botTitle) ?: arrayListOf("I have no idea about ".plus(botTitle))
+    }
+
+    private fun getQuotesList(): ArrayList<String> {
+        return quotesArray
+    }
+
+    private fun incrementQuoteIndex() {
+        quoteIndex = (quoteIndex + 1) % quotesArray.size
+    }
+
+    fun getCurrentQuote(): String {
+        val result = quotesArray[quoteIndex]
+        incrementQuoteIndex()
+        return result
+    }
+
     fun resetMessageChat(userUid: String, botTitle: String) {
         sharedPreferences.edit().putString(getChatMessagesKey(userUid, botTitle), "").apply()
     }
@@ -20,7 +61,7 @@ class Preferences(val context: Context) {
         sharedPreferences.edit().putString(TRANSLATIONS_EN_TO_ES.plus(message), translation).apply()
     }
 
-    fun storeEnglishTranslations(message: String, translation: String){
+    fun storeEnglishTranslations(message: String, translation: String) {
         sharedPreferences.edit().putString(TRANSLATIONS_ES_TO_EN.plus(message), translation).apply()
     }
 
@@ -160,7 +201,7 @@ class Preferences(val context: Context) {
         const val MESSAGES = "Messages"
         const val CURRENT_PATH = "CurrentPath"
         const val TRANSLATIONS_EN_TO_ES = "TranslationsEnToEs/"
-        const val TRANSLATIONS_ES_TO_EN="TranslationsEsToEn"
+        const val TRANSLATIONS_ES_TO_EN = "TranslationsEsToEn"
         const val AUDIOS = "Audios/"
     }
 }

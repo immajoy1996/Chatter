@@ -5,15 +5,20 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.fragment_story_board_one.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
 
-abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
+abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
+    TextToSpeech.OnInitListener {
 
     var prevMsgId = ConstraintSet.PARENT_ID
     var newMsgId = -1
@@ -32,10 +37,18 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
     private lateinit var timerTask: TimerTask
 
     private var isMicActive = false
+    private var textToSpeech: TextToSpeech? = null
+    private var textToSpeechInitialized = false
+
+    private var preferences: Preferences? = null
+    private var targetSpeakerName = "en-gb-x-rjs#male_2-local"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base_chat)
+        preferences = Preferences(this)
+        preferences?.setUpPreferences()
+        setUpTextToSpeech()
     }
 
     abstract fun setUpTopBar()
@@ -59,11 +72,70 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
 
     abstract fun addMessage(msg: String)
 
+    private fun setUpTextToSpeech() {
+        textToSpeech = TextToSpeech(this, this)
+        //runThroughVoiceList()
+    }
+
+    fun sayBearsNextQuote() {
+        preferences?.getCurrentQuote()?.let {
+            letBearSpeak(it)
+        }
+    }
+
+    fun runThroughVoiceList() {
+        textToSpeech?.voices?.let {
+            for (speaker in it) {
+                Log.d("Voice instance", speaker.name.toString())
+            }
+        }
+    }
+
+    fun getMyPreferences(): Preferences? {
+        return preferences
+    }
+
     private fun restartActivity() {
         finish()
         overridePendingTransition(0, 0);
         startActivity(intent)
         overridePendingTransition(0, 0);
+    }
+
+    fun letBearSpeak(text: String) {
+        if (textToSpeechInitialized) {
+            textToSpeech?.voices?.let {
+                for (speaker in it) {
+                    Log.d("speakers ", speaker.name)
+                    if (speaker.name == targetSpeakerName) {
+                        textToSpeech?.setVoice(speaker)
+                    }
+                }
+            }
+            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+        } else {
+            Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            // set US English as language for tts
+            val result = textToSpeech?.setLanguage(Locale.ENGLISH)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                textToSpeechInitialized = false
+                Toast.makeText(this, "Text to speech Language not supported", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                textToSpeechInitialized = true
+            }
+        } else {
+            textToSpeechInitialized = false
+            Toast.makeText(this, "Text to speech initilization failed", Toast.LENGTH_SHORT)
+                .show()
+        }
+
     }
 
     override fun onPause() {
@@ -72,6 +144,14 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener {
             timerTask.cancel()
         }
         handleRestartFlag()
+    }
+
+    override fun onDestroy() {
+        textToSpeech?.let {
+            it.stop()
+            it.shutdown()
+        }
+        super.onDestroy()
     }
 
     fun disposeListeners() {

@@ -51,19 +51,19 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
     private var auth = FirebaseAuth.getInstance()
     private lateinit var database: DatabaseReference
-    private lateinit var preferences: Preferences
 
     var botMessages = arrayListOf<String>()
     var userMessages = arrayListOf<String>()
     private var mediaPlayer = MediaPlayer()
 
     private var isMicActive = false
+    lateinit var preferences: Preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
-        preferences = Preferences(this)
+        preferences = getMyPreferences() ?: Preferences(this)
         setUpTopBar()
         setUpStoryBoardFragments()
         setUpNavButtons()
@@ -121,10 +121,12 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         overridePendingTransition(0, 0);
     }
 
-    private fun resetStoredMessageChat() {
-        auth.currentUser?.uid?.let {
-            preferences.resetMessageChat(it, botTitle)
-        }
+    fun getBotStories(botTitle: String): ArrayList<String> {
+        return getMyPreferences()?.getBotStories(botTitle) ?: arrayListOf(
+            "I don't know ".plus(
+                botTitle
+            )
+        )
     }
 
     private fun retrieveSavedChatState() {
@@ -667,7 +669,6 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         val pathRef = database.child(USERS).child(userUid).child("pointsRemaining")
         val pointsListener = baseValueEventListener { dataSnapshot ->
             val totalScore = dataSnapshot.value as Long
-            Toast.makeText(this, "" + totalScore, Toast.LENGTH_SHORT).show()
             if (totalScore > pointsAdded) {
                 addScoreBoostToTotalScore(userUid, totalScore - pointsAdded)
             } else {
@@ -679,7 +680,6 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
     private fun addScoreBoostToTotalScore(userUid: String, score: Long) {
         database.child(USERS).child(userUid).child("pointsRemaining").setValue(score)
-        Toast.makeText(this, "" + score, Toast.LENGTH_SHORT).show()
     }
 
     private fun setNextLevel(userUid: String, nextLevel: String) {

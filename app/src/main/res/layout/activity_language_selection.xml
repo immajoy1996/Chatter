@@ -20,17 +20,39 @@
         android:textColor="#696969"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/select_language_guideline"
+        app:layout_constraintBottom_toTopOf="@id/up_arrow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/up_arrow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/up_arrow"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/language_recycler"
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/language_recycler"
         android:layout_width="300dp"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/select_language_guideline" />
+
+    <ImageView
+        android:id="@+id/down_arrow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/down_arrow"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/language_recycler"
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/select_language_guideline"

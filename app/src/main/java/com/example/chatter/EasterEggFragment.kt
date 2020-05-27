@@ -35,7 +35,6 @@ class EasterEggFragment : Fragment() {
         updateUserTotalScore()
         setUpButtons()
         setUpViews()
-        showEasterEggAnimation()
     }
 
     private fun updateUserTotalScore(){
@@ -45,7 +44,7 @@ class EasterEggFragment : Fragment() {
     }
 
     private fun setUpButtons() {
-        exit.setOnClickListener {
+        easter_egg_close_button.setOnClickListener {
             (activity as? ChatterActivity)?.let {
                 it.closeEasterEggFragment()
             }
@@ -54,12 +53,7 @@ class EasterEggFragment : Fragment() {
 
     private fun setUpViews() {
         easter_egg_message.text = message
-        total_points.text = "+".plus(points.toString())
-        context?.let {
-            Glide.with(it)
-                .load(imageSrc)
-                .into(emotion)
-        }
+        easter_egg_price.text = points.toString()
     }
 
     private fun showEasterEggAnimation() {

@@ -64,7 +64,7 @@
         <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/egg"
+            android:src="@drawable/coin"
             android:layout_marginStart="5dp"
             app:layout_constraintStart_toEndOf="@id/score_boost"
             app:layout_constraintTop_toTopOf="@id/score_boost"
