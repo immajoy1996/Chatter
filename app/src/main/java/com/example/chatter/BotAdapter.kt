@@ -83,7 +83,4 @@ class BotAdapter(
         }
 
     }
-
-    companion object {
-    }
 }

@@ -26,7 +26,7 @@
 
         <Button
             android:id="@+id/sign_in"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:text="Sign In"
             android:textColor="#ffffff"
@@ -42,7 +42,7 @@
 
         <Button
             android:id="@+id/sign_up"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:text="Sign Up"
             android:padding="10dp"
@@ -58,7 +58,7 @@
 
         <Button
             android:id="@+id/proceed_as_guest"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:text="Proceed as Guest"
             android:padding="10dp"

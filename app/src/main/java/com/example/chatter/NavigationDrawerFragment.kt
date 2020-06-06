@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -52,16 +54,10 @@ class NavigationDrawerFragment : BaseFragment() {
                 sound_effects_button.setTextColor(Color.parseColor("#ffffff"))
             }
         }
-        stories_button.setOnClickListener {
-            if (stories_button.text == "ON") {
-                stories_button.setBackgroundResource(R.drawable.circle_disabled)
-                stories_button.text = "OFF"
-                stories_button.setTextColor(Color.parseColor("#696969"))
-            } else {
-                stories_button.setBackgroundResource(R.drawable.circle_enabled)
-                stories_button.text = "ON"
-                stories_button.setTextColor(Color.parseColor("#ffffff"))
-            }
+        camera_badge.setOnClickListener {
+            val intent = Intent(context, ProfileActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
         }
     }
 
@@ -112,25 +108,32 @@ class NavigationDrawerFragment : BaseFragment() {
     }
 
     private fun setUpNavigationOptionButtons() {
-        drawer_my_subscription_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        //drawer_categories_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         //drawer_settings_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         drawer_logout_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
     }
 
     private fun setUpButtons() {
-        drawer_settings_layout.setOnClickListener {
-            context?.startActivity(Intent(context, LevelActivity::class.java))
+        navigation_drawer_back.setOnClickListener {
+            fragmentManager?.popBackStack()
         }
+        drawer_settings_layout.setOnClickListener {
+            context?.startActivity(Intent(context, MyStashActivity::class.java))
+        }
+        drawer_categories_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        bot_category_recycler.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = BotCategoryAdapter(
+                context,
+                arrayListOf("Select a Category", "Funny", "Politics", "Quirky", "Historyl")
+            )
+        }
+        categories_left_arrow.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        categories_right_arrow.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()
             auth.signOut()
             val intent = Intent(context, SignInActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-        }
-        drawer_close_layout.setOnClickListener {
-            activity?.finish()
-            val intent = Intent(context, MyStashActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }

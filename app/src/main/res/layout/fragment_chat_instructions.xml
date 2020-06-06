@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#dcdcdc"
+    android:padding="5dp"
+    tools:context=".ChatInstructionsFragment">
+
+    <ImageView
+        android:id="@+id/close_instructions_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/close_instructions"
+        app:layout_constraintBottom_toBottomOf="@id/chat_instructions"
+        app:layout_constraintTop_toTopOf="@id/chat_instructions" />
+
+    <TextView
+        android:id="@+id/chat_instructions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Tap the message bubbles for translation. Long press for audio"
+        android:textColor="#696969"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/close_instructions_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

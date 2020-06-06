@@ -13,7 +13,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
-        android:text="Tap Bear Bot to see what he has to say. Also change Bear's personality with the buttons"
+        android:text="Change Bear Bot's personality with the buttons and tap him"
         android:textColor="#696969"
         android:textSize="20sp"
         android:textStyle="bold"

@@ -2,6 +2,7 @@ package com.example.chatter
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.LocaleList
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -12,8 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
-import kotlinx.android.synthetic.main.fragment_story_board_one.*
-import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -30,7 +29,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     var valueEventListenerArray = arrayListOf<Pair<DatabaseReference, ValueEventListener>>()
     var shouldRestart = true
 
-    private lateinit var speech: SpeechRecognizer
+    private var speech: SpeechRecognizer? = null
     private var isVocabFragment: Boolean = false
     private var isChatterActivity: Boolean = false
     var timerTaskArray = arrayListOf<TimerTask>()
@@ -42,6 +41,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     private var preferences: Preferences? = null
     private var targetSpeakerName = "en-gb-x-rjs#male_2-local"
+    private var targetSpanishSpeaker = "es-es-x-ana#female_3-local"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +57,12 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     abstract fun showFirstBotMessage()
 
+    fun getMessageCount(): Int {
+        return msgCount
+    }
+
     open fun handleNewMessageLogic(str: String) {
+        preferences?.storeTranslations(str, "")
         msgCount++
         newMsgId = 10 * msgCount
         addMessage(str)
@@ -102,6 +107,26 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         overridePendingTransition(0, 0);
     }
 
+    fun readSpanishTranslation(text: String) {
+        if (textToSpeechInitialized) {
+            textToSpeech?.voices?.let {
+                for (speaker in it) {
+                    Log.d("speakers ", speaker.name)
+                    if (speaker.name == targetSpanishSpeaker) {
+                        textToSpeech?.setVoice(speaker)
+                    }
+                }
+            }
+            if (textToSpeech?.isSpeaking == true) {
+                textToSpeech?.stop()
+            }
+            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+        } else {
+            Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
     fun letBearSpeak(text: String) {
         if (textToSpeechInitialized) {
             textToSpeech?.voices?.let {
@@ -111,6 +136,9 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
                         textToSpeech?.setVoice(speaker)
                     }
                 }
+            }
+            if (textToSpeech?.isSpeaking == true) {
+                textToSpeech?.stop()
             }
             textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
         } else {
@@ -135,7 +163,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
             Toast.makeText(this, "Text to speech initilization failed", Toast.LENGTH_SHORT)
                 .show()
         }
-
     }
 
     override fun onPause() {
@@ -150,6 +177,10 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         textToSpeech?.let {
             it.stop()
             it.shutdown()
+        }
+        speech?.let {
+            it.cancel()
+            it.destroy()
         }
         super.onDestroy()
     }
@@ -274,19 +305,19 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     fun startListening() {
         speech = SpeechRecognizer.createSpeechRecognizer(this)
-        speech.setRecognitionListener(this)
+        speech?.setRecognitionListener(this)
         val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "es")
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "es");
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please start speaking...");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "es")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please start speaking...")
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName())
         recognizerIntent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
-        );
+        )
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-        speech.startListening(recognizerIntent)
+        speech?.startListening(recognizerIntent)
     }
 
     override fun onBeginningOfSpeech() {

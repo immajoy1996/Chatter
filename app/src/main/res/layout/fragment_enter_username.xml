@@ -38,7 +38,7 @@
 
         <EditText
             android:id="@+id/user_input"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:maxLines="1"

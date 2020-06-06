@@ -24,18 +24,24 @@ class Preferences(val context: Context) {
 
     private var quoteIndex = 0
 
-    private var storiesHashmap = HashMap<String,ArrayList<String>>()
+    private var storiesHashmap = HashMap<String, ArrayList<String>>()
 
-    fun setUpPreferences(){
+    fun setUpPreferences() {
         setUpStoriesHashmap()
     }
 
-    private fun setUpStoriesHashmap(){
-        storiesHashmap.put("Hiker Harry", arrayListOf("You will be talking to Harry. Harry loves to hike","Be careful however. Harry may seem friendly but he's also quite the troublemaker."))
+    private fun setUpStoriesHashmap() {
+        storiesHashmap.put(
+            "Hiker Harry",
+            arrayListOf(
+                "You will be talking to Harry. Harry loves to hike",
+                "Be careful however. Harry may seem friendly but he's also quite the troublemaker."
+            )
+        )
     }
 
-    fun getBotStories(botTitle: String):ArrayList<String>{
-        Log.d("BotStories",botTitle)
+    fun getBotStories(botTitle: String): ArrayList<String> {
+        Log.d("BotStories", botTitle)
         return storiesHashmap.get(botTitle) ?: arrayListOf("I have no idea about ".plus(botTitle))
     }
 
@@ -53,24 +59,13 @@ class Preferences(val context: Context) {
         return result
     }
 
-    fun resetMessageChat(userUid: String, botTitle: String) {
-        sharedPreferences.edit().putString(getChatMessagesKey(userUid, botTitle), "").apply()
+    fun storeTranslations(message: String, translationEn: String) {
+        sharedPreferences.edit().putString(message, "EN - Setup the google translate api from translations").apply()
+        sharedPreferences.edit().putString("EN - Setup the google translate api from translations", message).apply()
     }
 
-    fun storeSpanishTranslations(message: String, translation: String) {
-        sharedPreferences.edit().putString(TRANSLATIONS_EN_TO_ES.plus(message), translation).apply()
-    }
-
-    fun storeEnglishTranslations(message: String, translation: String) {
-        sharedPreferences.edit().putString(TRANSLATIONS_ES_TO_EN.plus(message), translation).apply()
-    }
-
-    fun storeAudios(message: String, audio: String) {
-        sharedPreferences.edit().putString(AUDIOS.plus(message), audio).apply()
-    }
-
-    fun getSpanishTranslation(message: String): String {
-        return sharedPreferences.getString(TRANSLATIONS_EN_TO_ES.plus(message), "") ?: ""
+    fun getTranslation(message: String): String {
+        return sharedPreferences.getString(message, "") ?: ""
     }
 
     fun getEnglishTranslation(message: String): String {

@@ -27,7 +27,7 @@
 
         <TextView
             android:id="@+id/optionA"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:background="@drawable/option_bubble"
             android:layout_marginTop="10dp"
@@ -42,7 +42,7 @@
 
         <TextView
             android:id="@+id/optionB"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/option_bubble"
@@ -56,7 +56,7 @@
 
         <TextView
             android:id="@+id/optionC"
-            android:layout_width="350dp"
+            android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/option_bubble"

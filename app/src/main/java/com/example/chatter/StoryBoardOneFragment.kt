@@ -67,6 +67,7 @@ class StoryBoardOneFragment : Fragment() {
     private fun setUpPersonalityButtons() {
         good_bear_button.setOnClickListener {
             if (bearPersonality != "Nice") {
+                bear_profile.setImageResource(R.drawable.business_profile)
                 good_bear_button.setBackgroundResource(R.drawable.bear_personality_background_enabled)
                 bad_bear_button.setBackgroundResource(R.drawable.bear_personality_background_disabled)
                 bearPersonality = "Nice"
@@ -74,6 +75,7 @@ class StoryBoardOneFragment : Fragment() {
         }
         bad_bear_button.setOnClickListener {
             if (bearPersonality != "Mean") {
+                bear_profile.setImageResource(R.drawable.mad_bear)
                 good_bear_button.setBackgroundResource(R.drawable.bear_personality_background_disabled)
                 bad_bear_button.setBackgroundResource(R.drawable.bear_personality_background_enabled)
                 bearPersonality = "Mean"

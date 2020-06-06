@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="@dimen/bot_item_dimen"
         android:layout_height="@dimen/bot_item_dimen"
-        android:background="@drawable/message_bubble_selector"
+        android:background="@drawable/gem_item_selector"
         android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

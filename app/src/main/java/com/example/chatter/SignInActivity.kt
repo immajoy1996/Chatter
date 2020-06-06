@@ -1,12 +1,15 @@
 package com.example.chatter
 
+import android.animation.LayoutTransition
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -117,16 +120,30 @@ class SignInActivity : BaseChatActivity() {
     var pin: String? = null
 
     private lateinit var appExecutors: AppExecutors
+    private var TEXT_SIZE_MESSAGE: Float = 15f
+    private var MESSAGE_BUBBLE_WIDTH = 600
+    private var MESSAGE_PADDING = 20
+    private var MESSAGE_VERTICAL_SPACING = 50
+    private var PROFILE_IMAGE_SIZE = 50
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
+        setUpDimensions()
         appExecutors = AppExecutors()
         auth = FirebaseAuth.getInstance()
         databaseReference = FirebaseDatabase.getInstance().reference
         setUpTopBar()
         initializeMessagesContainer()
         showFirstBotMessage()
+    }
+
+    private fun setUpDimensions() {
+        TEXT_SIZE_MESSAGE = 1.0f * (this.resources.getInteger(R.integer.message_bubble_text_size))
+        MESSAGE_BUBBLE_WIDTH = this.resources.getInteger(R.integer.message_bubble_width)
+        MESSAGE_PADDING = this.resources.getInteger(R.integer.message_bubble_padding)
+        MESSAGE_VERTICAL_SPACING = this.resources.getInteger(R.integer.message_vertical_spacing)
+        PROFILE_IMAGE_SIZE = this.resources.getInteger(R.integer.bot_profile_size)
     }
 
     override fun setUpTopBar() {
@@ -421,7 +438,7 @@ class SignInActivity : BaseChatActivity() {
     private fun runSchoolNameCheckLogic(dataSnapshot: DataSnapshot) {
         if (dataSnapshot.hasChild("schoolName")) {
             removeRetrievingOptionsFragment()
-            Toast.makeText(this,"Verified!",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Verified!", Toast.LENGTH_SHORT).show()
             getBotResponse()
         } else {
             removeRetrievingOptionsFragment()
@@ -553,11 +570,11 @@ class SignInActivity : BaseChatActivity() {
                 setBackgroundResource(R.drawable.message_bubble_selector)
                 setTextColor(Color.parseColor("#696969"))
             }
-            setPadding(ChatterActivity.MESSAGE_PADDING)
+            setPadding(MESSAGE_PADDING)
             setId(newMsgId)
 
             text = msg
-            textSize = ChatterActivity.TEXT_SIZE_MESSAGE
+            textSize = TEXT_SIZE_MESSAGE
             if (newSide == "right") {
                 isFocusableInTouchMode = true
                 requestFocus()
@@ -580,8 +597,8 @@ class SignInActivity : BaseChatActivity() {
     fun addConstraintToProfileImageView() {
         if (newSide == "left") {
             profileImgView?.apply {
-                constraintSet.constrainHeight(id, ChatterActivity.PROFILE_IMAGE_SIZE)
-                constraintSet.constrainWidth(id, ChatterActivity.PROFILE_IMAGE_SIZE)
+                constraintSet.constrainHeight(id, PROFILE_IMAGE_SIZE)
+                constraintSet.constrainWidth(id, PROFILE_IMAGE_SIZE)
                 addViewToLayout(this)
             }
         }
@@ -590,21 +607,23 @@ class SignInActivity : BaseChatActivity() {
     fun addConstraintsForMessageTextView() {
         messageTextView?.apply {
             constraintSet.constrainHeight(id, ViewGroup.LayoutParams.WRAP_CONTENT)
-            constraintSet.constrainWidth(id, ChatterActivity.MESSAGE_BUBBLE_WIDTH)
+            constraintSet.constrainWidth(id, MESSAGE_BUBBLE_WIDTH)
         }
         addViewToLayout(messageTextView as TextView)
     }
 
     fun addConstraintToTranslationImageView() {
         translationImgView?.apply {
-            constraintSet.constrainHeight(id, ChatterActivity.TRANSLATION_IMAGE_SIZE)
-            constraintSet.constrainWidth(id, ChatterActivity.TRANSLATION_IMAGE_SIZE)
+            constraintSet.constrainHeight(id, PROFILE_IMAGE_SIZE)
+            constraintSet.constrainWidth(id, PROFILE_IMAGE_SIZE)
             addViewToLayout(this)
         }
     }
 
     private fun addViewToLayout(view: View) {
         messagesInnerLayout.addView(view)
+        view.setAlpha(0f)
+        view.animate().alpha(1f).setDuration(500)
     }
 
     fun addGeneralConstraintsForProfileImageAndMessageText() {
@@ -637,7 +656,7 @@ class SignInActivity : BaseChatActivity() {
                 ConstraintSet.TOP,
                 prevMsgId,
                 position,
-                ChatterActivity.MESSAGE_VERTICAL_SPACING
+                MESSAGE_VERTICAL_SPACING
             )
 
         } else if (newSide == "right") {
@@ -646,7 +665,7 @@ class SignInActivity : BaseChatActivity() {
                 ConstraintSet.TOP,
                 prevMsgId,
                 position,
-                ChatterActivity.MESSAGE_VERTICAL_SPACING
+                MESSAGE_VERTICAL_SPACING
             )
             constraintSet.connect(
                 textView.id,
@@ -685,12 +704,12 @@ class SignInActivity : BaseChatActivity() {
                 setBackgroundColor(Color.parseColor("#dcdcdc"))
                 setTextColor(Color.parseColor("#dcdcdc"))
             }
-            setPadding(ChatterActivity.MESSAGE_PADDING)
+            setPadding(MESSAGE_PADDING)
             setId(spaceId)
             text = "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
                     "dfsdfdsfdsfdsfdsfdsfdsdsfdsfds" +
                     "dsfdsfdsfdshelloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd"
-            textSize = ChatterActivity.TEXT_SIZE_MESSAGE
+            textSize = TEXT_SIZE_MESSAGE
             isFocusableInTouchMode = true
             requestFocus()
         }
@@ -704,7 +723,7 @@ class SignInActivity : BaseChatActivity() {
                 ConstraintSet.TOP,
                 prevMsgId,
                 ConstraintSet.BOTTOM,
-                ChatterActivity.MESSAGE_VERTICAL_SPACING
+                MESSAGE_VERTICAL_SPACING
             )
         }
     }
@@ -712,7 +731,7 @@ class SignInActivity : BaseChatActivity() {
     private fun addConstraintsForSpaceView() {
         messageTextView?.apply {
             constraintSet.constrainHeight(id, ViewGroup.LayoutParams.WRAP_CONTENT)
-            constraintSet.constrainWidth(id, ChatterActivity.MESSAGE_BUBBLE_WIDTH)
+            constraintSet.constrainWidth(id, MESSAGE_BUBBLE_WIDTH)
         }
         addViewToLayout(messageTextView as TextView)
     }

@@ -29,6 +29,21 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <TextView
+        android:id="@+id/chat_instructions_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Help?"
+        android:textColor="#696969"
+        android:gravity="center"
+        android:padding="5dp"
+        android:background="@drawable/message_bubble_selector"
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </TextView>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/optionsPopupContainer"
         android:layout_width="match_parent"

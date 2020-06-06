@@ -10,7 +10,10 @@ import kotlinx.android.synthetic.main.gem_grid_item_view.view.*
 class GemsGridAdapter(
     val context: Context,
     var gemImages: ArrayList<Int>,
-    var haveGems: ArrayList<Boolean>
+    var haveGems: ArrayList<Boolean>,
+    var gemNames: ArrayList<String>,
+    var gemPrices: ArrayList<Int>,
+    var gemClickInterface: GemClickInterface
 ) :
     RecyclerView.Adapter<GemsGridAdapter.GemsViewHolder>() {
 
@@ -28,6 +31,9 @@ class GemsGridAdapter(
         val gemImage = gemImages[position]
         val doIhaveIt = haveGems[position]
         holder.bind(gemImage, doIhaveIt)
+        holder.itemView.setOnClickListener {
+            gemClickInterface.onGemClicked(gemNames[position],gemPrices[position])
+        }
     }
 
     override fun getItemCount(): Int = gemImages.size

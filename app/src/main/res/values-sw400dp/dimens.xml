@@ -2,4 +2,13 @@
 <resources>
     <dimen name="bot_item_layout_dimen">133dp</dimen>
     <dimen name="bot_item_dimen">118dp</dimen>
+    <dimen name="profile_item_layout_dimen">80dp</dimen>
+    <dimen name="profile_item_dimen">70dp</dimen>
+    <dimen name="option_width">350dp</dimen>
+    <dimen name="message_container_height">400dp</dimen>
+    <integer name="message_bubble_text_size">20</integer>
+    <integer name="message_bubble_width">800</integer>
+    <integer name="message_bubble_padding">35</integer>
+    <integer name="message_vertical_spacing">100</integer>
+    <integer name="bot_profile_size">100</integer>
 </resources>
