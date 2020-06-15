@@ -13,6 +13,7 @@ class Preferences(val context: Context) {
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
 
     private val quotesArray = arrayListOf<String>(
+        "",
         "Hi, I'm Bear Bot. I'm here to help because you really suck at Spanish",
         "Who ever thought talking to a bear was a good idea?",
         "You think you're amazing. Think again",

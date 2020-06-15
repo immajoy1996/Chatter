@@ -2,7 +2,6 @@ package com.example.chatter
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.LocaleList
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer

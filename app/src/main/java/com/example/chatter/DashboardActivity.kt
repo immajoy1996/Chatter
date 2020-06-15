@@ -66,9 +66,12 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         home.setOnClickListener {
             loadNavigationDrawer()
         }
+        top_bar_quiz.setOnClickListener {
+            startActivity(Intent(this, QuizActivity::class.java))
+        }
         top_bar_title.text = "Dashboard"
         top_bar_mic.visibility = View.GONE
-        //category_spinner.visibility = View.VISIBLE
+        top_bar_quiz.visibility = View.VISIBLE
     }
 
     private fun getBotItemSpacing(): Int {

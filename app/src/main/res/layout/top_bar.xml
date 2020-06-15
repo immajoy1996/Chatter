@@ -14,11 +14,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             android:id="@+id/home"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/coin" />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/blue_menu_icon" />
 
         <ImageView
             android:id="@+id/back"
@@ -49,7 +49,20 @@
         android:layout_height="80dp"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="10dp"
+        android:visibility="visible"
         android:src="@drawable/microphone_listening"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/top_bar_quiz"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/quiz_icon"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -244,7 +244,10 @@ class SignInActivity : BaseChatActivity() {
 
     fun runMessageFlowSignUp(msg: String) {
         handleNewMessageLogic(msg)
-        getBotResponseForSignUp()
+        setScenario(SIGN_UP_INDIVIDUAL)
+        setUserAndBotResponseArrays()
+        //getBotResponseForSignUp()
+        getBotResponse()
     }
 
     fun removeOptionsMenu() {

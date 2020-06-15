@@ -33,7 +33,7 @@
         android:id="@+id/chat_instructions_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Help?"
+        android:text="Tap chat bubbles for translation, long press for audio"
         android:textColor="#696969"
         android:gravity="center"
         android:padding="5dp"

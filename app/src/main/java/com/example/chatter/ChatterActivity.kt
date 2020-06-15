@@ -5,12 +5,16 @@ import android.graphics.drawable.AnimationDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.speech.SpeechRecognizer
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.util.Log
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
