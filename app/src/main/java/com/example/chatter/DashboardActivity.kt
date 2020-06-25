@@ -151,6 +151,17 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
             .commit()
     }
 
+    fun loadLanguageSelectionScreen() {
+        val intent = Intent(this, LanguageSelectionActivity::class.java)
+        intent.putExtra("ChangingDefaultLanguage", CHANGING_DEFAULT_LANG)
+        startActivity(intent)
+    }
+
+    fun loadCategoriesSelectionScreen() {
+        val intent = Intent(this, CategorySelectionActivity::class.java)
+        startActivity(intent)
+    }
+
     fun isGuestMode(): Boolean {
         return guestMode
     }
@@ -267,5 +278,6 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         private const val TOTAL_BOTS = 4
         private const val BOT_ITEM_SPACING = 40
         private const val BOT_TITLE = "BOT_TITLE"
+        const val CHANGING_DEFAULT_LANG = -1
     }
 }

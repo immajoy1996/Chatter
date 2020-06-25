@@ -218,17 +218,6 @@
         app:layout_constraintTop_toBottomOf="@id/drawer_settings_layout">
 
         <ImageView
-            android:id="@+id/categories_left_arrow"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/left_arrow"
-            android:layout_marginEnd="10dp"
-            app:layout_constraintEnd_toStartOf="@id/bot_category_recycler"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
-
-        <ImageView
             android:id="@+id/drawer_categories_image"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -238,26 +227,48 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/categories_right_arrow"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/right_arrow"
-            android:layout_marginStart="10dp"
-            app:layout_constraintStart_toEndOf="@id/bot_category_recycler"
-            app:layout_constraintBottom_toBottomOf="@id/bot_category_recycler"
-            app:layout_constraintTop_toTopOf="@id/bot_category_recycler"
-            />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/bot_category_recycler"
-            android:layout_width="165dp"
-            android:layout_height="match_parent"
+        <TextView
+            android:id="@+id/drawer_caregories_text"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginStart="100dp"
-            app:layout_constraintBottom_toBottomOf="@id/bot_category_recycler"
+            android:gravity="center"
+            android:text="Category: All Bots"
+            android:textAllCaps="false"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/drawer_language_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/navigation_option"
+        app:layout_constraintTop_toBottomOf="@id/drawer_categories_layout">
+
+        <ImageView
+            android:id="@+id/drawer_language_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="30dp"
+            android:src="@drawable/world"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/bot_category_recycler"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/drawer_language_text"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginStart="100dp"
+            android:gravity="center"
+            android:text="Language: Hindi"
+            android:textAllCaps="false"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -266,7 +277,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/navigation_option"
-        app:layout_constraintTop_toBottomOf="@id/drawer_categories_layout">
+        app:layout_constraintTop_toBottomOf="@id/drawer_language_layout">
 
         <ImageView
             android:id="@+id/drawer_logout_image"

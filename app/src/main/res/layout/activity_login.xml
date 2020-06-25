@@ -7,8 +7,7 @@
     android:background="#0084FF"
     tools:context=".GetStartedActivity">
 
-    <LinearLayout
-        android:id="@+id/app_name_layout"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -16,39 +15,58 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/logo"
-            android:layout_gravity="center"
-            />
-
-        <TextView
-            android:id="@+id/app_name"
+        <LinearLayout
+            android:id="@+id/app_name_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="Chatter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@drawable/logo" />
+
+            <TextView
+                android:id="@+id/app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Chatter"
+                android:textColor="#ffffff"
+                android:textSize="50sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/logo" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/get_started_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/login_button_background"
+            android:padding="10dp"
+            android:text="Get Started"
             android:textColor="#ffffff"
-            android:textSize="50sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/logo" />
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_name_layout" />
 
-    </LinearLayout>
+        <TextView
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Learn conversational American English with chat bots"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/get_started_button" />
 
-    <Button
-        android:id="@+id/get_started_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Get Started"
-        android:textColor="#ffffff"
-        android:textSize="20sp"
-        android:background="@drawable/login_button_background"
-        android:padding="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_name_layout"
-        />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

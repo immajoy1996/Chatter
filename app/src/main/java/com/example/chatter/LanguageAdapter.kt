@@ -1,9 +1,11 @@
 package com.example.chatter
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.nations_item_view.view.*
 
@@ -47,9 +49,11 @@ class LanguageAdapter(
             itemView.country.text = nation
             itemView.flagImg.setImageResource(flagResId)
             if (selectedPos == position) {
-                itemView.language_selector_filled.visibility = View.VISIBLE
+                itemView.language_selector_green_check.visibility = View.VISIBLE
+                itemView.nations_item_layout.setBackgroundResource(R.drawable.nation_item_view_background_enabled)
             } else {
-                itemView.language_selector_filled.visibility = View.GONE
+                itemView.language_selector_green_check.visibility = View.GONE
+                itemView.nations_item_layout.setBackgroundResource(R.drawable.nation_item_view_background)
             }
         }
     }

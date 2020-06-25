@@ -37,7 +37,7 @@ class NavigationDrawerFragment : BaseFragment() {
             preferences = Preferences(it)
         }
         setUpUserInfo()
-        setUpNavigationOptionButtons()
+        setUpButtonImages()
         setUpButtons()
         setUpProfileButtons()
     }
@@ -68,11 +68,11 @@ class NavigationDrawerFragment : BaseFragment() {
                 val emailRef = databaseReference.child(USERS.plus(it)).child("email")
                 val pointsRemainingRef =
                     databaseReference.child(USERS.plus(it)).child("pointsRemaining")
-                var emailListener = baseValueEventListener { dataSnapshot ->
+                val emailListener = baseValueEventListener { dataSnapshot ->
                     val email = dataSnapshot.value.toString()
                     navigation_drawer_username.text = email.removeSuffix("@gmail.com")
                 }
-                var pointsRemainingListener = baseValueEventListener { dataSnapshot ->
+                val pointsRemainingListener = baseValueEventListener { dataSnapshot ->
                     val pointsRemaining = dataSnapshot.value as Long
                     navigation_drawer_user_score.text = pointsRemaining.toString()
                 }
@@ -107,9 +107,9 @@ class NavigationDrawerFragment : BaseFragment() {
         }
     }
 
-    private fun setUpNavigationOptionButtons() {
-        //drawer_categories_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
-        //drawer_settings_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+    private fun setUpButtonImages() {
+        drawer_categories_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        drawer_language_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         drawer_logout_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
     }
 
@@ -120,16 +120,6 @@ class NavigationDrawerFragment : BaseFragment() {
         drawer_settings_layout.setOnClickListener {
             context?.startActivity(Intent(context, MyStashActivity::class.java))
         }
-        drawer_categories_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
-        bot_category_recycler.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = BotCategoryAdapter(
-                context,
-                arrayListOf("Select a Category", "Funny", "Politics", "Quirky", "Historyl")
-            )
-        }
-        categories_left_arrow.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
-        categories_right_arrow.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()
             auth.signOut()
@@ -137,7 +127,12 @@ class NavigationDrawerFragment : BaseFragment() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }
-        //drawer_close_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+        drawer_language_layout.setOnClickListener {
+            (activity as? DashboardActivity)?.loadLanguageSelectionScreen()
+        }
+        drawer_categories_layout.setOnClickListener {
+            (activity as? DashboardActivity)?.loadCategoriesSelectionScreen()
+        }
     }
 
     companion object {

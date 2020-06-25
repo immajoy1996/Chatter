@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#dcdcdc"
-    tools:context=".LanguageSelectionActivity">
+    tools:context=".CategorySelectionActivity">
 
     <include
         android:id="@+id/top_bar"
@@ -16,51 +16,51 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Select Your Native Language"
+        android:text="Select a Bot Category"
         android:textColor="#696969"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/language_selection_up_arrow"
+        app:layout_constraintBottom_toTopOf="@id/category_selection_up_arrow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/language_selection_up_arrow"
+        android:id="@+id/category_selection_up_arrow"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@drawable/up_arrow"
         android:layout_marginBottom="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/language_recycler"
+        app:layout_constraintBottom_toTopOf="@id/category_recycler"
         />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/language_recycler"
+        android:id="@+id/category_recycler"
         android:layout_width="300dp"
         android:layout_height="150dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/select_language_guideline" />
+        app:layout_constraintTop_toBottomOf="@id/select_category_guideline" />
 
     <ImageView
-        android:id="@+id/language_selection_down_arrow"
+        android:id="@+id/category_selection_down_arrow"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@drawable/down_arrow"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/language_recycler"
+        app:layout_constraintTop_toBottomOf="@id/category_recycler"
         />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/select_language_guideline"
+        android:id="@+id/select_category_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".4" />
 
-    <include layout="@layout/bottom_nav_bar" android:id="@+id/language_selection_bottom_bar"/>
+    <include layout="@layout/bottom_nav_bar" android:id="@+id/category_selection_bottom_bar"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
