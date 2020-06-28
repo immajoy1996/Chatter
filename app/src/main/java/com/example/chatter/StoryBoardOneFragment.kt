@@ -41,6 +41,8 @@ class StoryBoardOneFragment : Fragment() {
     private var quoteIndex = 0
 
     private var clicked = false
+    private val handler = Handler()
+    private var characterAdder: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,11 +75,10 @@ class StoryBoardOneFragment : Fragment() {
         hideBearChatBubble()
         initializing_audio_textview.visibility = View.VISIBLE
         initializing_audio_textview.text = "Waking up bear bot"
-        var typingMessage = "Waking up bear bot ".plus("...")
-        val handler = Handler()
-        var start = "Waking up bear bot ".length
+        val typingMessage = "Waking up bear bot ".plus("...")
+        val start = "Waking up bear bot ".length
         var pos = 0
-        val characterAdder: Runnable = object : Runnable {
+        characterAdder = object : Runnable {
             override fun run() {
                 if (initializing_audio_textview.text.contains("Waking up bear bot")) {
                     var setStr = typingMessage.subSequence(0, start + pos + 1)
@@ -102,6 +103,13 @@ class StoryBoardOneFragment : Fragment() {
         handler.postDelayed(characterAdder, delay)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        characterAdder?.let {
+            handler.removeCallbacks(it)
+        }
+    }
+
     fun showInitializeAudioMessage() {
         showInitAudioAnimation(300)
         (activity as? ChatterActivity)?.let {
@@ -113,29 +121,33 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun bearBotFadeIn() {
-        bear_profile.visibility = View.INVISIBLE
-        val aniFade = AnimationUtils.loadAnimation(
-            context,
-            R.anim.fade_in
-        )
-        bear_profile.startAnimation(aniFade)
-        bear_chat_bubble.startAnimation(aniFade)
-        tap_me_textview.startAnimation(aniFade)
-        aniFade.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(arg0: Animation) {}
-            override fun onAnimationRepeat(arg0: Animation) {}
-            override fun onAnimationEnd(arg0: Animation) {
-                bear_profile.visibility = View.VISIBLE
-                bear_chat_bubble.visibility = View.VISIBLE
-                tap_me_textview.visibility = View.VISIBLE
-            }
-        })
+        if(this.isVisible) {
+            bear_profile.visibility = View.INVISIBLE
+            val aniFade = AnimationUtils.loadAnimation(
+                context,
+                R.anim.fade_in
+            )
+            bear_profile.startAnimation(aniFade)
+            bear_chat_bubble.startAnimation(aniFade)
+            tap_me_textview.startAnimation(aniFade)
+            aniFade.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(arg0: Animation) {}
+                override fun onAnimationRepeat(arg0: Animation) {}
+                override fun onAnimationEnd(arg0: Animation) {
+                    bear_profile.visibility = View.VISIBLE
+                    bear_chat_bubble.visibility = View.VISIBLE
+                    tap_me_textview.visibility = View.VISIBLE
+                }
+            })
+        }
     }
 
     private fun hideInitAudioMessageAndWakeButton() {
-        wake_up_bear_button.visibility = View.GONE
-        initializing_audio_textview.text = "Complete"
-        initializing_audio_textview.visibility = View.GONE
+        if(this.isVisible) {
+            wake_up_bear_button.visibility = View.GONE
+            initializing_audio_textview.text = "Complete"
+            initializing_audio_textview.visibility = View.GONE
+        }
     }
 
     private fun sayInstruction() {
@@ -158,7 +170,7 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun setUpAudio() {
-        (activity as? ChatterActivity)?.sayBearsNextQuote()
+        (activity as? ChatterActivity)?.letBearSpeak("")
     }
 
     private fun setUpPersonalityButtons() {
@@ -178,7 +190,7 @@ class StoryBoardOneFragment : Fragment() {
     }*/
 
     private fun setUpTopBar() {
-        top_bar_title.setText("Storyboard")
+        top_bar_title.setText("Bear Bot")
         top_bar_mic.visibility = View.INVISIBLE
     }
 

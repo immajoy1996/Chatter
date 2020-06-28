@@ -2,6 +2,7 @@ package com.example.chatter
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.widget.TextView
+import android.widget.Toast
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_chatter.*
@@ -166,7 +168,6 @@ class MessageMenuOptionsFragment : BaseFragment() {
         optionB.visibility = View.GONE
         optionC.visibility = View.GONE
         conversation_end_message.visibility = View.VISIBLE
-
     }
 
     private fun setUpOptionMenuText(path: String, option: TextView) {
@@ -180,20 +181,49 @@ class MessageMenuOptionsFragment : BaseFragment() {
         chatterActivity.disableNextButton()
     }
 
+    private fun isTextMatch(text: String, target: String): Boolean {
+        val parts = target.split(" ")
+        var count = 0
+        for (str in parts) {
+            val c = str.last()
+            var temp = str
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) {
+                //last char is punctuation
+                temp = str.subSequence(0, str.length - 1).toString()
+            }
+            if (text.contains(temp, ignoreCase = true)) {
+                count++
+            }
+        }
+        Log.d("Text matching ", "${count} ${parts.size}")
+        return count > MATCH_PERCENTAGE * parts.size
+    }
+
+    private fun performOptionClick(optionType: String, userText: String) {
+        chatterActivity.let {
+            val path = it.currentPath + optionType + "/"
+            it.currentPath = path
+            chatterActivity.removeOptionsMenu()
+            chatterActivity.addUserMessage(userText)
+            it.handleNewMessageLogic(userText)
+            getBotResponse(it.currentPath)
+        }
+    }
+
     fun selectOptionsWithVoice(text: String) {
-        when (text) {
-            "hermano" -> {
-                optionA.performClick()
-                showScoreBoostAnimation(false)
-            }
-            "amigo" -> {
-                optionB.performClick()
-                showScoreBoostAnimation(false)
-            }
-            "gato" -> {
-                optionC.performClick()
-                showScoreBoostAnimation(false)
-            }
+        if (isTextMatch(text, optionA.text.toString())) {
+            optionA.performClick()
+            //performOptionClick("optionA", optionA.text.toString())
+            showScoreBoostAnimation(false)
+        } else if (isTextMatch(text, optionB.text.toString())) {
+            optionB.performClick()
+            //performOptionClick("optionB", optionB.text.toString())
+            showScoreBoostAnimation(false)
+        } else if (isTextMatch(text, optionC.text.toString())) {
+            optionC.performClick()
+            showScoreBoostAnimation(false)
+        } else {
+            Toast.makeText(context, "Couldn't match your sentence", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -217,6 +247,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
     }
 
     companion object {
+        private const val MATCH_PERCENTAGE = 0.7
         fun newInstance(): MessageMenuOptionsFragment {
             return MessageMenuOptionsFragment()
         }

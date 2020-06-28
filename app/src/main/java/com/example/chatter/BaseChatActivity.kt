@@ -39,8 +39,9 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     private var textToSpeechInitialized = false
 
     private var preferences: Preferences? = null
-    private var targetSpeakerName = "en-gb-x-rjs#male_2-local"
-    private var targetSpanishSpeaker = "es-es-x-ana#female_3-local"
+    private var targetBearBotSpeakerName = "en-us-x-sfg-local"
+    private var targetMaleAmericanSpeaker = "en-us-x-sfg#male_2-local"
+    private var targetFemaleAmericanSpeaker = "en-us-x-sfg#female_2-local"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,12 +107,12 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         overridePendingTransition(0, 0);
     }
 
-    fun readSpanishTranslation(text: String) {
+    fun readMessageBubble(text: String) {
         if (textToSpeechInitialized) {
             textToSpeech?.voices?.let {
                 for (speaker in it) {
                     Log.d("speakers ", speaker.name)
-                    if (speaker.name == targetSpanishSpeaker) {
+                    if (speaker.name == targetMaleAmericanSpeaker) {
                         textToSpeech?.setVoice(speaker)
                     }
                 }
@@ -131,7 +132,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
             textToSpeech?.voices?.let {
                 for (speaker in it) {
                     Log.d("speakers ", speaker.name)
-                    if (speaker.name == targetSpeakerName) {
+                    if (speaker.name == targetBearBotSpeakerName) {
                         textToSpeech?.setVoice(speaker)
                     }
                 }
@@ -306,9 +307,9 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         speech = SpeechRecognizer.createSpeechRecognizer(this)
         speech?.setRecognitionListener(this)
         val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es");
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "es")
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "es")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "en")
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please start speaking...")
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName())
         recognizerIntent.putExtra(
@@ -332,6 +333,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     }
 
     override fun onError(error: Int) {
+        Log.d("Speech Error", error.toString())
     }
 
     override fun onEvent(eventType: Int, params: Bundle?) {

@@ -128,7 +128,15 @@ class NavigationDrawerFragment : BaseFragment() {
             startActivity(intent)
         }
         drawer_language_layout.setOnClickListener {
-            (activity as? DashboardActivity)?.loadLanguageSelectionScreen()
+            when(activity){
+                is DashboardActivity -> {
+                    (activity as? DashboardActivity)?.loadLanguageSelectionScreen()
+                }
+                is ChatterActivity->{
+                    
+                }
+            }
+
         }
         drawer_categories_layout.setOnClickListener {
             (activity as? DashboardActivity)?.loadCategoriesSelectionScreen()

@@ -13,8 +13,7 @@ class Preferences(val context: Context) {
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
 
     private val quotesArray = arrayListOf<String>(
-        "",
-        "Hi, I'm Bear Bot. I'm here to help because you really suck at Spanish",
+        "Hi, I'm Bear Bot. I'm here to help because you really suck at English",
         "Who ever thought talking to a bear was a good idea?",
         "You think you're amazing. Think again",
         "Unfortunately, they don't pay me enough to be positive",
@@ -22,8 +21,6 @@ class Preferences(val context: Context) {
         "Sometimes I'm encouraging. Not today!",
         "I haven't had honey in so long. Can you get me some?"
     )
-
-    private var quoteIndex = 0
 
     private var storiesHashmap = HashMap<String, ArrayList<String>>()
 
@@ -46,23 +43,28 @@ class Preferences(val context: Context) {
         return storiesHashmap.get(botTitle) ?: arrayListOf("I have no idea about ".plus(botTitle))
     }
 
-    private fun getQuotesList(): ArrayList<String> {
-        return quotesArray
-    }
-
     private fun incrementQuoteIndex() {
+        var quoteIndex = getQuoteIndex()
         quoteIndex = (quoteIndex + 1) % quotesArray.size
+        sharedPreferences.edit().putInt(QUOTE_INDEX, quoteIndex).apply()
     }
 
     fun getCurrentQuote(): String {
+        val quoteIndex = getQuoteIndex()
         val result = quotesArray[quoteIndex]
         incrementQuoteIndex()
         return result
     }
 
+    private fun getQuoteIndex(): Int {
+        return sharedPreferences.getInt(QUOTE_INDEX, 0)
+    }
+
     fun storeTranslations(message: String, translationEn: String) {
-        sharedPreferences.edit().putString(message, "EN - Setup the google translate api from translations").apply()
-        sharedPreferences.edit().putString("EN - Setup the google translate api from translations", message).apply()
+        sharedPreferences.edit()
+            .putString(message, "EN - Setup the google translate api from translations").apply()
+        sharedPreferences.edit()
+            .putString("EN - Setup the google translate api from translations", message).apply()
     }
 
     fun getTranslation(message: String): String {
@@ -199,5 +201,6 @@ class Preferences(val context: Context) {
         const val TRANSLATIONS_EN_TO_ES = "TranslationsEnToEs/"
         const val TRANSLATIONS_ES_TO_EN = "TranslationsEsToEn"
         const val AUDIOS = "Audios/"
+        const val QUOTE_INDEX = "QuoteIndex"
     }
 }

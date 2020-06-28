@@ -9,6 +9,6 @@
     <integer name="message_bubble_text_size">20</integer>
     <integer name="message_bubble_width">800</integer>
     <integer name="message_bubble_padding">35</integer>
-    <integer name="message_vertical_spacing">100</integer>
+    <integer name="message_vertical_spacing">80</integer>
     <integer name="bot_profile_size">100</integer>
 </resources>
