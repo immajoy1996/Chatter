@@ -1,6 +1,7 @@
 package com.example.chatter
 
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.speech.tts.TextToSpeech
@@ -32,7 +33,7 @@ class StoryBoardOneFragment : Fragment() {
     var botTitle: String? = null
     private lateinit var database: DatabaseReference
     private var topMessage1 =
-        "Wake up Bear Bot to see what he has to say. He's probably not going to be too happy."
+        "Wake up Bear Bot to hear an interesting fact. He knows so many things."
     private var topMessage2 = "Tap Bear Bot to hear his valuable insight"
     private var continueMessage = "Click Next to start"
 
@@ -43,6 +44,8 @@ class StoryBoardOneFragment : Fragment() {
     private var clicked = false
     private val handler = Handler()
     private var characterAdder: Runnable? = null
+
+    private var mediaPlayer = MediaPlayer()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -121,7 +124,7 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun bearBotFadeIn() {
-        if(this.isVisible) {
+        if (this.isVisible) {
             bear_profile.visibility = View.INVISIBLE
             val aniFade = AnimationUtils.loadAnimation(
                 context,
@@ -143,7 +146,7 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun hideInitAudioMessageAndWakeButton() {
-        if(this.isVisible) {
+        if (this.isVisible) {
             wake_up_bear_button.visibility = View.GONE
             initializing_audio_textview.text = "Complete"
             initializing_audio_textview.visibility = View.GONE
@@ -157,6 +160,11 @@ class StoryBoardOneFragment : Fragment() {
 
     private fun setUpBearClick() {
         bear_profile.setOnClickListener {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop()
+                mediaPlayer.release()
+                mediaPlayer = MediaPlayer()
+            }
             if (bearPersonality == "Nice") {
                 botTitle?.let {
                     quotesArray = (activity as? ChatterActivity)?.getBotStories(it)
@@ -175,9 +183,23 @@ class StoryBoardOneFragment : Fragment() {
 
     private fun setUpPersonalityButtons() {
         wake_up_bear_button.setOnClickListener {
+            playMedia(BEAR_YAWN_PATH)
             wake_up_bear_button.isClickable = false
             showInitializeAudioMessage()
             setUpAudio()
+        }
+    }
+
+    private fun playMedia(audio: String) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(audio)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener {
+            mediaPlayer.start()
         }
     }
     /*bad_bear_button.setOnClickListener {
@@ -253,6 +275,9 @@ class StoryBoardOneFragment : Fragment() {
 
     companion object {
         const val BOT_CATALOG = "BotCatalog/"
+        const val BEAR_YAWN_PATH =
+            "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/vocabAudio%2Fbear_yawn.mp3?alt=media&token=d531b301-d03c-4181-bdb0-61079b25145d"
+
         fun newInstance(botTitle: String): StoryBoardOneFragment {
             val fragment = StoryBoardOneFragment()
             fragment.botTitle = botTitle

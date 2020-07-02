@@ -27,14 +27,19 @@ class QuizFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpTopBar()
         fetchQuizQuestions()
         setUpOptionClick()
+    }
+
+    private fun setUpTopBar(){
+        (activity as? BotQuizSelectionActivity)?.setUpQuizTopBar()
     }
 
     private fun fetchQuizQuestions() {
         database = FirebaseDatabase.getInstance().reference
         val quizReference = database.child("Quiz")
-        val questionListener = (activity as? QuizActivity)?.let {
+        val questionListener = (activity as? BotQuizSelectionActivity)?.let {
             it.baseChildEventListener { dataSnapshot ->
                 val questionItem = convertDataToQuestionItem(dataSnapshot)
                 questionArray.add(questionItem)
@@ -184,11 +189,16 @@ class QuizFragment : Fragment() {
     }
 
     private fun runNextQuestionLogic() {
-        (activity as? QuizActivity)?.let {
+        (activity as? BotQuizSelectionActivity)?.let {
             it.setTimerTask("pauseBeforeNextQuestion", 700, {
                 goToNextQuestion()
             })
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        (activity as? BotQuizSelectionActivity)?.setUpTopBar()
     }
 
     companion object {

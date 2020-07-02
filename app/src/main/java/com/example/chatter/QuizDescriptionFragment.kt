@@ -27,8 +27,8 @@ class QuizDescriptionFragment : Fragment() {
             activity?.finish()
         }
         start_quiz_button.setOnClickListener {
-            fragmentManager?.popBackStack()
-            (activity as? QuizActivity)?.loadQuizFragment()
+            val intent = Intent(context, ConcentrationActivity::class.java)
+            startActivity(intent)
         }
     }
 }

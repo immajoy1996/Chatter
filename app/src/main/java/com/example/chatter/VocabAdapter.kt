@@ -1,7 +1,6 @@
 package com.example.chatter
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +9,11 @@ import kotlinx.android.synthetic.main.vocab_item_view.view.*
 
 class VocabAdapter(
     val context: Context,
-    var audioSrc: ArrayList<String>,
-    var spanishWords: ArrayList<String>,
-    var translations: ArrayList<String>,
-    var transliterations: ArrayList<String>
+    var expressions: ArrayList<String>,
+    var definitions: ArrayList<String>,
+    var expressionClickInterface: ExpressionClickInterface
 ) :
     RecyclerView.Adapter<VocabAdapter.VocabViewHolder>() {
-    var mediaPlayer = MediaPlayer()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VocabViewHolder {
         return VocabViewHolder(
@@ -29,36 +26,20 @@ class VocabAdapter(
     }
 
     override fun onBindViewHolder(holder: VocabViewHolder, position: Int) {
-        val audio = audioSrc[position]
-        val spanishWord = spanishWords[position]
-        val translation = translations[position]
-        val transliteration = transliterations[position]
-        holder.bind(audio, spanishWord, translation, transliteration)
+        val expression = expressions[position]
+        val definition = definitions[position]
+        holder.bind(expression, definition)
     }
 
-    override fun getItemCount(): Int = spanishWords.size
+    override fun getItemCount(): Int = expressions.size
 
     inner class VocabViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind(audio: String, spanishWord: String, translation: String, transliteration: String) {
-            itemView.spanish_word.text = spanishWord
-            itemView.translation.text = translation
-            itemView.transliteration.text = transliteration
+        fun bind(expression: String, definition: String) {
+            itemView.spanish_word.text = expression
+            itemView.translation.text = definition
             itemView.setOnClickListener {
-                playMedia(audio)
-            }
-        }
-
-        private fun playMedia(audio: String) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop()
-                mediaPlayer.release()
-            }
-            mediaPlayer = MediaPlayer()
-            mediaPlayer.setDataSource(audio)
-            mediaPlayer.prepareAsync()
-            mediaPlayer.setOnPreparedListener {
-                mediaPlayer.start()
+                expressionClickInterface.onExpressionClicked(expression)
             }
         }
     }

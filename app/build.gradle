@@ -24,6 +24,21 @@ android {
         }
     }
 
+    android {
+        packagingOptions {
+            exclude 'META-INF/DEPENDENCIES'
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/LICENSE.txt'
+            exclude 'META-INF/license.txt'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/NOTICE.txt'
+            exclude 'META-INF/notice.txt'
+            exclude 'META-INF/ASL2.0'
+            exclude("META-INF/*.kotlin_module")
+            exclude("META-INF/INDEX.LIST")
+        }
+    }
+
 // To inline the bytecode built with JVM target 1.8 into
 // bytecode that is being built with JVM target 1.6. (e.g. navArgs)
 
@@ -59,6 +74,8 @@ dependencies {
 
     //PinView
     implementation 'com.chaos.view:pinview:1.4.3'
+
+    implementation 'com.google.cloud:google-cloud-translate:1.95.0'
 
     //Send email
     implementation 'com.sun.mail:android-mail:1.6.0'

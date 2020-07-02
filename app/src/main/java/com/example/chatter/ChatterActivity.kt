@@ -5,36 +5,32 @@ import android.graphics.drawable.AnimationDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.speech.SpeechRecognizer
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.util.Log
-import android.view.HapticFeedbackConstants
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
-import kotlinx.android.synthetic.main.activity_dashboard.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
-class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
+class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, ExpressionClickInterface {
 
     private var constraintSet = ConstraintSet()
 
@@ -46,7 +42,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     private lateinit var storyBoardOneFragment: StoryBoardOneFragment
     private lateinit var storyBoardTwoFragment: StoryBoardTwoFragment
     private lateinit var easterEggFragment: EasterEggFragment
-    private val navigationDrawerFragment=NavigationDrawerFragment()
+    private val navigationDrawerFragment = NavigationDrawerFragment()
 
     var currentPath = ""
 
@@ -56,6 +52,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     private var translationTextView: TextView? = null
 
     private lateinit var botTitle: String
+    private lateinit var botImagePath: String
 
     private var auth = FirebaseAuth.getInstance()
     private lateinit var database: DatabaseReference
@@ -73,11 +70,14 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     private var MESSAGE_VERTICAL_SPACING = 50
     private var PROFILE_IMAGE_SIZE = 50
 
+    var executorService: ExecutorService? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
         preferences = getMyPreferences() ?: Preferences(this)
+        executorService = Executors.newFixedThreadPool(5)
         setUpDimensions()
         setUpTopBar()
         setUpStoryBoardFragments()
@@ -98,7 +98,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         top_bar_mic.setOnClickListener {
             if (!isMicActive) {
                 letBearSpeak("Please say an option at the tone")
-                setTimerTask("voicePrompt",3000) {
+                setTimerTask("voicePrompt", 3000) {
                     isMicActive = true
                     toggleIsChatterActivity(true)
                     top_bar_mic.setImageResource(R.drawable.microphone_listening)
@@ -111,7 +111,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
             }
         }
         home.setOnClickListener {
-            loadNavigationDrawer()
+            refreshChatMessages()
         }
     }
 
@@ -139,9 +139,27 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         constraintSet.clone(messagesInnerLayout)
     }
 
+    private fun setUpTranslationForMessage(
+        msgId: Int,
+        originalMsg: String,
+        targetLanguage: String
+    ) {
+        setUpTranslationTextView("getting translation ...")
+        if (originalMsg.contains("bot is typing")) return
+        executorService?.submit {
+            val result = translate(originalMsg, targetLanguage)
+            runOnUiThread {
+                val translationId = msgId + 9
+                val translationView = findViewById<TextView>(translationId)
+                translationView.text = result
+            }
+        }
+    }
+
     override fun addMessage(msg: String) {
         setUpMessageTextView(msg)
-        setUpTranslationTextView("Sample translation")
+        setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
+        //setUpTranslationTextView("Sample translation")
         setupProfileImgView()
         addConstraintToProfileImageView()
         addConstraintsForMessageTextView()
@@ -231,6 +249,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
 
     private fun setUpStoryBoardFragments() {
         botTitle = intent?.getStringExtra(BOT_TITLE) ?: ""
+        botImagePath = intent?.getStringExtra(IMAGE_PATH) ?: ""
         storyBoardOneFragment = StoryBoardOneFragment.newInstance(botTitle)
         storyBoardTwoFragment = StoryBoardTwoFragment.newInstance(botTitle)
     }
@@ -490,7 +509,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         }
     }
 
-    private fun getMessageTextBubbleId(): Int {
+    fun getMessageTextBubbleId(): Int {
         return 10 * msgCount
     }
 
@@ -532,7 +551,12 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         profileImgView = ImageView(this)
         profileImgView?.apply {
             id = getIdProfileImageView()
-            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.business_profile))
+            //setImageDrawable(ContextCompat.getDrawable(context, R.drawable.business_profile))
+        }
+        profileImgView?.let {
+            Glide.with(this)
+                .load(botImagePath)
+                .into(it)
         }
     }
 
@@ -667,6 +691,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
     fun replaceBotIsTyping(msg: String) {
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
+        setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
     }
 
     fun addSpaceText() {
@@ -743,7 +768,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         } else if (isChatterActivity()) {
             if (messageOptionsFragment.isVisible) {
                 matches?.let {
-                    Log.d("Voice String",it[0])
+                    Log.d("Voice String", it[0])
                     messageOptionsFragment.selectOptionsWithVoice(it[0])
                     toggleIsVocabFragmentFlag(false)
                 }
@@ -793,8 +818,23 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface {
         return preferences.getCurrentLevelPoints(curLevel)
     }
 
+    override fun onExpressionClicked(expression: String) {
+        readMessageBubble(expression)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        executorService?.shutdown()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        executorService?.shutdown()
+    }
+
     companion object {
         const val BOT_TITLE = "BOT_TITLE"
+        const val IMAGE_PATH = "IMAGE_PATH"
         const val BOT_CONVERSATIONS = "BotConversations"
         const val USERS = "Users"
     }

@@ -49,6 +49,7 @@ class BotAdapter(
 
     inner class BotViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var botImage: ImageView? = null
+        private var botLockedImage: ImageView? = null
         private var botTitle: TextView? = null
         private var botLevel: TextView? = null
         private var botLayout: ConstraintLayout? = null
@@ -57,7 +58,8 @@ class BotAdapter(
             botImage = view.image
             botTitle = view.title
             botLevel = view.bot_level
-            botLayout = view.bot_item_layout
+            botLayout = view.bot_item_inner_layout
+            botLockedImage = view.bot_locked_image
         }
 
         fun bind(imagePath: String, title: String, level: String, isEnabled: Boolean) {
@@ -68,18 +70,29 @@ class BotAdapter(
             }
             botTitle?.text = title
             if (!isEnabled) {
-                botImage?.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
+                /*botImage?.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
                 itemView.setClickable(false)
                 botLevel?.visibility = View.VISIBLE
-                botLevel?.setText("Level: ".plus(level))
+                botLevel?.setText("Level: ".plus(level))*/
+                itemView.isClickable = false
+                botLockedImage?.visibility = View.VISIBLE
+                botLayout?.setBackgroundResource(R.drawable.bot_disabled_background)
+
             } else {
                 itemView.setClickable(true)
-                setOnClickListener()
+                setOnClickListener(imagePath)
+                botLockedImage?.visibility = View.GONE
+                botLayout?.setBackgroundResource(R.drawable.gem_item_selector)
             }
         }
 
-        fun setOnClickListener() {
-            itemView.setOnClickListener { (context as? DashboardActivity)?.onBotItemClicked(botTitle?.text.toString()) }
+        fun setOnClickListener(imagePath: String) {
+            itemView.setOnClickListener {
+                (context as? DashboardActivity)?.onBotItemClicked(
+                    imagePath,
+                    botTitle?.text.toString()
+                )
+            }
         }
 
     }

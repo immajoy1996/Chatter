@@ -149,6 +149,9 @@ class SignInActivity : BaseChatActivity() {
     override fun setUpTopBar() {
         top_bar_title.text = "Sign In"
         top_bar_mic.visibility = View.INVISIBLE
+        home.setOnClickListener {
+            refreshSignInFlow()
+        }
     }
 
     override fun showFirstBotMessage() {

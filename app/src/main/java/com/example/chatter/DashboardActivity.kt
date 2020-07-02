@@ -51,7 +51,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
-        var guestMode = intent.getBooleanExtra("GUEST_MODE", false)
+        val guestMode = intent.getBooleanExtra("GUEST_MODE", false)
         setIsGuestMode(guestMode)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
@@ -267,9 +267,10 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         }
     }
 
-    override fun onBotItemClicked(botTitle: String) {
+    override fun onBotItemClicked(imagePath: String, botTitle: String) {
         val intent = Intent(this, ChatterActivity::class.java)
         intent.putExtra(BOT_TITLE, botTitle)
+        intent.putExtra(IMAGE_PATH, imagePath)
         startActivity(intent)
     }
 
@@ -278,6 +279,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         private const val TOTAL_BOTS = 4
         private const val BOT_ITEM_SPACING = 40
         private const val BOT_TITLE = "BOT_TITLE"
+        private const val IMAGE_PATH = "IMAGE_PATH"
         const val CHANGING_DEFAULT_LANG = -1
     }
 }

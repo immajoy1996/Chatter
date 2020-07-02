@@ -13,13 +13,13 @@ class Preferences(val context: Context) {
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
 
     private val quotesArray = arrayListOf<String>(
-        "Hi, I'm Bear Bot. I'm here to help because you really suck at English",
-        "Who ever thought talking to a bear was a good idea?",
-        "You think you're amazing. Think again",
-        "Unfortunately, they don't pay me enough to be positive",
-        "Woah you're amazing. One new word a week. Simply spectacular!",
-        "Sometimes I'm encouraging. Not today!",
-        "I haven't had honey in so long. Can you get me some?"
+        "Banging your head against the wall for one hour burns 150 calories",
+        "In Switzerland it is illegal to own just one guinea pig",
+        "Pteronophobia is the fear of being tickled by feathers.",
+        "Snakes can sense a coming earthquake from 121 kilometers away, up to five days before it happens.",
+        "A flock of crows is known as a murder.",
+        "Cherophobia is an irrational fear of fun or happiness.",
+        "Seven percent of American adults believe that chocolate milk comes from brown cows."
     )
 
     private var storiesHashmap = HashMap<String, ArrayList<String>>()

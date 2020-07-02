@@ -132,9 +132,6 @@ class NavigationDrawerFragment : BaseFragment() {
                 is DashboardActivity -> {
                     (activity as? DashboardActivity)?.loadLanguageSelectionScreen()
                 }
-                is ChatterActivity->{
-                    
-                }
             }
 
         }

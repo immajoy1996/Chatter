@@ -40,7 +40,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         context?.let {
             preferences = Preferences(it)
         }
-        setUpRestartButton()
+        //setUpRestartButton()
         checkIfConversationEnd()
     }
 
@@ -59,6 +59,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         val pathRef = database.child(chatterActivity.currentPath)
         val messageListener = baseValueEventListener { dataSnapshot ->
             if (!dataSnapshot.hasChild("optionA")) {
+                checkForEasterEggs()
                 showErrorMessage()
             } else {
                 setUpMenu()
@@ -109,9 +110,9 @@ class MessageMenuOptionsFragment : BaseFragment() {
         option.setOnClickListener {
             chatterActivity.let {
                 it.currentPath = path
-                chatterActivity.removeOptionsMenu()
+                it.removeOptionsMenu()
                 val userText = option.text.toString()
-                chatterActivity.addUserMessage(userText)
+                it.addUserMessage(userText)
                 it.handleNewMessageLogic(userText)
                 getBotResponse(it.currentPath)
             }

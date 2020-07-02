@@ -10,8 +10,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.cloud.translate.Translate
+import com.google.cloud.translate.TranslateOptions
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import java.io.IOException
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -43,9 +47,12 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     private var targetMaleAmericanSpeaker = "en-us-x-sfg#male_2-local"
     private var targetFemaleAmericanSpeaker = "en-us-x-sfg#female_2-local"
 
+    private var translateService: Translate? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base_chat)
+        setUpTranslateService()
         preferences = Preferences(this)
         preferences?.setUpPreferences()
         setUpTextToSpeech()
@@ -61,8 +68,30 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         return msgCount
     }
 
+    private fun setUpTranslateService() {
+        try {
+            resources.openRawResource(R.raw.translate_api).use {
+                val myCredentials = GoogleCredentials.fromStream(it)
+                val translateOptions =
+                    TranslateOptions.newBuilder().setCredentials(myCredentials).build()
+                translateService = translateOptions.service
+            }
+        } catch (exception: IOException) {
+            exception.printStackTrace()
+
+        }
+    }
+
+    fun translate(text: String, targetLanguage: String): String? {
+            val translation = translateService?.translate(
+                text,
+                Translate.TranslateOption.targetLanguage(targetLanguage),
+                Translate.TranslateOption.model("base")
+            )
+            return translation?.translatedText
+    }
+
     open fun handleNewMessageLogic(str: String) {
-        preferences?.storeTranslations(str, "")
         msgCount++
         newMsgId = 10 * msgCount
         addMessage(str)
@@ -312,6 +341,15 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, "en")
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please start speaking...")
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName())
+        recognizerIntent.putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+            1500
+        );
+        recognizerIntent.putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+            1500
+        );
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
         recognizerIntent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH
