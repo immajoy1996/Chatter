@@ -1,5 +1,6 @@
 package com.example.chatter
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.media.MediaPlayer
@@ -13,36 +14,41 @@ import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.android.synthetic.main.activity_chatter.*
+import kotlinx.android.synthetic.main.activity_create_chat.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, ExpressionClickInterface {
-
+class CreateChatActivity : BaseChatActivity(), StoryBoardFinishedInterface,
+    ExpressionClickInterface {
     private var constraintSet = ConstraintSet()
 
-    private val messageOptionsFragment = MessageMenuOptionsFragment.newInstance()
+    private val createBotOptionsFragment = CreateBotOptionsFragment.newInstance()
     private val retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Retrieving options")
     private val chatInstructionsFragment = ChatInstructionsFragment()
     private val vocabFragment = VocabFragment()
     private lateinit var storyBoardOneFragment: StoryBoardOneFragment
     private lateinit var storyBoardTwoFragment: StoryBoardTwoFragment
-    private lateinit var easterEggFragment: EasterEggFragment
+    private lateinit var easterEggFragment: CreateEasterEggFragment
     private val navigationDrawerFragment = NavigationDrawerFragment()
 
     var currentPath = ""
@@ -51,6 +57,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
     private var translationImgView: CircleImageView? = null
     private var messageTextView: TextView? = null
     private var translationTextView: TextView? = null
+    private var submitButtonImageView: ImageView? = null
 
     private lateinit var botTitle: String
     private lateinit var botImagePath: String
@@ -76,15 +83,16 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chatter)
+        setContentView(R.layout.activity_create_chat)
         database = FirebaseDatabase.getInstance().reference
         preferences = getMyPreferences() ?: Preferences(this)
         executorService = Executors.newFixedThreadPool(5)
         setUpDimensions()
         setUpTopBar()
-        setUpStoryBoardFragments()
+        setUpBotDetails()
         setUpNavButtons()
-        loadFirstStoryBoardFragment()
+        showFirstBotMessage()
+        //loadFirstStoryBoardFragment()
     }
 
     private fun setUpDimensions() {
@@ -96,24 +104,14 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
     }
 
     override fun setUpTopBar() {
-        top_bar_title.text = "Chatter"
-        top_bar_mic.setOnClickListener {
-            if (!isMicActive) {
-                letBearSpeak("Please say an option at the tone")
-                setTimerTask("voicePrompt", 3000) {
-                    isMicActive = true
-                    toggleIsChatterActivity(true)
-                    top_bar_mic.setImageResource(R.drawable.microphone_listening)
-                    (top_bar_mic.drawable as AnimationDrawable).start()
-                    startListening()
-                }
-            } else {
-                isMicActive = false
-                top_bar_mic.setImageResource(R.drawable.microphone_listening)
-            }
-        }
+        top_bar_title.text = "Create Bot"
+        top_bar_mic.visibility = View.GONE
+        top_bar_easter_egg.visibility = View.VISIBLE
         home.setOnClickListener {
             refreshChatMessages()
+        }
+        top_bar_easter_egg.setOnClickListener {
+            loadEasterEggFragment()
         }
     }
 
@@ -129,13 +127,19 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         currentPath = "$BOT_CONVERSATIONS/$botTitle/"
         val pathReference = database.child(currentPath.plus("botMessage"))
         disableNextButton()
+        handleNewMessageLogic("")
         val messageListener = baseValueEventListener { dataSnapshot ->
-            val botMessage = dataSnapshot.value.toString()
-            handleNewMessageLogic(botMessage)
+            dataSnapshot.value?.let {
+                replaceMessageText(it.toString())
+            }
             loadOptionsMenu()
             if (isRefreshed) isRefreshed = false
         }
         pathReference.addListenerForSingleValueEvent(messageListener)
+    }
+
+    private fun replaceMessageText(newMsg: String) {
+        findViewById<EditText>(getMessageTextBubbleId()).setText(newMsg)
     }
 
     override fun initializeMessagesContainer() {
@@ -163,15 +167,18 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
 
     override fun addMessage(msg: String) {
         setUpMessageTextView(msg)
-        setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
+        //setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
         //setUpTranslationTextView("Sample translation")
         setupProfileImgView()
+        setUpCreateBotSubmitButtonView()
         addConstraintToProfileImageView()
         addConstraintsForMessageTextView()
-        addConstraintsForTranslationTextView()
+        addConstraintToSubmitButtonImageView()
+        //addConstraintsForTranslationTextView()
         //addConstraintToTranslationImageView()
         //addGeneralConstraintsForProfileImageAndTranslationText()
         addGeneralConstraintsForProfileImageAndMessageText()
+        addGeneralConstraintsForSubmitButtonImageAndMessageText()
         setConstraintsToLayout()
     }
 
@@ -256,7 +263,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         userMessages.add(str)
     }
 
-    private fun setUpStoryBoardFragments() {
+    private fun setUpBotDetails() {
         botTitle = intent?.getStringExtra(BOT_TITLE) ?: ""
         botImagePath = intent?.getStringExtra(IMAGE_PATH) ?: ""
         storyBoardOneFragment = StoryBoardOneFragment.newInstance(botTitle)
@@ -290,7 +297,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
     }*/
 
     fun closeEasterEggFragment() {
-        supportFragmentManager?.popBackStack(
+        supportFragmentManager.popBackStack(
             easterEggFragment.javaClass.name,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
@@ -318,9 +325,9 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         }
     }
 
-    fun loadEasterEggFragment(title: String, points: Long, imageSrc: String) {
-        playMedia(NOTIFICATION_SOUND_EFFECT_PATH)
-        easterEggFragment = EasterEggFragment.newInstance(title, points, imageSrc)
+    fun loadEasterEggFragment() {
+        //playMedia(NOTIFICATION_SOUND_EFFECT_PATH)
+        easterEggFragment = CreateEasterEggFragment()
         supportFragmentManager
             .beginTransaction()
             .replace(chatter_activity_root_container.id, easterEggFragment)
@@ -349,7 +356,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         loadRetrievingOptionsFragment()
         setTimerTask("loadMessageOptionsFragment", 2000, {
             removeRetrievingOptionsFragment()
-            loadFragment(messageOptionsFragment)
+            loadFragment(createBotOptionsFragment)
             enableNextButton()
         })
     }
@@ -461,6 +468,65 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         }
     }
 
+    private fun addGeneralConstraintsForSubmitButtonImageAndMessageText() {
+        var position = -1
+        if (isFirst) position = ConstraintSet.TOP
+        else position = ConstraintSet.BOTTOM
+
+        val textView = messageTextView as TextView
+        val profileImg = submitButtonImageView as ImageView
+
+        if (newSide == "left") {
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.BOTTOM,
+                textView.id,
+                ConstraintSet.BOTTOM,
+                0
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.START,
+                textView.id,
+                ConstraintSet.END,
+                10
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.TOP,
+                textView.id,
+                ConstraintSet.TOP
+            )
+
+        } else if (newSide == "right") {
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.BOTTOM,
+                textView.id,
+                ConstraintSet.BOTTOM,
+                0
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.TOP,
+                textView.id,
+                ConstraintSet.TOP,
+                0
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.END,
+                textView.id,
+                ConstraintSet.START,
+                10
+            )
+        }
+    }
+
     private fun addConstraintsForMessageTextView() {
         messageTextView?.apply {
             constraintSet.constrainHeight(id, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -567,27 +633,75 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         }
     }
 
+    private fun View.hideKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(windowToken, 0)
+    }
+
+    private fun setUpCreateBotSubmitButtonView() {
+        submitButtonImageView = ImageView(this)
+        submitButtonImageView?.apply {
+            id = getIdSubmitButton()
+            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.create_bot_submit))
+        }
+        submitButtonImageView?.setOnClickListener {
+            var updateDataTask: Task<Void>? = null
+            val msgTextView = findViewById<TextView>(it.id - 9)
+            msgTextView.hideKeyboard()
+            if (msgTextView.text.toString().isNotEmpty()) {
+                if (msgCount % 2 == 1) {
+                    //left side
+                    updateDataTask = database.child(currentPath).child("botMessage")
+                        .setValue(msgTextView.text.toString())
+                } else {
+                    //right side
+                    updateDataTask = database.child(currentPath).child("text")
+                        .setValue(msgTextView.text.toString())
+                }
+                updateDataTask?.addOnSuccessListener {
+                    Toast.makeText(this@CreateChatActivity, "Update successful", Toast.LENGTH_LONG)
+                        .show()
+                }?.addOnFailureListener {
+                    Toast.makeText(this@CreateChatActivity, it.localizedMessage, Toast.LENGTH_LONG)
+                        .show()
+                }
+            } else {
+                val animWobble = AnimationUtils.loadAnimation(
+                    this,
+                    R.anim.wobble
+                )
+                msgTextView.startAnimation(animWobble)
+            }
+        }
+    }
+
     private fun setUpMessageTextView(msg: String, shouldFocus: Boolean = true) {
-        messageTextView = TextView(this)
+        messageTextView = EditText(this)
         messageTextView?.apply {
             if (newSide == "right") {
                 setBackgroundResource(R.drawable.option_bubble)
                 setTextColor(Color.parseColor("#FFFFFF"))
+                //setHintTextColor(Color.parseColor("#FFFFFF"))
             } else {
                 setBackgroundResource(R.drawable.message_bubble_selector)
                 setTextColor(Color.parseColor("#696969"))
+                setHintTextColor(Color.parseColor("#D3D3D3"))
             }
+
             setPadding(MESSAGE_PADDING)
             setId(newMsgId)
-
-            text = msg
+            if (msg.isEmpty()) {
+                hint = "Type message here"
+            } else {
+                text = msg
+            }
             textSize = TEXT_SIZE_MESSAGE
             /*if (newSide == "right") {
                 isFocusableInTouchMode = true
                 requestFocus()
             }*/
         }
-        setUpMessageBubbleClickListener()
+        //setUpMessageBubbleClickListener()
     }
 
     private fun setUpTranslationTextView(translation: String, shouldFocus: Boolean = true) {
@@ -626,8 +740,20 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         }
     }
 
+    private fun addConstraintToSubmitButtonImageView() {
+        submitButtonImageView?.apply {
+            constraintSet.constrainHeight(id, PROFILE_IMAGE_SIZE)
+            constraintSet.constrainWidth(id, PROFILE_IMAGE_SIZE)
+            addViewToLayout(this)
+        }
+    }
+
     private fun getIdProfileImageView(): Int {
         return 10 * msgCount + 1
+    }
+
+    private fun getIdSubmitButton(): Int {
+        return 10 * msgCount + 9
     }
 
     private fun getIdForSpaceView(): Int {
@@ -698,7 +824,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
     fun replaceBotIsTyping(msg: String) {
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
-        setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
+        //setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
     }
 
     fun addSpaceText() {
@@ -767,10 +893,10 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         top_bar_mic.setImageResource(R.drawable.microphone_listening)
         isMicActive = false
-        if (messageOptionsFragment.isVisible) {
+        if (createBotOptionsFragment.isVisible) {
             matches?.let {
                 Log.d("Voice String", it[0])
-                messageOptionsFragment.selectOptionsWithVoice(it[0])
+                createBotOptionsFragment.selectOptionsWithVoice(it[0])
                 toggleIsVocabFragmentFlag(false)
             }
         }
@@ -840,4 +966,6 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         const val BOT_CONVERSATIONS = "BotConversations"
         const val USERS = "Users"
     }
+
+
 }

@@ -14,8 +14,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ConcentrationActivity"
+            android:name=".CreateChatActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <activity
+            android:name=".CreateBotActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".BaseSelectionActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".ConcentrationActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".BotQuizSelectionActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

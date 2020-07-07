@@ -1,6 +1,7 @@
 package com.example.chatter
 
 import BotSelectionAdapter
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -8,20 +9,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.android.synthetic.main.activity_bot_quiz_selection.*
+import kotlinx.android.synthetic.main.activity_create_bot.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
 
-class BotQuizSelectionActivity : BaseSelectionActivity(), BotSelectedInterface {
+class CreateBotActivity : BaseSelectionActivity(), BotSelectedInterface {
+
     private var bots = arrayListOf<String>()
     private var botImages = arrayListOf<String>()
     private lateinit var database: DatabaseReference
 
     private var selectedBotTitle: String? = null
+    private var selectedBotImage: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_bot_quiz_selection)
+        setContentView(R.layout.activity_create_bot)
         database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
         setUpBottomNavBar()
@@ -32,6 +35,7 @@ class BotQuizSelectionActivity : BaseSelectionActivity(), BotSelectedInterface {
 
     override fun onBotSelected(botTitle: String, botImage: String) {
         selectedBotTitle = botTitle
+        selectedBotImage = botImage
     }
 
     private fun setUpBottomNavBar() {
@@ -39,7 +43,10 @@ class BotQuizSelectionActivity : BaseSelectionActivity(), BotSelectedInterface {
             this.finish()
         }
         button_next.setOnClickListener {
-            loadQuizFragment()
+            val intent = Intent(this, CreateChatActivity::class.java)
+            intent.putExtra(BOT_TITLE, selectedBotTitle)
+            intent.putExtra(IMAGE_PATH, selectedBotImage)
+            startActivity(intent)
         }
     }
 
@@ -56,30 +63,20 @@ class BotQuizSelectionActivity : BaseSelectionActivity(), BotSelectedInterface {
     }
 
     override fun setUpTopBar() {
-        top_bar_title.text = "Select a Quiz"
+        top_bar_title.text = "Select a Bot"
         top_bar_mic.visibility = View.GONE
     }
 
-    fun setUpQuizTopBar() {
-        selectedBotTitle?.let {
-            top_bar_title.text = it
-        }
-        back.visibility = View.VISIBLE
-        home.visibility = View.GONE
-        top_bar_mic.visibility = View.VISIBLE
-        back.setOnClickListener { supportFragmentManager.popBackStack() }
-    }
-
     override fun setUpDropdownRecycler() {
-        bot_selection_recycler.apply {
-            layoutManager = LinearLayoutManager(this@BotQuizSelectionActivity)
+        create_bot_recycler.apply {
+            layoutManager = LinearLayoutManager(this@CreateBotActivity)
         }
         database.child("BotCatalog").addChildEventListener(baseChildEventListener {
             val botImage = it.child("botImage").value.toString()
             val botTitle = it.child("botTitle").value.toString()
             placeBotAlphabetically(botTitle, botImage)
-            bot_selection_recycler.adapter = BotSelectionAdapter(
-                this@BotQuizSelectionActivity,
+            create_bot_recycler.adapter = BotSelectionAdapter(
+                this@CreateBotActivity,
                 bots,
                 botImages,
                 this
@@ -102,40 +99,45 @@ class BotQuizSelectionActivity : BaseSelectionActivity(), BotSelectedInterface {
     }
 
     override fun setUpScrollListener() {
-        val layoutManager = bot_selection_recycler.layoutManager as LinearLayoutManager
-        bot_selection_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        val layoutManager = create_bot_recycler.layoutManager as LinearLayoutManager
+        create_bot_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItemCount = layoutManager.itemCount
                 val firstVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()
                 val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
                 if (firstVisibleItem == 0) {
-                    bot_selection_up_arrow.visibility = View.INVISIBLE
+                    create_bot_up_arrow.visibility = View.INVISIBLE
                 } else {
-                    bot_selection_up_arrow.visibility = View.VISIBLE
+                    create_bot_up_arrow.visibility = View.VISIBLE
                 }
                 if (lastVisibleItem == totalItemCount - 1) {
-                    bot_selection_down_arrow.visibility = View.INVISIBLE
+                    create_bot_down_arrow.visibility = View.INVISIBLE
                 } else {
-                    bot_selection_down_arrow.visibility = View.VISIBLE
+                    create_bot_down_arrow.visibility = View.VISIBLE
                 }
             }
         })
     }
 
     override fun setUpArrowClicks() {
-        val layoutManager = bot_selection_recycler.layoutManager as LinearLayoutManager
-        bot_selection_up_arrow.setOnClickListener {
+        val layoutManager = create_bot_recycler.layoutManager as LinearLayoutManager
+        create_bot_up_arrow.setOnClickListener {
             val firstVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()
             val targetPos = if (firstVisibleItem - 3 >= 0) firstVisibleItem - 3 else 0
-            bot_selection_recycler.smoothScrollToPosition(targetPos)
+            create_bot_recycler.smoothScrollToPosition(targetPos)
         }
-        bot_selection_down_arrow.setOnClickListener {
+        create_bot_down_arrow.setOnClickListener {
             val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
             val totalItemCount = layoutManager.itemCount
             val targetPos =
                 if (lastVisibleItem + 3 < totalItemCount) lastVisibleItem + 3 else totalItemCount - 1
-            bot_selection_recycler.smoothScrollToPosition(targetPos)
+            create_bot_recycler.smoothScrollToPosition(targetPos)
         }
+    }
+
+    companion object {
+        private const val BOT_TITLE = "BOT_TITLE"
+        private const val IMAGE_PATH = "IMAGE_PATH"
     }
 }

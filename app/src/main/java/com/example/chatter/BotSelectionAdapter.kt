@@ -9,17 +9,17 @@ import com.example.chatter.BotSelectedInterface
 import com.example.chatter.R
 import kotlinx.android.synthetic.main.nations_item_view.view.*
 
-class BotQuizAdapter(
+class BotSelectionAdapter(
     val context: Context,
     var bots: ArrayList<String>,
     var botImages: ArrayList<String>,
     var botSelectedInterface: BotSelectedInterface
 ) :
-    RecyclerView.Adapter<BotQuizAdapter.BotQuizViewHolder>() {
+    RecyclerView.Adapter<BotSelectionAdapter.BotSelectionViewHolder>() {
     private var selectedPos = -1
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BotQuizViewHolder {
-        return BotQuizViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BotSelectionViewHolder {
+        return BotSelectionViewHolder(
             LayoutInflater.from(context).inflate(
                 R.layout.nations_item_view,
                 parent,
@@ -28,7 +28,7 @@ class BotQuizAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: BotQuizViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BotSelectionViewHolder, position: Int) {
         val botTitle = bots[position]
         val botImg = botImages[position]
         holder.itemView.nations_item_layout.setOnClickListener {
@@ -39,13 +39,13 @@ class BotQuizAdapter(
 
     private fun selectBotItem(position: Int) {
         selectedPos = position
-        botSelectedInterface.onBotSelected(bots[selectedPos])
+        botSelectedInterface.onBotSelected(bots[selectedPos], botImages[selectedPos])
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int = bots.size
 
-    inner class BotQuizViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class BotSelectionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var imageView: ImageView? = null
 
         init {

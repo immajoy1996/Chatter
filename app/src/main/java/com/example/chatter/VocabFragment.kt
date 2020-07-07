@@ -21,7 +21,7 @@ class VocabFragment : BaseFragment() {
     private var searchTransliterations = arrayListOf<String>()
     private var searchAudioSrc = arrayListOf<String>()
 
-    private val chatterActivity by lazy { activity as ChatterActivity }
+    private val chatterActivity by lazy { activity as CreateChatActivity }
     private var isMicActive = false
 
     override fun onCreateView(
@@ -95,7 +95,7 @@ class VocabFragment : BaseFragment() {
             expressions.add(dataSnapshot.child(EXPRESSION).value.toString())
             definitions.add(dataSnapshot.child(DEFINITION).value.toString())
             context?.let {
-                vocabAdapter = VocabAdapter(it, expressions, definitions, activity as ChatterActivity)
+                vocabAdapter = VocabAdapter(it, expressions, definitions, chatterActivity)
                 vocab_recycler.adapter = vocabAdapter
             }
         }

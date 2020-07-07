@@ -2,6 +2,7 @@
 <resources>
     <dimen name="bot_item_layout_dimen">106dp</dimen>
     <dimen name="bot_item_dimen">91dp</dimen>
+    <dimen name="bot_item_height_dimen">101dp</dimen>
     <dimen name="profile_item_layout_dimen">64dp</dimen>
     <dimen name="profile_item_dimen">50dp</dimen>
     <dimen name="option_width">300dp</dimen>

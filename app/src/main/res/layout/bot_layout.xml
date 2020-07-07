@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bot_item_layout"
     android:layout_width="@dimen/bot_item_layout_dimen"
     android:layout_height="@dimen/bot_item_layout_dimen"
-    android:id="@+id/bot_item_layout"
-    android:clickable="true"
-    >
+    android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bot_item_inner_layout"
@@ -36,20 +35,19 @@
             android:layout_height="20dp"
             android:src="@drawable/lock"
             android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="5dp"
             app:layout_constraintBottom_toTopOf="@id/image"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/image"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/concentration"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/bot_image_guideline" />
 
         <TextView
             android:id="@+id/title"
@@ -63,6 +61,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/image" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/bot_image_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".15" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

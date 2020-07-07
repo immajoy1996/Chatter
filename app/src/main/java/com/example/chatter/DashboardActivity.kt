@@ -66,6 +66,17 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         home.setOnClickListener {
             loadNavigationDrawer()
         }
+        home.setOnLongClickListener {
+            if (top_bar_plus_button.visibility == View.VISIBLE) {
+                top_bar_plus_button.visibility = View.GONE
+            } else {
+                top_bar_plus_button.visibility = View.VISIBLE
+            }
+            true
+        }
+        top_bar_plus_button.setOnClickListener {
+            startActivity(Intent(this, CreateBotActivity::class.java))
+        }
         top_bar_quiz.setOnClickListener {
             startActivity(Intent(this, QuizActivity::class.java))
         }
@@ -202,7 +213,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     }
 
     private fun setBotAdapter() {
-        resetArrays()
+        /*resetArrays()
         fillUpBotAdapter(botPawnImages, botPawnTitles, botPawnGuestModeEnabled, botPawnLevelList)
         fillUpBotAdapter(
             botKnightImages,
@@ -216,7 +227,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
             botBishopGuestModeEnabled,
             botBishopLevelList
         )
-        fillUpBotAdapter(botRookImages, botRookTitles, botRookGuestModeEnabled, botRookLevelList)
+        fillUpBotAdapter(botRookImages, botRookTitles, botRookGuestModeEnabled, botRookLevelList)*/
         val botAdapter = BotAdapter(this, imageList, titleList, levelList, isEnabledInGuestMode)
         dashboard_recycler.adapter = botAdapter
     }
@@ -237,9 +248,20 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         levelEnabled: String,
         botImage: String,
         botTitle: String,
-        isEnabledInGuestMode: Boolean
+        isEnabledGuest: Boolean
     ) {
-        when (levelEnabled) {
+        if (isEnabledGuest) {
+            imageList.add(0, botImage)
+            titleList.add(0, botTitle)
+            isEnabledInGuestMode.add(0, isEnabledGuest)
+            levelList.add(0, levelEnabled)
+        } else {
+            imageList.add(botImage)
+            titleList.add(botTitle)
+            isEnabledInGuestMode.add(isEnabledGuest)
+            levelList.add(levelEnabled)
+        }
+        /*when (levelEnabled) {
             "Pawn" -> {
                 botPawnImages.add(botImage)
                 botPawnTitles.add(botTitle)
@@ -264,7 +286,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
                 botRookGuestModeEnabled.add(isEnabledInGuestMode)
                 botRookLevelList.add(levelEnabled)
             }
-        }
+        }*/
     }
 
     override fun onBotItemClicked(imagePath: String, botTitle: String) {

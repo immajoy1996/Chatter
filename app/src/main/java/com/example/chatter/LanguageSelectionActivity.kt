@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.activity_language_selection.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
 
-class LanguageSelectionActivity : BaseActivity() {
+class LanguageSelectionActivity : BaseSelectionActivity() {
     private var nations = arrayListOf<String>(
         "Spanish",
         "French",
@@ -78,7 +78,7 @@ class LanguageSelectionActivity : BaseActivity() {
         }
     }
 
-    private fun setUpDropdownRecycler() {
+    override fun setUpDropdownRecycler() {
         language_recycler.apply {
             layoutManager = LinearLayoutManager(this@LanguageSelectionActivity)
             adapter = LanguageAdapter(
@@ -89,7 +89,7 @@ class LanguageSelectionActivity : BaseActivity() {
         }
     }
 
-    private fun setUpScrollListener() {
+    override fun setUpScrollListener() {
         val layoutManager = language_recycler.layoutManager as LinearLayoutManager
         language_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -111,7 +111,7 @@ class LanguageSelectionActivity : BaseActivity() {
         })
     }
 
-    private fun setUpArrowClicks() {
+    override fun setUpArrowClicks() {
         val layoutManager = language_recycler.layoutManager as LinearLayoutManager
         language_selection_up_arrow.setOnClickListener {
             val firstVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()

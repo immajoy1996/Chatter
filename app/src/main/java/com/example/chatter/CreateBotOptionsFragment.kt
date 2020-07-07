@@ -1,5 +1,6 @@
 package com.example.chatter
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -9,18 +10,29 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_chatter.*
+import kotlinx.android.synthetic.main.fragment_create_bot_options.*
 import kotlinx.android.synthetic.main.fragment_message_options.*
+import kotlinx.android.synthetic.main.fragment_message_options.conversation_end_message
+import kotlinx.android.synthetic.main.fragment_message_options.optionA
+import kotlinx.android.synthetic.main.fragment_message_options.optionB
+import kotlinx.android.synthetic.main.fragment_message_options.optionC
+import kotlinx.android.synthetic.main.fragment_message_options.options_menu_layout
+import kotlinx.android.synthetic.main.fragment_message_options.restart
 import java.util.*
 import kotlin.concurrent.schedule
 
-class MessageMenuOptionsFragment : BaseFragment() {
+class CreateBotOptionsFragment : BaseFragment() {
     private val chatterActivity by lazy {
-        activity as ChatterActivity
+        activity as CreateChatActivity
     }
 
     private lateinit var database: DatabaseReference
@@ -31,7 +43,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_message_options, container, false)
+        return inflater.inflate(R.layout.fragment_create_bot_options, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,14 +52,58 @@ class MessageMenuOptionsFragment : BaseFragment() {
         context?.let {
             preferences = Preferences(it)
         }
-        //setUpRestartButton()
-        checkIfConversationEnd()
+        setUpCreateBotSubmitButton()
+        checkForConversation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        optionA.setHint("Type message here")
+        optionB.setHint("Type message here")
+        optionC.setHint("Type message here")
+        optionA.setText("")
+        optionB.setText("")
+        optionC.setText("")
+    }
+
+    private fun setUpCreateBotSubmitButton() {
+        create_bot_submit.setOnClickListener {
+            optionA.hideKeyboard()
+            updateOptionText(optionA, "optionA")
+            updateOptionText(optionB, "optionB")
+            updateOptionText(optionC, "optionC")
+        }
+    }
+
+    private fun updateOptionText(option: TextView, optionType: String) {
+        if (option.text.toString().isNotEmpty()) {
+            database.child(chatterActivity.currentPath).child(optionType).child("text")
+                .setValue(option.text.toString())
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Update successful", Toast.LENGTH_LONG)
+                        .show()
+                }.addOnFailureListener {
+                    Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG)
+                        .show()
+                }
+        } else {
+            val animWobble = AnimationUtils.loadAnimation(
+                context,
+                R.anim.wobble
+            )
+            option.startAnimation(animWobble)
+        }
+    }
+
+    private fun View.hideKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(windowToken, 0)
     }
 
     private fun setUpMenu() {
         makeLayoutVisible()
         initializeScrollContainerAndOptionButtons()
-        checkForEasterEggs()
+        //checkForEasterEggs()
     }
 
     private fun makeLayoutVisible() {
@@ -55,18 +111,10 @@ class MessageMenuOptionsFragment : BaseFragment() {
         conversation_end_message.visibility = View.GONE
     }
 
-    private fun checkIfConversationEnd() {
+    private fun checkForConversation() {
         val pathRef = database.child(chatterActivity.currentPath)
         val messageListener = baseValueEventListener { dataSnapshot ->
-            if (!dataSnapshot.hasChild("optionA") && !dataSnapshot.hasChild("optionB") && !dataSnapshot.hasChild(
-                    "optionC"
-                )
-            ) {
-                checkForEasterEggs()
-                showErrorMessage()
-            } else {
-                setUpMenu()
-            }
+            setUpMenu()
         }
         pathRef.addListenerForSingleValueEvent(messageListener)
     }
@@ -107,15 +155,17 @@ class MessageMenuOptionsFragment : BaseFragment() {
     private fun setUpMenuOptionClickListener(
         currentPath: String,
         option: TextView,
+        option_submit: ImageView,
         optionType: String
     ) {
         val path = currentPath + optionType + "/"
-        option.setOnClickListener {
+        option_submit.setOnClickListener {
             chatterActivity.let {
+                option.hideKeyboard()
                 it.currentPath = path
                 it.removeOptionsMenu()
-                val userText = option.text.toString()
-                it.addUserMessage(userText)
+                var userText = option.text.toString()
+                //it.addUserMessage(userText)
                 it.handleNewMessageLogic(userText)
                 getBotResponse(it.currentPath)
             }
@@ -123,26 +173,29 @@ class MessageMenuOptionsFragment : BaseFragment() {
     }
 
     private fun setUpAllOptionClickListeners(currentPath: String) {
-        setUpMenuOptionClickListener(currentPath, optionA, "optionA")
-        setUpMenuOptionClickListener(currentPath, optionB, "optionB")
-        setUpMenuOptionClickListener(currentPath, optionC, "optionC")
+        setUpMenuOptionClickListener(currentPath, optionA, optionA_submit, "optionA")
+        setUpMenuOptionClickListener(currentPath, optionB, optionB_submit, "optionB")
+        setUpMenuOptionClickListener(currentPath, optionC, optionC_submit, "optionC")
     }
 
     private fun getBotResponse(path: String) {
+        //Toast.makeText(context, path, Toast.LENGTH_SHORT).show()
         chatterActivity.removeOptionsMenu()
         val pathReference = database.child(path + "/botMessage")
         chatterActivity.disableNextButton()
+        chatterActivity.addSpaceText()
+        chatterActivity.handleNewMessageLogic("")
         val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
-            dataSnapshot.value?.let {
-                setTimerTask("showBotIsTyping", 700, {
-                    chatterActivity.addSpaceText()
-                    chatterActivity.showBotIsTypingView()
-                })
-                setTimerTask("loadOptionsMenu", 3000, {
+            /*setTimerTask("showBotIsTyping", 700, {
+                chatterActivity.addSpaceText()
+                chatterActivity.showBotIsTypingView()
+            })*/
+            setTimerTask("loadOptionsMenu", 1000, {
+                dataSnapshot.value?.let {
                     chatterActivity.replaceBotIsTyping(it.toString())
-                    chatterActivity.loadOptionsMenu()
-                })
-            } ?: chatterActivity.loadOptionsMenu()
+                }
+                chatterActivity.loadOptionsMenu()
+            })
         }
         pathReference.addListenerForSingleValueEvent(messageListener)
     }
@@ -152,13 +205,13 @@ class MessageMenuOptionsFragment : BaseFragment() {
             val pathReference = database.child(it)
             val easterEggListener = chatterActivity.baseChildEventListener { dataSnapshot ->
                 if (dataSnapshot.hasChild("title") && dataSnapshot.hasChild("points") && dataSnapshot.hasChild(
-                        "id"
+                        "image"
                     )
                 ) {
                     val title = dataSnapshot.child("title").value.toString()
                     val points = dataSnapshot.child("points").value as Long
                     val image = dataSnapshot.child("image").value.toString()
-                    chatterActivity.loadEasterEggFragment(title, points, image)
+                    //chatterActivity.loadEasterEggFragment(title, points, image)
                     chatterActivity.enableNextButton()
                 }
             }
@@ -178,8 +231,9 @@ class MessageMenuOptionsFragment : BaseFragment() {
     private fun setUpOptionMenuText(path: String, option: TextView) {
         val pathReference = database.child(path + "/text")
         val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
-            val optionText = dataSnapshot.value.toString()
-            option.text = optionText
+            dataSnapshot.value?.let {
+                option.text = it.toString()
+            }
             chatterActivity.enableNextButton()
         }
         pathReference.addListenerForSingleValueEvent(messageListener)
@@ -209,7 +263,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
             val path = it.currentPath + optionType + "/"
             it.currentPath = path
             chatterActivity.removeOptionsMenu()
-            chatterActivity.addUserMessage(userText)
+            //chatterActivity.addUserMessage(userText)
             it.handleNewMessageLogic(userText)
             getBotResponse(it.currentPath)
         }
@@ -253,8 +307,8 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     companion object {
         private const val MATCH_PERCENTAGE = 0.7
-        fun newInstance(): MessageMenuOptionsFragment {
-            return MessageMenuOptionsFragment()
+        fun newInstance(): CreateBotOptionsFragment {
+            return CreateBotOptionsFragment()
         }
     }
 }

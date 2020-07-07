@@ -58,6 +58,14 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         setUpTextToSpeech()
     }
 
+    fun initializeVariables() {
+        prevMsgId = ConstraintSet.PARENT_ID
+        newMsgId = -1
+        newSide = "left"
+        isFirst = true
+        msgCount = 0
+    }
+
     abstract fun setUpTopBar()
 
     abstract fun initializeMessagesContainer()
@@ -83,12 +91,12 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     }
 
     fun translate(text: String, targetLanguage: String): String? {
-            val translation = translateService?.translate(
-                text,
-                Translate.TranslateOption.targetLanguage(targetLanguage),
-                Translate.TranslateOption.model("base")
-            )
-            return translation?.translatedText
+        val translation = translateService?.translate(
+            text,
+            Translate.TranslateOption.targetLanguage(targetLanguage),
+            Translate.TranslateOption.model("base")
+        )
+        return translation?.translatedText
     }
 
     open fun handleNewMessageLogic(str: String) {

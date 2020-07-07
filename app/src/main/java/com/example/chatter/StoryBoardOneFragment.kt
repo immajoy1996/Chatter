@@ -125,21 +125,23 @@ class StoryBoardOneFragment : Fragment() {
 
     private fun bearBotFadeIn() {
         if (this.isVisible) {
-            bear_profile.visibility = View.INVISIBLE
-            val aniFade = AnimationUtils.loadAnimation(
+            bear_profile.visibility = View.VISIBLE
+            bear_chat_bubble.visibility = View.VISIBLE
+            tap_me_textview.visibility = View.VISIBLE
+            val aniScaleIn = AnimationUtils.loadAnimation(
                 context,
-                R.anim.fade_in
+                R.anim.scale_in
             )
-            bear_profile.startAnimation(aniFade)
-            bear_chat_bubble.startAnimation(aniFade)
-            tap_me_textview.startAnimation(aniFade)
-            aniFade.setAnimationListener(object : Animation.AnimationListener {
+            bear_profile.startAnimation(aniScaleIn)
+            bear_chat_bubble.startAnimation(aniScaleIn)
+            tap_me_textview.startAnimation(aniScaleIn)
+            aniScaleIn.setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(arg0: Animation) {}
                 override fun onAnimationRepeat(arg0: Animation) {}
                 override fun onAnimationEnd(arg0: Animation) {
-                    bear_profile.visibility = View.VISIBLE
-                    bear_chat_bubble.visibility = View.VISIBLE
-                    tap_me_textview.visibility = View.VISIBLE
+                    //bear_profile.visibility = View.VISIBLE
+                    //bear_chat_bubble.visibility = View.VISIBLE
+                    //tap_me_textview.visibility = View.VISIBLE
                 }
             })
         }
@@ -266,7 +268,6 @@ class StoryBoardOneFragment : Fragment() {
             (activity as? ChatterActivity)?.toggleRestartFlag(false)
             (activity as? ChatterActivity)?.finish()
         }
-
         button_next.setOnClickListener {
             fragmentManager?.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             (activity as? ChatterActivity)?.onStoriesFinished()
