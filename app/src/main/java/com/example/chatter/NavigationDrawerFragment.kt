@@ -20,6 +20,8 @@ class NavigationDrawerFragment : BaseFragment() {
     private lateinit var databaseReference: DatabaseReference
     private lateinit var preferences: Preferences
     private var isGuestMode = false
+    private var targetLanguage: String? = null
+    private var languageMap = HashMap<String, String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,11 +38,21 @@ class NavigationDrawerFragment : BaseFragment() {
         context?.let {
             preferences = Preferences(it)
         }
+        setUpLanguageMap()
         setUpUserInfo()
         setUpButtonImages()
         setUpButtons()
         setUpProfileButtons()
     }
+
+    private fun setUpLanguageMap() {
+        languageMap.put("fr", "French")
+        languageMap.put("en", "English")
+        languageMap.put("ru", "Russian")
+        languageMap.put("hi", "Hindi")
+        languageMap.put("es", "Spanish")
+    }
+
 
     private fun setUpProfileButtons() {
         sound_effects_button.setOnClickListener {
@@ -72,12 +84,8 @@ class NavigationDrawerFragment : BaseFragment() {
                     val email = dataSnapshot.value.toString()
                     navigation_drawer_username.text = email.removeSuffix("@gmail.com")
                 }
-                val pointsRemainingListener = baseValueEventListener { dataSnapshot ->
-                    val pointsRemaining = dataSnapshot.value as Long
-                    navigation_drawer_user_score.text = pointsRemaining.toString()
-                }
                 emailRef.addListenerForSingleValueEvent(emailListener)
-                pointsRemainingRef.addListenerForSingleValueEvent(pointsRemainingListener)
+                //pointsRemainingRef.addListenerForSingleValueEvent(pointsRemainingListener)
                 user_level.setText(preferences.getUserLevel())
                 //setUpUserLevelImage()
             }
@@ -113,6 +121,16 @@ class NavigationDrawerFragment : BaseFragment() {
         drawer_logout_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
     }
 
+    fun setUpLanguageTextField(targetLang: String) {
+        if (targetLang.isEmpty() == true) {
+            drawer_language_text.text = "Language: N/A"
+        } else if (targetLang != null) {
+            if (languageMap.containsKey(targetLang)) {
+                drawer_language_text.text = "Language: ${languageMap[targetLang]}"
+            }
+        }
+    }
+
     private fun setUpButtons() {
         navigation_drawer_back.setOnClickListener {
             fragmentManager?.popBackStack()
@@ -127,13 +145,15 @@ class NavigationDrawerFragment : BaseFragment() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }
+        targetLanguage?.let {
+            setUpLanguageTextField(it)
+        }
         drawer_language_layout.setOnClickListener {
-            when(activity){
+            when (activity) {
                 is DashboardActivity -> {
                     (activity as? DashboardActivity)?.loadLanguageSelectionScreen()
                 }
             }
-
         }
         drawer_categories_layout.setOnClickListener {
             (activity as? DashboardActivity)?.loadCategoriesSelectionScreen()
@@ -142,5 +162,10 @@ class NavigationDrawerFragment : BaseFragment() {
 
     companion object {
         const val USERS = "Users/"
+        fun newInstance(targetLang: String): NavigationDrawerFragment {
+            val fragment = NavigationDrawerFragment()
+            fragment.targetLanguage = targetLang
+            return fragment
+        }
     }
 }

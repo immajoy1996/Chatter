@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_dashboard.*
+import kotlinx.android.synthetic.main.fragment_navigation_drawer.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 class DashboardActivity : BaseActivity(), BotClickInterface {
@@ -39,7 +40,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     private var botRookLevelList = ArrayList<String>()
 
     private var isEnabledInGuestMode = ArrayList<Boolean>()
-    private var navigationDrawerFragment = NavigationDrawerFragment()
+    private var navigationDrawerFragment = NavigationDrawerFragment.newInstance("")
 
     private lateinit var auth: FirebaseAuth
     private lateinit var preferences: Preferences
@@ -47,6 +48,8 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
 
     private var retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Loading Bots ...")
+
+    private var targetLanguage = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,6 +158,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     }
 
     private fun loadNavigationDrawer() {
+        navigationDrawerFragment = NavigationDrawerFragment.newInstance(targetLanguage)
         supportFragmentManager
             .beginTransaction()
             .replace(dashboard_root_layout.id, navigationDrawerFragment)
@@ -291,9 +295,36 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
 
     override fun onBotItemClicked(imagePath: String, botTitle: String) {
         val intent = Intent(this, ChatterActivity::class.java)
+        intent.putExtra(TARGET_LANGUAGE, targetLanguage)
         intent.putExtra(BOT_TITLE, botTitle)
         intent.putExtra(IMAGE_PATH, imagePath)
         startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (auth.currentUser != null) {
+            auth.currentUser?.uid?.let {
+                val uid = it
+                val pathRef = database.child("Users/${uid}").child("nativeLanguage")
+                val langListener = baseValueEventListener { dataSnapshot ->
+                    targetLanguage = dataSnapshot.value.toString()
+                    if (navigationDrawerFragment.isVisible) {
+                        navigationDrawerFragment.setUpLanguageTextField(targetLanguage)
+                    }
+                }
+                pathRef.addListenerForSingleValueEvent(langListener)
+            }
+        } else {
+            targetLanguage = preferences.getCurrentTargetLanguage()
+            if (navigationDrawerFragment.isVisible) {
+                navigationDrawerFragment.setUpLanguageTextField(targetLanguage)
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        //not implemented
     }
 
     companion object {
@@ -302,6 +333,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         private const val BOT_ITEM_SPACING = 40
         private const val BOT_TITLE = "BOT_TITLE"
         private const val IMAGE_PATH = "IMAGE_PATH"
+        const val TARGET_LANGUAGE = "Target_Language"
         const val CHANGING_DEFAULT_LANG = -1
     }
 }

@@ -32,7 +32,7 @@ class EasterEggFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
-        updateUserTotalScore()
+        //updateUserTotalScore()
         setUpButtons()
         setUpViews()
     }

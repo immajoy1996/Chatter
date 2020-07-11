@@ -38,6 +38,14 @@ class Preferences(val context: Context) {
         )
     }
 
+    fun storeNativeLanguageSelection(lang: String) {
+        sharedPreferences.edit().putString("native_language", lang).apply()
+    }
+
+    fun getCurrentTargetLanguage():String{
+        return sharedPreferences.getString("native_language","") ?: ""
+    }
+
     fun getBotStories(botTitle: String): ArrayList<String> {
         Log.d("BotStories", botTitle)
         return storiesHashmap.get(botTitle) ?: arrayListOf("I have no idea about ".plus(botTitle))

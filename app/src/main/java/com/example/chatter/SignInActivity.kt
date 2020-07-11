@@ -421,11 +421,12 @@ class SignInActivity : BaseChatActivity() {
         return (username != null && password != null)
     }
 
-    private fun navigateToUserDashboard() {
+    private fun navigateToLanguageSelectionActivity(userId: String) {
         setTimerTask("signUp", 2000, {
             removeRetrievingOptionsFragment()
             toggleRestartFlag(false)
-            startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+            val intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
+            startActivity(intent)
         })
     }
 
@@ -461,9 +462,9 @@ class SignInActivity : BaseChatActivity() {
                     auth.uid as String,
                     username as String,
                     password as String,
-                    2000,
-                    schoolName ?: "none",
-                    "Pawn"
+                    0,
+                    null,
+                    BEAR_PROFILE_PATH
                 )
             }.addOnFailureListener {
                 removeRetrievingOptionsFragment()
@@ -475,14 +476,14 @@ class SignInActivity : BaseChatActivity() {
         userId: String,
         email: String,
         password: String,
-        pointsRemaining: Int,
-        schoolName: String,
-        level: String
+        points: Int,
+        nativeLanguage: String?,
+        profileImage: String
     ) {
         databaseReference.child(USERS.plus(userId))
-            .setValue(User(email, password, pointsRemaining, schoolName, level))
+            .setValue(User(email, password, points, nativeLanguage, profileImage))
             .addOnSuccessListener {
-                navigateToUserDashboard()
+                navigateToLanguageSelectionActivity(userId)
             }.addOnFailureListener {
                 Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
             }
@@ -511,10 +512,11 @@ class SignInActivity : BaseChatActivity() {
     fun signInAsGuest() {
         retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Guest Mode")
         loadRetrievingOptionsFragment()
+        auth.signOut()
         setTimerTask("signInAsGuest", 2000, {
             removeRetrievingOptionsFragment()
             toggleRestartFlag(false)
-            var intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
+            val intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             intent.putExtra("GUEST_MODE", true)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
@@ -757,5 +759,7 @@ class SignInActivity : BaseChatActivity() {
         const val FRAGMENT_REENTER_PASSWORD = 50
         const val FRAGMENT_ENTER_PIN = 60
         const val FRAGMENT_ENTER_YOUR_SCHOOL_NAME = 70
+        const val BEAR_PROFILE_PATH =
+            "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Fbusiness_profile.png?alt=media&token=04b44fa6-56ec-4614-b6fb-8a99c84fa96a"
     }
 }

@@ -21,6 +21,7 @@ import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
+import com.example.chatter.DashboardActivity.Companion.TARGET_LANGUAGE
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -73,6 +74,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
 
     var executorService: ExecutorService? = null
     private var isRefreshed = false
+    private var targetLanguage = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +82,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
         database = FirebaseDatabase.getInstance().reference
         preferences = getMyPreferences() ?: Preferences(this)
         executorService = Executors.newFixedThreadPool(5)
+        targetLanguage = intent.getStringExtra(TARGET_LANGUAGE) ?: ""
         setUpDimensions()
         setUpTopBar()
         setUpStoryBoardFragments()
@@ -163,7 +166,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
 
     override fun addMessage(msg: String) {
         setUpMessageTextView(msg)
-        setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
+        setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
         //setUpTranslationTextView("Sample translation")
         setupProfileImgView()
         addConstraintToProfileImageView()
@@ -195,18 +198,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
     }
 
     private fun startChatting() {
-        auth.currentUser?.uid?.let {
-            showFirstBotMessage()
-            /*currentPath = preferences.getStoredPath(it, botTitle) ?: ""
-            if (currentPath.isNotEmpty()) {
-                var result = preferences.getStoredMessages(it, botTitle)
-                botMessages = result.first
-                userMessages = result.second
-                restoreMessages()
-            } else {
-                showFirstBotMessage()
-            }*/
-        }
+        showFirstBotMessage()
     }
 
     private fun restoreMessages() {
@@ -698,7 +690,7 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
     fun replaceBotIsTyping(msg: String) {
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
-        setUpTranslationForMessage(getMessageTextBubbleId(), msg, "ru")
+        setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
     }
 
     fun addSpaceText() {
@@ -820,6 +812,13 @@ class ChatterActivity : BaseChatActivity(), StoryBoardFinishedInterface, Express
 
     override fun onExpressionClicked(expression: String) {
         readMessageBubble(expression)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (targetLanguage.isEmpty()) {
+            targetLanguage = "hi"
+        }
     }
 
     override fun onPause() {
