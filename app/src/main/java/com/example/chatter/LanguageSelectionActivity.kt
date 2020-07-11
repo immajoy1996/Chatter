@@ -117,6 +117,7 @@ class LanguageSelectionActivity : BaseSelectionActivity(), LanguageSelectedInter
             }
             top_bar_save_button.setOnClickListener {
                 setUpSaveButton()
+                finish()
             }
         } else {
             top_bar_title.text = "Language"

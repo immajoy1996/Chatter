@@ -70,10 +70,6 @@ class BotAdapter(
             }
             botTitle?.text = title
             if (!isEnabled) {
-                /*botImage?.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
-                itemView.setClickable(false)
-                botLevel?.visibility = View.VISIBLE
-                botLevel?.setText("Level: ".plus(level))*/
                 itemView.isClickable = false
                 botLockedImage?.visibility = View.VISIBLE
                 botLayout?.setBackgroundResource(R.drawable.bot_disabled_background)

@@ -3,13 +3,16 @@ package com.example.chatter
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatter.DashboardActivity.Companion.CATEGORY_REQUEST_CODE
 import kotlinx.android.synthetic.main.activity_category_selection.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.fragment_settings_options.*
 import kotlinx.android.synthetic.main.top_bar.*
 
-class CategorySelectionActivity : BaseActivity() {
+class CategorySelectionActivity : BaseActivity(), CategorySelectionInterface {
     private var categories = arrayListOf<String>(
         "All Bots",
         "Funny",
@@ -31,6 +34,8 @@ class CategorySelectionActivity : BaseActivity() {
             R.drawable.spanishflag,
             R.drawable.spanishflag
         )
+
+    private var selectedCategory: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +70,19 @@ class CategorySelectionActivity : BaseActivity() {
         back.visibility = View.VISIBLE
         top_bar_save_button.visibility = View.VISIBLE
         category_selection_bottom_bar.visibility = View.GONE
+        top_bar_save_button.setOnClickListener {
+            val intent = Intent()
+            if (selectedCategory != null) {
+                selectedCategory?.let {
+                    intent.putExtra("SelectedCategory", it)
+                    setResult(CATEGORY_REQUEST_CODE, intent)
+                    Toast.makeText(this, "Selection saved", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            } else {
+                Toast.makeText(this, "Select a Category", Toast.LENGTH_LONG).show()
+            }
+        }
         back.setOnClickListener {
             finish()
         }
@@ -76,7 +94,9 @@ class CategorySelectionActivity : BaseActivity() {
             adapter = LanguageAdapter(
                 this@CategorySelectionActivity,
                 categories,
-                categoryImages
+                categoryImages,
+                null,
+                this@CategorySelectionActivity
             )
         }
     }
@@ -117,5 +137,9 @@ class CategorySelectionActivity : BaseActivity() {
                 if (lastVisibleItem + 3 < totalItemCount) lastVisibleItem + 3 else totalItemCount - 1
             category_recycler.smoothScrollToPosition(targetPos)
         }
+    }
+
+    override fun onCategorySelected(category: String) {
+        selectedCategory = category
     }
 }

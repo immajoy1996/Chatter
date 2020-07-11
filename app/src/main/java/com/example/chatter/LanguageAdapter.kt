@@ -13,7 +13,8 @@ class LanguageAdapter(
     val context: Context,
     var nations: ArrayList<String>,
     var flags: ArrayList<Int>,
-    var languageSelectedInterface: LanguageSelectedInterface? = null
+    var languageSelectedInterface: LanguageSelectedInterface? = null,
+    var categorySelectionInterface: CategorySelectionInterface? = null
 ) :
     RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
     private var selectedPos = -1
@@ -40,6 +41,7 @@ class LanguageAdapter(
     private fun selectLanguageItem(position: Int) {
         selectedPos = position
         languageSelectedInterface?.onLanguageSelected(nations[selectedPos])
+        categorySelectionInterface?.onCategorySelected(nations[selectedPos])
         notifyDataSetChanged()
     }
 

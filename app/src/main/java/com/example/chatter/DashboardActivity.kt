@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -17,30 +18,10 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     private lateinit var database: DatabaseReference
     private var titleList = ArrayList<String>()
     private var imageList = ArrayList<String>()
+    private var categoryList = ArrayList<String>()
     private var levelList = ArrayList<String>()
-
-    private var botPawnTitles = ArrayList<String>()
-    private var botPawnImages = ArrayList<String>()
-    private var botPawnGuestModeEnabled = ArrayList<Boolean>()
-    private var botPawnLevelList = ArrayList<String>()
-
-    private var botKnightTitles = ArrayList<String>()
-    private var botKnightImages = ArrayList<String>()
-    private var botKnightGuestModeEnabled = ArrayList<Boolean>()
-    private var botKnightLevelList = ArrayList<String>()
-
-    private var botBishopTitles = ArrayList<String>()
-    private var botBishopImages = ArrayList<String>()
-    private var botBishopGuestModeEnabled = ArrayList<Boolean>()
-    private var botBishopLevelList = ArrayList<String>()
-
-    private var botRookTitles = ArrayList<String>()
-    private var botRookImages = ArrayList<String>()
-    private var botRookGuestModeEnabled = ArrayList<Boolean>()
-    private var botRookLevelList = ArrayList<String>()
-
     private var isEnabledInGuestMode = ArrayList<Boolean>()
-    private var navigationDrawerFragment = NavigationDrawerFragment.newInstance("")
+    private var navigationDrawerFragment = NavigationDrawerFragment.newInstance("", "All Bots")
 
     private lateinit var auth: FirebaseAuth
     private lateinit var preferences: Preferences
@@ -50,6 +31,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         RetrievingOptionsFragment.newInstance("Loading Bots ...")
 
     private var targetLanguage = ""
+    private var targetBotCategory = "All Bots"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,26 +102,12 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     private fun loadBots() {
         showLoadingProgress()
         setTimerTask("loadBots", 2000, {
-            retrieveUserLevelAndSetUpBots()
+            setUpBots()
         })
     }
 
     private fun retrieveUserLevelAndSetUpBots() {
-        if (!isGuestMode()) {
-            val curUid = auth.currentUser?.uid
-            curUid?.let {
-                val levelReference =
-                    database.child(NavigationDrawerFragment.USERS.plus(it)).child("level")
-                var levelListener = baseValueEventListener { dataSnapshot ->
-                    val curUserLevel = dataSnapshot.value.toString()
-                    preferences.storeUserLevel(curUserLevel)
-                    setUpBots(curUserLevel)
-                }
-                levelReference.addListenerForSingleValueEvent(levelListener)
-            }
-        } else {
-            setUpBots("nothing")
-        }
+        setUpBots()
     }
 
     private fun setUpCategories() {
@@ -158,7 +126,8 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
     }
 
     private fun loadNavigationDrawer() {
-        navigationDrawerFragment = NavigationDrawerFragment.newInstance(targetLanguage)
+        navigationDrawerFragment =
+            NavigationDrawerFragment.newInstance(targetLanguage, targetBotCategory)
         supportFragmentManager
             .beginTransaction()
             .replace(dashboard_root_layout.id, navigationDrawerFragment)
@@ -174,7 +143,7 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
 
     fun loadCategoriesSelectionScreen() {
         val intent = Intent(this, CategorySelectionActivity::class.java)
-        startActivity(intent)
+        startActivityForResult(intent, CATEGORY_REQUEST_CODE)
     }
 
     fun isGuestMode(): Boolean {
@@ -192,76 +161,43 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         levelList.clear()
     }
 
-    private fun setUpBots(curUserLevel: String) {
+    private fun setUpBots() {
         resetArrays()
         database.child("BotCatalog").addChildEventListener(baseChildEventListener {
             val botImage = it.child("botImage").value.toString()
             val botTitle = it.child("botTitle").value.toString()
             val levelEnabled = it.child("levelEnabled").value.toString()
+            val botCategory = it.child("category").value.toString()
             val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
-            var botEnabled = true
-            if (isGuestMode()) {
-                botEnabled = isEnabledGuest
-            } else {
-                var levelHashMap = preferences.getLevelHashMap()
-                var point1: Int? = levelHashMap[curUserLevel]
-                var point2: Int? = levelHashMap[levelEnabled]
-                if (point1 != null && point2 != null && point1 < point2) {
-                    botEnabled = false
-                }
-            }
-            handleNewBot(levelEnabled, botImage, botTitle, botEnabled)
+            var botEnabled = isEnabledGuest
+            handleNewBot(levelEnabled, botImage, botTitle, botCategory, botEnabled)
             setBotAdapter()
             removeLoadingProgress()
         })
     }
 
     private fun setBotAdapter() {
-        /*resetArrays()
-        fillUpBotAdapter(botPawnImages, botPawnTitles, botPawnGuestModeEnabled, botPawnLevelList)
-        fillUpBotAdapter(
-            botKnightImages,
-            botKnightTitles,
-            botKnightGuestModeEnabled,
-            botKnightLevelList
-        )
-        fillUpBotAdapter(
-            botBishopImages,
-            botBishopTitles,
-            botBishopGuestModeEnabled,
-            botBishopLevelList
-        )
-        fillUpBotAdapter(botRookImages, botRookTitles, botRookGuestModeEnabled, botRookLevelList)*/
         val botAdapter = BotAdapter(this, imageList, titleList, levelList, isEnabledInGuestMode)
         dashboard_recycler.adapter = botAdapter
-    }
-
-    private fun fillUpBotAdapter(
-        tempImageList: ArrayList<String>,
-        tempTitleList: ArrayList<String>,
-        tempIsEnabledGuestList: ArrayList<Boolean>,
-        tempLevelList: ArrayList<String>
-    ) {
-        imageList.addAll(tempImageList)
-        titleList.addAll(tempTitleList)
-        isEnabledInGuestMode.addAll(tempIsEnabledGuestList)
-        levelList.addAll(tempLevelList)
     }
 
     private fun handleNewBot(
         levelEnabled: String,
         botImage: String,
         botTitle: String,
+        botCategory: String,
         isEnabledGuest: Boolean
     ) {
         if (isEnabledGuest) {
             imageList.add(0, botImage)
             titleList.add(0, botTitle)
+            categoryList.add(0, botCategory)
             isEnabledInGuestMode.add(0, isEnabledGuest)
             levelList.add(0, levelEnabled)
         } else {
             imageList.add(botImage)
             titleList.add(botTitle)
+            categoryList.add(botCategory)
             isEnabledInGuestMode.add(isEnabledGuest)
             levelList.add(levelEnabled)
         }
@@ -327,6 +263,38 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         //not implemented
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CATEGORY_REQUEST_CODE) {
+            val selectedCategory = data?.getStringExtra("SelectedCategory")
+            selectedCategory?.let {
+                showBotsBasedOnCategory(it)
+                targetBotCategory = it
+                if (navigationDrawerFragment.isVisible) {
+                    navigationDrawerFragment.setUpBotCategoryTextField(it)
+                }
+            }
+        }
+    }
+
+    private fun showBotsBasedOnCategory(category: String) {
+        val newTitleList = arrayListOf<String>()
+        val newImageList = arrayListOf<String>()
+        val newIsEnabledGuestList = arrayListOf<Boolean>()
+        val newLevelList = arrayListOf<String>()
+        for (index in 0..categoryList.size - 1) {
+            if (categoryList[index] == category || category == "All Bots") {
+                newTitleList.add(titleList[index])
+                newImageList.add(imageList[index])
+                newIsEnabledGuestList.add(isEnabledInGuestMode[index])
+                newLevelList.add(levelList[index])
+            }
+        }
+        val botAdapter =
+            BotAdapter(this, newImageList, newTitleList, newLevelList, newIsEnabledGuestList)
+        dashboard_recycler.adapter = botAdapter
+    }
+
     companion object {
         private const val NUM_COLUMNS = 3
         private const val TOTAL_BOTS = 4
@@ -335,5 +303,6 @@ class DashboardActivity : BaseActivity(), BotClickInterface {
         private const val IMAGE_PATH = "IMAGE_PATH"
         const val TARGET_LANGUAGE = "Target_Language"
         const val CHANGING_DEFAULT_LANG = -1
+        const val CATEGORY_REQUEST_CODE = 10
     }
 }

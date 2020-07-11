@@ -22,6 +22,7 @@ class NavigationDrawerFragment : BaseFragment() {
     private var isGuestMode = false
     private var targetLanguage: String? = null
     private var languageMap = HashMap<String, String>()
+    private var targetBotCategory: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -97,24 +98,6 @@ class NavigationDrawerFragment : BaseFragment() {
         }
     }
 
-    private fun setUpUserLevelImage() {
-        var curUserLevel = preferences.getUserLevel()
-        when (curUserLevel) {
-            "Pawn" -> {
-                setUserBadge(R.drawable.pawn)
-            }
-            "Knight" -> {
-                setUserBadge(R.drawable.knight)
-            }
-        }
-    }
-
-    private fun setUserBadge(drawableResource: Int) {
-        context?.let {
-            user_badge.setImageDrawable(ContextCompat.getDrawable(it, drawableResource))
-        }
-    }
-
     private fun setUpButtonImages() {
         drawer_categories_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
         drawer_language_image.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP)
@@ -122,12 +105,19 @@ class NavigationDrawerFragment : BaseFragment() {
     }
 
     fun setUpLanguageTextField(targetLang: String) {
-        if (targetLang.isEmpty() == true) {
+        if (targetLang.isEmpty()) {
             drawer_language_text.text = "Language: N/A"
-        } else if (targetLang != null) {
-            if (languageMap.containsKey(targetLang)) {
-                drawer_language_text.text = "Language: ${languageMap[targetLang]}"
-            }
+        } else if (languageMap.containsKey(targetLang)) {
+            drawer_language_text.text = "Language: ${languageMap[targetLang]}"
+        }
+    }
+
+    fun setUpBotCategoryTextField(selectedCategory: String) {
+        targetBotCategory = selectedCategory
+        if (selectedCategory.isEmpty()) {
+            drawer_caregories_text.text = "Category: All Bots"
+        } else {
+            drawer_caregories_text.text = "Category: ${selectedCategory}"
         }
     }
 
@@ -148,6 +138,9 @@ class NavigationDrawerFragment : BaseFragment() {
         targetLanguage?.let {
             setUpLanguageTextField(it)
         }
+        targetBotCategory?.let {
+            setUpBotCategoryTextField(it)
+        }
         drawer_language_layout.setOnClickListener {
             when (activity) {
                 is DashboardActivity -> {
@@ -160,11 +153,16 @@ class NavigationDrawerFragment : BaseFragment() {
         }
     }
 
+
     companion object {
         const val USERS = "Users/"
-        fun newInstance(targetLang: String): NavigationDrawerFragment {
+        fun newInstance(
+            targetLang: String,
+            targetCategory: String
+        ): NavigationDrawerFragment {
             val fragment = NavigationDrawerFragment()
             fragment.targetLanguage = targetLang
+            fragment.targetBotCategory = targetCategory
             return fragment
         }
     }
