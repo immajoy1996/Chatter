@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="#dcdcdc"
     android:padding="5dp"
-    tools:context=".ChatInstructionsFragment">
+    tools:context=".ui.fragment.ChatInstructionsFragment">
 
     <ImageView
         android:id="@+id/close_instructions_button"

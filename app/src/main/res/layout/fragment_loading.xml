@@ -7,7 +7,7 @@
     android:background="@drawable/navigation_option"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintBottom_toBottomOf="parent"
-    tools:context=".LoadingFragment">
+    tools:context=".ui.fragment.LoadingFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"

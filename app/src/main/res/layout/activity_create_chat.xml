@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#dcdcdc"
-    tools:context=".CreateChatActivity">
+    tools:context=".ui.activity.CreateChatActivity">
 
     <include
         android:id="@+id/top_bar"

@@ -9,7 +9,7 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
-    tools:context=".AllEasterEggsFragment">
+    tools:context=".ui.fragment.AllEasterEggsFragment">
 
     <ImageView
         android:id="@+id/all_easter_eggs_exit"

@@ -14,48 +14,48 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".CreateChatActivity"
+            android:name=".ui.activity.CreateChatActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
         <activity
-            android:name=".CreateBotActivity"
+            android:name=".ui.activity.CreateBotActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".BaseSelectionActivity"
+            android:name=".ui.activity.BaseSelectionActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".ConcentrationActivity"
+            android:name=".ui.activity.ConcentrationActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".BotQuizSelectionActivity"
+            android:name=".ui.activity.BotQuizSelectionActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".CategorySelectionActivity"
+            android:name=".ui.activity.CategorySelectionActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".QuizActivity"
+            android:name=".ui.activity.QuizActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".ProfileActivity"
+            android:name=".ui.activity.ProfileActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".MyStashActivity"
+            android:name=".ui.activity.MyStashActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".LevelActivity"
+            android:name=".ui.activity.LevelActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".LanguageSelectionActivity"
+            android:name=".ui.activity.LanguageSelectionActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.activity.SettingsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity android:name=".BaseChatActivity" />
-        <activity android:name=".BaseActivity" />
+        <activity android:name=".ui.activity.BaseChatActivity" />
+        <activity android:name=".ui.activity.BaseActivity" />
         <activity
-            android:name=".SignInActivity"
+            android:name=".ui.activity.SignInActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".GetStartedActivity"
+            android:name=".ui.activity.GetStartedActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,10 +64,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DashboardActivity"
+            android:name=".ui.activity.DashboardActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".ChatterActivity"
+            android:name=".ui.activity.ChatterActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 

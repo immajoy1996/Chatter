@@ -6,9 +6,9 @@
     android:layout_height="250dp"
     android:background="@drawable/easter_egg_background"
     android:padding="10dp"
+    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,19 +45,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:textSize="25sp"
         android:textColor="#696969"
+        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/jackpot_layout" />
+
+    <ImageView
+        android:id="@+id/new_gem_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="25dp"
+        android:src="@drawable/gem"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/easter_egg_message" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/easter_egg_price_tag_layout"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginTop="25dp"
-        android:padding="10dp"
         android:background="@drawable/navigation_option"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/easter_egg_message">
@@ -99,13 +110,12 @@
         android:id="@+id/easter_egg_close_button"
         android:layout_width="70dp"
         android:layout_height="40dp"
+        android:background="@drawable/close_button_background"
+        android:padding="10dp"
         android:text="close"
         android:textColor="#ffffff"
         android:textSize="15sp"
-        android:background="@drawable/close_button_background"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

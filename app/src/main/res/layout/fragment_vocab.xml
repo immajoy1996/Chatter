@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#dcdcdc"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".VocabFragment">
+    tools:context=".ui.fragment.VocabFragment">
 
     <include
         android:id="@+id/top_bar"
