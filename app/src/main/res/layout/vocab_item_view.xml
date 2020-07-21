@@ -1,59 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/gem_item_selector"
-    android:padding="10dp"
     android:clickable="true"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:padding="10dp">
 
-    <TextView
-        android:id="@+id/spanish_word"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="tener"
-        android:textColor="#696969"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/vocab_real_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-    <TextView
-        android:id="@+id/translation"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="to have"
-        android:textSize="20sp"
-        android:textColor="#696969"
-        android:layout_marginEnd="10dp"
-        app:layout_constraintTop_toBottomOf="@id/spanish_word"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/vocab_volume"
-        />
+        <TextView
+            android:id="@+id/spanish_word"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="tener"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/transliteration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="(ten-er)"
-        android:visibility="gone"
-        android:textSize="15sp"
-        android:textColor="#696969"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="2dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/spanish_word"
-        app:layout_constraintStart_toEndOf="@id/spanish_word"
-        />
-    
-    <ImageView
-        android:id="@+id/vocab_volume"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:src="@drawable/audio"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        <TextView
+            android:id="@+id/translation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="to have"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/vocab_volume"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spanish_word" />
+
+        <TextView
+            android:id="@+id/transliteration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="2dp"
+            android:text="(ten-er)"
+            android:textColor="#696969"
+            android:textSize="15sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/spanish_word"
+            app:layout_constraintStart_toEndOf="@id/spanish_word"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/vocab_volume"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/audio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/vocab_editable_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <EditText
+            android:id="@+id/editable_spanish_word"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Type expression here"
+            android:textColor="#696969"
+            android:textColorHint="#696969"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/editable_submit"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/editable_translation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:hint="Type definition here"
+            android:textColor="#696969"
+            android:textColorHint="#696969"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/editable_submit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editable_spanish_word" />
+
+
+        <ImageView
+            android:id="@+id/editable_submit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/create_bot_submit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/editable_close_button"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/close_button_background"
+            android:padding="10dp"
+            android:text="close"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editable_translation" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

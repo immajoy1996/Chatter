@@ -2,6 +2,7 @@ package com.example.chatter.ui.activity
 
 import android.content.Context
 import android.graphics.Color
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -87,11 +88,13 @@ class CreateChatActivity : BaseChatActivity(),
 
     var executorService: ExecutorService? = null
     private var isRefreshed = false
+    private lateinit var audioManager: AudioManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_chat)
         database = FirebaseDatabase.getInstance().reference
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         preferences = getMyPreferences() ?: Preferences(
             this
         )
@@ -658,9 +661,12 @@ class CreateChatActivity : BaseChatActivity(),
         submitButtonImageView = ImageView(this)
         submitButtonImageView?.apply {
             id = getIdSubmitButton()
-            setImageDrawable(ContextCompat.getDrawable(context,
-                R.drawable.create_bot_submit
-            ))
+            setImageDrawable(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.create_bot_submit
+                )
+            )
         }
         submitButtonImageView?.setOnClickListener {
             var updateDataTask: Task<Void>? = null
@@ -963,6 +969,9 @@ class CreateChatActivity : BaseChatActivity(),
     }
 
     override fun onExpressionClicked(expression: String) {
+        if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+            Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
+        }
         readMessageBubble(expression)
     }
 

@@ -13,20 +13,20 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
+        android:gravity="center"
         android:textColor="#696969"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".3" />
+        app:layout_constraintGuide_percent=".25" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
@@ -35,45 +35,42 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".6" />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/bear_profile"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:clickable="true"
-            android:visibility="gone"
-            android:src="@drawable/business_profile"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/bear_profile"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:clickable="true"
+        android:src="@drawable/business_profile"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/bear_chat_bubble"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:visibility="gone"
-            android:src="@drawable/chat_bubble"
-            android:layout_marginBottom="20dp"
-            android:layout_marginStart="60dp"
-            app:layout_constraintBottom_toBottomOf="@id/bear_profile"
-            app:layout_constraintStart_toStartOf="@id/bear_profile"
-            />
+    <ImageView
+        android:id="@+id/bear_chat_bubble"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/chat_bubble"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/bear_profile"
+        app:layout_constraintStart_toStartOf="@id/bear_profile" />
 
-        <TextView
-            android:id="@+id/tap_me_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tap me!"
-            android:textColor="#000000"
-            android:textSize="10sp"
-            android:visibility="gone"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="@id/bear_chat_bubble"
-            app:layout_constraintTop_toTopOf="@id/bear_chat_bubble"
-            app:layout_constraintStart_toStartOf="@id/bear_chat_bubble"
-            app:layout_constraintEnd_toEndOf="@id/bear_chat_bubble"
-            />
+    <TextView
+        android:id="@+id/tap_me_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Tap me!"
+        android:textColor="#000000"
+        android:textSize="10sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/bear_chat_bubble"
+        app:layout_constraintEnd_toEndOf="@id/bear_chat_bubble"
+        app:layout_constraintStart_toStartOf="@id/bear_chat_bubble"
+        app:layout_constraintTop_toTopOf="@id/bear_chat_bubble" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/message_layout2"
@@ -111,23 +108,23 @@
         android:layout_marginTop="15dp"
         android:background="@drawable/bear_personality_background_disabled"
         android:text="Wake up Bear Bot"
-        android:visibility="visible"
         android:textColor="#ffffff"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@id/bear_profile"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bear_profile" />
 
     <Button
-        android:id="@+id/bad_bear_button"
+        android:id="@+id/bear_answer_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:visibility="gone"
         android:background="@drawable/bear_personality_background_disabled"
-        android:text="Mean"
+        android:text="Answer"
         android:textColor="#ffffff"
         android:textSize="15sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_buttons" />
@@ -137,21 +134,33 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".75" />
+        app:layout_constraintGuide_percent=".65" />
 
     <TextView
         android:id="@+id/initializing_audio_textview"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:textColor="#0084FF"
         android:textSize="20sp"
         android:visibility="gone"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@id/wake_up_bear_button"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/wake_up_bear_button" />
+
+    <TextView
+        android:id="@+id/joke_answer_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:textColor="#0084FF"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bear_answer_button" />
 
     <include layout="@layout/bottom_nav_bar" />
 

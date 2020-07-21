@@ -68,6 +68,10 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         msgCount = 0
     }
 
+    fun textToSpeechInitialized(): Boolean {
+        return textToSpeechInitialized
+    }
+
     abstract fun setUpTopBar()
 
     abstract fun initializeMessagesContainer()
@@ -125,6 +129,10 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         preferences?.getCurrentQuote()?.let {
             letBearSpeak(it)
         }
+    }
+
+    fun getCurrentJokeAnswer(): String {
+        return preferences?.getCurrentJokeAnswer() ?: "Oops, something went wrong"
     }
 
     fun runThroughVoiceList() {
@@ -209,7 +217,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         for (timerTask in timerTaskArray) {
             timerTask.cancel()
         }
-        handleRestartFlag()
+        //handleRestartFlag()
     }
 
     override fun onDestroy() {

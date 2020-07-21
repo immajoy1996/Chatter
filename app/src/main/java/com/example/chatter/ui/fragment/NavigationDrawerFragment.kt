@@ -18,6 +18,7 @@ import com.example.chatter.R
 import com.example.chatter.ui.activity.SignInActivity
 import com.example.chatter.ui.activity.DashboardActivity
 import com.example.chatter.ui.activity.MyStashActivity
+import com.example.chatter.ui.activity.SignInActivity.Companion.BEAR_PROFILE_PATH
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -105,13 +106,31 @@ class NavigationDrawerFragment : BaseFragment() {
                 val pointsListener = baseValueEventListener { dataSnapshot ->
                     val pointTotal = dataSnapshot.value.toString()
                     drawer_close_text.text = pointTotal
+                    getNewGem(pointTotal.toInt())?.let {
+                        drawer_settings_image.setImageResource(it)
+                    }
                 }
                 pointsRef.addListenerForSingleValueEvent(pointsListener)
             }
         } else {
             navigation_drawer_username.text = "Guest"
             drawer_close_text.text = preferences.getCurrentScore().toString()
+            getNewGem(preferences.getCurrentScore())?.let {
+                drawer_settings_image.setImageResource(it)
+            }
         }
+    }
+
+    private fun getNewGem(score: Int): Int? {
+        if (score < preferences.gemPrices[0]) {
+            return null
+        }
+        for (index in 1..preferences.gemImages.size - 1) {
+            if (score < preferences.gemPrices[index]) {
+                return preferences.gemImages[index - 1]
+            }
+        }
+        return preferences.gemImages.last()
     }
 
     private fun setUpButtonImages() {
@@ -149,6 +168,12 @@ class NavigationDrawerFragment : BaseFragment() {
                     .load(profileImage)
                     .into(it)
             }
+        } else {
+            user_badge?.let {
+                Glide.with(this)
+                    .load(BEAR_PROFILE_PATH)
+                    .into(it)
+            }
         }
     }
 
@@ -180,7 +205,10 @@ class NavigationDrawerFragment : BaseFragment() {
             fragmentManager?.popBackStack()
         }
         drawer_settings_layout.setOnClickListener {
-            context?.startActivity(Intent(context, MyStashActivity::class.java))
+            val intent = Intent(context, MyStashActivity::class.java)
+            intent.putExtra("gem_image", drawer_settings_image.id)
+            intent.putExtra("points", drawer_close_text.text.toString().toInt())
+            context?.startActivity(intent)
         }
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()

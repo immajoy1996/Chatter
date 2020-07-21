@@ -58,6 +58,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintCircle="@id/user_badge_layout"
             app:layout_constraintCircleAngle="140"
+            android:visibility="gone"
             app:layout_constraintCircleRadius="120dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -105,7 +106,6 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_marginBottom="20dp"
-                android:src="@drawable/business_profile"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/navigation_drawer_username"
@@ -127,7 +127,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:text="Manny Joy"
                 android:textColor="#000000"
                 android:textSize="20sp"
                 android:textStyle="bold"

@@ -18,7 +18,6 @@ class BotAdapter(
     val context: Context,
     var imageList: ArrayList<String>,
     var botTitles: ArrayList<String>,
-    var levelList: ArrayList<String>,
     var isGuestModeEnabled: ArrayList<Boolean>
 ) :
     RecyclerView.Adapter<BotAdapter.BotViewHolder>() {
@@ -36,9 +35,8 @@ class BotAdapter(
     override fun onBindViewHolder(holder: BotViewHolder, position: Int) {
         val imagePath = imageList[position]
         val title = botTitles[position]
-        var level = levelList[position]
         var isAllowedInGuestMode = isGuestModeEnabled[position]
-        holder.bind(imagePath, title, level, isAllowedInGuestMode)
+        holder.bind(imagePath, title, isAllowedInGuestMode)
     }
 
     override fun getItemCount(): Int = botTitles.size
@@ -58,7 +56,7 @@ class BotAdapter(
             botLockedImage = view.bot_locked_image
         }
 
-        fun bind(imagePath: String, title: String, level: String, isEnabled: Boolean) {
+        fun bind(imagePath: String, title: String, isEnabled: Boolean) {
             botImage?.let {
                 Glide.with(context)
                     .load(imagePath)

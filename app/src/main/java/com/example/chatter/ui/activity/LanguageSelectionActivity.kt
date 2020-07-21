@@ -107,6 +107,8 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                         startActivity(intent)
                     } ?: Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show()
                 }
+            }else{
+                Toast.makeText(this, "Select a language", Toast.LENGTH_LONG).show()
             }
         }
     }

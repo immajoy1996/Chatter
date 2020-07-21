@@ -223,13 +223,16 @@ class MessageMenuOptionsFragment : BaseFragment() {
             optionA.performClick()
             //performOptionClick("optionA", optionA.text.toString())
             showScoreBoostAnimation(false)
+            chatterActivity.updateTotalScore(25)
         } else if (isTextMatch(text, optionB.text.toString())) {
             optionB.performClick()
             //performOptionClick("optionB", optionB.text.toString())
             showScoreBoostAnimation(false)
+            chatterActivity.updateTotalScore(25)
         } else if (isTextMatch(text, optionC.text.toString())) {
             optionC.performClick()
             showScoreBoostAnimation(false)
+            chatterActivity.updateTotalScore(25)
         } else {
             Toast.makeText(context, "Couldn't match your sentence", Toast.LENGTH_LONG).show()
         }

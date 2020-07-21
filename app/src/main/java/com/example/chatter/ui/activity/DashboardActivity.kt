@@ -52,8 +52,8 @@ class DashboardActivity : BaseActivity(),
         preferences = Preferences(this)
         //botItemSpacing = getBotItemSpacing()
         setUpTopBar()
-        setUpBotGridView()
-        loadBots()
+        //setUpBotGridView()
+        //loadBots()
     }
 
     override fun setUpTopBar() {
@@ -125,7 +125,9 @@ class DashboardActivity : BaseActivity(),
     }
 
     private fun setUpBotGridView() {
-        dashboard_recycler.layoutManager = GridLayoutManager(this,
+        resetArrays()
+        dashboard_recycler.layoutManager = GridLayoutManager(
+            this,
             NUM_COLUMNS
         )
 
@@ -133,7 +135,6 @@ class DashboardActivity : BaseActivity(),
             this,
             imageList,
             titleList,
-            levelList,
             isEnabledInGuestMode
         )
         dashboard_recycler.adapter = botAdapter
@@ -157,7 +158,8 @@ class DashboardActivity : BaseActivity(),
 
     fun loadLanguageSelectionScreen() {
         val intent = Intent(this, LanguageSelectionActivity::class.java)
-        intent.putExtra("ChangingDefaultLanguage",
+        intent.putExtra(
+            "ChangingDefaultLanguage",
             CHANGING_DEFAULT_LANG
         )
         startActivity(intent)
@@ -165,7 +167,8 @@ class DashboardActivity : BaseActivity(),
 
     fun loadCategoriesSelectionScreen() {
         val intent = Intent(this, CategorySelectionActivity::class.java)
-        startActivityForResult(intent,
+        startActivityForResult(
+            intent,
             CATEGORY_REQUEST_CODE
         )
     }
@@ -190,13 +193,32 @@ class DashboardActivity : BaseActivity(),
         database.child("BotCatalog").addChildEventListener(baseChildEventListener {
             val botImage = it.child("botImage").value.toString()
             val botTitle = it.child("botTitle").value.toString()
-            val levelEnabled = it.child("levelEnabled").value.toString()
             val botCategory = it.child("category").value.toString()
             val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
-            var botEnabled = isEnabledGuest
-            handleNewBot(levelEnabled, botImage, botTitle, botCategory, botEnabled)
-            setBotAdapter()
-            removeLoadingProgress()
+            if (auth.currentUser != null) {
+                val pointsNeeded = it.child("pointsNeeded").value as Long?
+                auth.currentUser?.uid?.let {
+                    val pointsRef = database.child(USERS.plus(it)).child("points")
+                    val pointsListener = baseValueEventListener { dataSnapshot ->
+                        val userPoints = dataSnapshot.value as Long
+                        var botEnabled = true
+                        pointsNeeded?.let {
+                            if (it > userPoints) {
+                                botEnabled = false
+                            }
+                        }
+                        handleNewBot(botImage, botTitle, botCategory, botEnabled)
+                        setBotAdapter()
+                        removeLoadingProgress()
+                    }
+                    pointsRef.addListenerForSingleValueEvent(pointsListener)
+                }
+            } else {
+                val botEnabled = isEnabledGuest
+                handleNewBot(botImage, botTitle, botCategory, botEnabled)
+                setBotAdapter()
+                removeLoadingProgress()
+            }
         })
     }
 
@@ -205,14 +227,12 @@ class DashboardActivity : BaseActivity(),
             this,
             imageList,
             titleList,
-            levelList,
             isEnabledInGuestMode
         )
         dashboard_recycler.adapter = botAdapter
     }
 
     private fun handleNewBot(
-        levelEnabled: String,
         botImage: String,
         botTitle: String,
         botCategory: String,
@@ -223,13 +243,11 @@ class DashboardActivity : BaseActivity(),
             titleList.add(0, botTitle)
             categoryList.add(0, botCategory)
             isEnabledInGuestMode.add(0, isEnabledGuest)
-            levelList.add(0, levelEnabled)
         } else {
             imageList.add(botImage)
             titleList.add(botTitle)
             categoryList.add(botCategory)
             isEnabledInGuestMode.add(isEnabledGuest)
-            levelList.add(levelEnabled)
         }
         /*when (levelEnabled) {
             "Pawn" -> {
@@ -269,6 +287,11 @@ class DashboardActivity : BaseActivity(),
 
     override fun onResume() {
         super.onResume()
+        setUpBotGridView()
+        loadBots()
+        if (top_bar_plus_button.visibility == View.VISIBLE) {
+            top_bar_plus_button.visibility = View.GONE
+        }
         if (auth.currentUser != null) {
             auth.currentUser?.uid?.let {
                 val uid = it
@@ -338,13 +361,13 @@ class DashboardActivity : BaseActivity(),
                 this,
                 newImageList,
                 newTitleList,
-                newLevelList,
                 newIsEnabledGuestList
             )
         dashboard_recycler.adapter = botAdapter
     }
 
     companion object {
+        private const val USERS = "Users/"
         private const val NUM_COLUMNS = 3
         private const val TOTAL_BOTS = 4
         private const val BOT_ITEM_SPACING = 40

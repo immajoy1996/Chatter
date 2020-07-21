@@ -2,6 +2,7 @@ package com.example.chatter.ui.activity
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.GemsGridAdapter
@@ -48,8 +49,8 @@ class MyStashActivity : BaseActivity(),
         R.drawable.emerald
     )
     private var haveGems = arrayListOf<Boolean>(
-        true,
-        true,
+        false,
+        false,
         false,
         false,
         false,
@@ -62,6 +63,7 @@ class MyStashActivity : BaseActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.levels_activity_two)
+        setUpHaveGemsArray()
         setUpTopBar()
         setUpGemsGridView()
     }
@@ -73,6 +75,21 @@ class MyStashActivity : BaseActivity(),
         home.visibility = View.GONE
         back.setOnClickListener {
             finish()
+        }
+    }
+
+    private fun setUpHaveGemsArray() {
+        val targetId = intent.getIntExtra("gem_image", -100)
+        val points = intent.getIntExtra("points", 0)
+        total_coins.setText(points.toString())
+        Toast.makeText(this, "" + targetId, Toast.LENGTH_LONG).show()
+        var found = false
+        var index = 0
+        for (gemId in gemImages) {
+            if (gemId == targetId) {
+                found = true
+            }
+            haveGems[index++] = found
         }
     }
 

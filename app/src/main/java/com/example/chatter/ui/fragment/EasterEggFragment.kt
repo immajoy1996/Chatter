@@ -17,6 +17,7 @@ class EasterEggFragment : Fragment() {
     var message: String? = null
     var points: Long? = null
     var imageSrc: String? = null
+    var imageGem: Int? = null
     private lateinit var database: DatabaseReference
     private lateinit var preferences: Preferences
 
@@ -60,6 +61,9 @@ class EasterEggFragment : Fragment() {
         } else {
             easter_egg_price_tag_layout.visibility = View.GONE
             new_gem_image.visibility = View.VISIBLE
+            imageGem?.let {
+                new_gem_image.setImageResource(it)
+            }
         }
     }
 
@@ -89,9 +93,10 @@ class EasterEggFragment : Fragment() {
             return fragment
         }
 
-        fun newInstance(message: String): EasterEggFragment {
+        fun newInstance(message: String, imageGem: Int): EasterEggFragment {
             val fragment = EasterEggFragment()
             fragment.message = message
+            fragment.imageGem = imageGem
             return fragment
         }
     }

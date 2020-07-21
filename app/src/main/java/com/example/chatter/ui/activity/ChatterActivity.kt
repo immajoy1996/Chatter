@@ -1,8 +1,15 @@
 package com.example.chatter.ui.activity
 
+import android.Manifest
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.speech.SpeechRecognizer
@@ -17,16 +24,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
-import com.example.chatter.*
+import com.example.chatter.R
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.ExpressionClickInterface
 import com.example.chatter.interfaces.StoryBoardFinishedInterface
 import com.example.chatter.ui.activity.DashboardActivity.Companion.TARGET_LANGUAGE
 import com.example.chatter.ui.fragment.*
+import com.example.chatter.ui.fragment.StoryBoardOneFragment.Companion.PERMISSION_REQUEST_CODE
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -85,11 +96,13 @@ class ChatterActivity : BaseChatActivity(),
     var executorService: ExecutorService? = null
     private var isRefreshed = false
     private var targetLanguage = ""
+    private lateinit var audioManager: AudioManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         preferences = getMyPreferences() ?: Preferences(
             this
         )
@@ -114,13 +127,12 @@ class ChatterActivity : BaseChatActivity(),
         top_bar_title.text = "Chatter"
         top_bar_mic.setOnClickListener {
             if (!isMicActive) {
-                letBearSpeak("Please say an option at the tone")
-                setTimerTask("voicePrompt", 3000) {
-                    isMicActive = true
-                    toggleIsChatterActivity(true)
-                    top_bar_mic.setImageResource(R.drawable.microphone_listening)
-                    (top_bar_mic.drawable as AnimationDrawable).start()
-                    startListening()
+                if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+                    Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !recordAudioPermissionGranted()) {
+                    requestRecordAudioPermission()
+                } else {
+                    runMicLogic()
                 }
             } else {
                 isMicActive = false
@@ -328,10 +340,10 @@ class ChatterActivity : BaseChatActivity(),
         }
     }
 
-    fun loadNewGemAquiredFragment(title: String) {
+    private fun loadNewGemAquiredFragment(title: String, imageGem: Int) {
         playMedia(NOTIFICATION_SOUND_EFFECT_PATH)
         easterEggFragment =
-            EasterEggFragment.newInstance(title)
+            EasterEggFragment.newInstance(title, imageGem)
         supportFragmentManager
             .beginTransaction()
             .replace(chatter_activity_root_container.id, easterEggFragment)
@@ -513,6 +525,9 @@ class ChatterActivity : BaseChatActivity(),
             otherView.text = str1
         }
         textView?.setOnLongClickListener {
+            if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+                Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
+            }
             val messageText = textView.text.toString()
             readMessageBubble(messageText)
             true
@@ -822,7 +837,12 @@ class ChatterActivity : BaseChatActivity(),
                                     latestScore as Int
                                 )
                             ) {
-                                loadNewGemAquiredFragment("New gem acquired!")
+                                getNewGem(newScore.toInt())?.let {
+                                    loadNewGemAquiredFragment(
+                                        "New gem acquired!",
+                                        it
+                                    )
+                                }
                             }
                         }.addOnFailureListener {
                             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show()
@@ -842,12 +862,27 @@ class ChatterActivity : BaseChatActivity(),
                     latestScore as Int
                 )
             ) {
-                loadNewGemAquiredFragment("New gem acquired!")
-                //Toast.makeText(this, "" + currentScore + " " + newScore, Toast.LENGTH_LONG).show()
+                getNewGem(newScore)?.let {
+                    loadNewGemAquiredFragment(
+                        "New gem acquired!",
+                        it
+                    )
+                }
             }
-
             Toast.makeText(this, "Points added", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun getNewGem(score: Int): Int? {
+        if (score < preferences.gemPrices[0]) {
+            return null
+        }
+        for (index in 1..preferences.gemImages.size - 1) {
+            if (score < preferences.gemPrices[index]) {
+                return preferences.gemImages[index - 1]
+            }
+        }
+        return preferences.gemImages.last()
     }
 
     private fun newGemAquired(oldScore: Int, newScore: Int): Boolean {
@@ -886,7 +921,72 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     override fun onExpressionClicked(expression: String) {
+        if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+            Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
+        }
         readMessageBubble(expression)
+    }
+
+    private fun requestRecordAudioPermission() {
+        requestPermissions(
+            this,
+            arrayOf(Manifest.permission.RECORD_AUDIO),
+            PERMISSION_REQUEST_CODE
+        )
+    }
+
+    private fun recordAudioPermissionGranted(): Boolean {
+        return if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            false
+        } else true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
+                    //Permission Granted
+                    runMicLogic()
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                            != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            //Permission Denied
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun runMicLogic() {
+        letBearSpeak("Please say an option at the tone")
+        setTimerTask("voicePrompt", 3000) {
+            isMicActive = true
+            toggleIsChatterActivity(true)
+            top_bar_mic.setImageResource(R.drawable.microphone_listening)
+            (top_bar_mic.drawable as AnimationDrawable).start()
+            startListening()
+        }
+    }
+
+    private fun showMessageOKCancel(
+        message: String,
+        okListener: DialogInterface.OnClickListener
+    ) {
+        AlertDialog.Builder(this)
+            .setMessage(message)
+            .setPositiveButton("OK", okListener)
+            .setNegativeButton("Cancel", null)
+            .create()
+            .show()
     }
 
     override fun onResume() {

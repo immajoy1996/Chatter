@@ -2,6 +2,7 @@ package com.example.chatter.extra
 
 import android.content.Context
 import android.util.Log
+import com.example.chatter.R
 
 class Preferences(val context: Context) {
     private val sharedPreferences =
@@ -11,13 +12,19 @@ class Preferences(val context: Context) {
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
 
     private val quotesArray = arrayListOf<String>(
-        "Banging your head against the wall for one hour burns 150 calories",
-        "In Switzerland it is illegal to own just one guinea pig",
-        "Pteronophobia is the fear of being tickled by feathers.",
-        "Snakes can sense a coming earthquake from 121 kilometers away, up to five days before it happens.",
-        "A flock of crows is known as a murder.",
-        "Cherophobia is an irrational fear of fun or happiness.",
-        "Seven percent of American adults believe that chocolate milk comes from brown cows."
+        "What do you call a dinosaur who gets into an accident?",
+        "Why is a leopard so bad at hide an seek?",
+        "How does Moses make his tea?",
+        "How did the rocket lose his job?",
+        "What do you call a ship that sits at the bottom of the ocean and twitches?"
+    )
+
+    private var answersArray = arrayListOf<String>(
+        "A Tyrannosaurus Wrecks",
+        "He always gets spotted",
+        "He brews",
+        "He got fired",
+        "A nervous wreck"
     )
 
     var gemNames = arrayListOf<String>(
@@ -42,6 +49,18 @@ class Preferences(val context: Context) {
         7000,
         8000,
         9000
+    )
+
+    var gemImages = arrayListOf<Int>(
+        R.drawable.gem,
+        R.drawable.ruby,
+        R.drawable.emerald,
+        R.drawable.sapphire,
+        R.drawable.orange_gem,
+        R.drawable.diamond,
+        R.drawable.yellow_gem,
+        R.drawable.pink_gem,
+        R.drawable.emerald
     )
 
     private var storiesHashmap = HashMap<String, ArrayList<String>>()
@@ -96,10 +115,16 @@ class Preferences(val context: Context) {
     }
 
     fun getCurrentQuote(): String {
-        val quoteIndex = getQuoteIndex()
+        val quoteIndex = getQuoteIndex() % quotesArray.size
         val result = quotesArray[quoteIndex]
         incrementQuoteIndex()
         return result
+    }
+
+    fun getCurrentJokeAnswer(): String {
+        val quoteIndex = getQuoteIndex() % quotesArray.size
+        val oldIndex = (quoteIndex - 1 + quotesArray.size) % quotesArray.size
+        return if (oldIndex >= 0 && oldIndex < answersArray.size) answersArray[oldIndex] else "Oops, something went wrong"
     }
 
     private fun getQuoteIndex(): Int {

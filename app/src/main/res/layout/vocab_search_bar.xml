@@ -35,10 +35,10 @@
         android:layout_marginStart="10dp"
         android:background="@drawable/navigation_option"
         android:hint="Search"
-        android:visibility="gone"
+        android:textAlignment="center"
         android:textColor="#696969"
         android:textColorHint="#696969"
-        android:textAlignment="center"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/home"
         app:layout_constraintTop_toTopOf="parent" />
@@ -48,11 +48,22 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginEnd="10dp"
-        android:visibility="gone"
         android:src="@drawable/right_arrow"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/vocab_search_text"
         app:layout_constraintEnd_toEndOf="@id/vocab_search_text"
         app:layout_constraintTop_toTopOf="@id/vocab_search_text" />
+
+    <ImageView
+        android:id="@+id/vocab_top_bar_plus_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="20dp"
+        android:src="@drawable/plus_button"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/top_bar_mic"
@@ -60,8 +71,8 @@
         android:layout_height="80dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:visibility="gone"
         android:src="@drawable/microphone_listening"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
