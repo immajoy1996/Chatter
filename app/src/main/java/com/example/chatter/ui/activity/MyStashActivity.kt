@@ -2,7 +2,6 @@ package com.example.chatter.ui.activity
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.GemsGridAdapter
@@ -14,15 +13,15 @@ class MyStashActivity : BaseActivity(),
     GemClickInterface {
 
     private var gemNames = arrayListOf<String>(
-        "Amethyst",
-        "Ruby",
-        "Emerald",
-        "Sapphire",
+        "Blue Ice",
+        "Red Rage",
+        "Green Gold",
+        "Master of Purple",
         "Orange Julius",
-        "Diamond",
+        "Double Trouble",
         "Yellow Fever",
         "Tropic of Cancer",
-        "Emerald"
+        "World Domination"
     )
 
     private var gemPrices = arrayListOf<Int>(
@@ -43,10 +42,10 @@ class MyStashActivity : BaseActivity(),
         R.drawable.emerald,
         R.drawable.sapphire,
         R.drawable.orange_gem,
-        R.drawable.diamond,
+        R.drawable.double_trouble,
         R.drawable.yellow_gem,
         R.drawable.pink_gem,
-        R.drawable.emerald
+        R.drawable.trophy
     )
     private var haveGems = arrayListOf<Boolean>(
         false,
@@ -82,7 +81,6 @@ class MyStashActivity : BaseActivity(),
         val targetId = intent.getIntExtra("gem_image", -100)
         val points = intent.getIntExtra("points", 0)
         total_coins.setText(points.toString())
-        Toast.makeText(this, "" + targetId, Toast.LENGTH_LONG).show()
         var found = false
         var index = 0
         for (gemId in gemImages) {

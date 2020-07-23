@@ -20,13 +20,11 @@ class ProfileActivity : BaseActivity(),
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private var selectedProfileImage: String? = null
-    private lateinit var preferences: Preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
-        preferences = Preferences(this)
         setContentView(R.layout.activity_profile)
         setUpProfileGridView()
         setUpTopBar()

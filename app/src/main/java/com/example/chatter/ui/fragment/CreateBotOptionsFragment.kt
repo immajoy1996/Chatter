@@ -37,7 +37,6 @@ class CreateBotOptionsFragment : BaseFragment() {
 
     private lateinit var database: DatabaseReference
     private lateinit var timerTask: TimerTask
-    private lateinit var preferences: Preferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

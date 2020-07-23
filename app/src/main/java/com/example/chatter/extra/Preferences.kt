@@ -57,10 +57,10 @@ class Preferences(val context: Context) {
         R.drawable.emerald,
         R.drawable.sapphire,
         R.drawable.orange_gem,
-        R.drawable.diamond,
+        R.drawable.double_trouble,
         R.drawable.yellow_gem,
         R.drawable.pink_gem,
-        R.drawable.emerald
+        R.drawable.trophy
     )
 
     private var storiesHashmap = HashMap<String, ArrayList<String>>()
@@ -246,32 +246,35 @@ class Preferences(val context: Context) {
         return "$BOT_STATES $userUid $botTitle $MESSAGES"
     }
 
-    fun storeUserPoints(points: Long) {
-        sharedPreferences.edit().putLong(USER_POINTS_REMAINING, points).apply()
-    }
-
-    fun getUserPoints(): Long {
-        return sharedPreferences.getLong(USER_POINTS_REMAINING, 0L)
-    }
-
     fun storeUserLevel(level: String) {
         sharedPreferences.edit().putString(USER_LEVEL, level).apply()
     }
 
-    fun getUserLevel(): String {
-        return sharedPreferences.getString(USER_LEVEL, "Novice") ?: "N/A"
+    fun getLastClickTime(buttonId: Int): Long {
+        return sharedPreferences.getLong(buttonId.toString(), -1L)
+    }
+
+    fun storeLastClickTime(buttonId: Int, time: Long) {
+        sharedPreferences.edit().putLong(buttonId.toString(), time).apply()
+    }
+
+    fun storeCountEnabledBots(count: Int) {
+        sharedPreferences.edit().putInt(ENABLED_BOT_COUNT, count).apply()
+    }
+
+    fun getEnabledBotCount(): Int {
+        return sharedPreferences.getInt(ENABLED_BOT_COUNT, -1)
     }
 
     companion object {
         const val SHARED_PREFERENCES_KEY = "Shared Preferences"
-        const val USER_POINTS_REMAINING = "Points Remaining"
         const val USER_LEVEL = "User Level"
         const val BOT_STATES = "Bot States"
         const val MESSAGES = "Messages"
         const val CURRENT_PATH = "CurrentPath"
-        const val TRANSLATIONS_EN_TO_ES = "TranslationsEnToEs/"
         const val TRANSLATIONS_ES_TO_EN = "TranslationsEsToEn"
         const val AUDIOS = "Audios/"
         const val QUOTE_INDEX = "QuoteIndex"
+        const val ENABLED_BOT_COUNT = "Enabled_Bot_Count"
     }
 }

@@ -2,7 +2,9 @@ package com.example.chatter.ui.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import com.example.chatter.R
+import com.example.chatter.extra.Preferences
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -14,10 +16,12 @@ abstract class BaseActivity : AppCompatActivity() {
     var guestMode: Boolean = false
     private lateinit var timerTask: TimerTask
     private var timerTaskArray = arrayListOf<TimerTask>()
+    lateinit var preferences: Preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
+        preferences = Preferences(this)
     }
 
     val baseChildEventListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->
@@ -77,4 +81,19 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     abstract fun setUpTopBar()
+
+    fun View.setOnDebouncedClickListener(doStuff: () -> (Unit)) {
+        this.setOnClickListener {
+            val lastClickTime: Long = preferences.getLastClickTime(it.id) ?: -1L
+            val currentTime = System.currentTimeMillis()
+            if (lastClickTime == -1L || currentTime - lastClickTime > MIN_TIME_BETWEEN_CLICKS) {
+                preferences.storeLastClickTime(it.id, System.currentTimeMillis())
+                doStuff()
+            }
+        }
+    }
+
+    companion object {
+        const val MIN_TIME_BETWEEN_CLICKS = 700L
+    }
 }

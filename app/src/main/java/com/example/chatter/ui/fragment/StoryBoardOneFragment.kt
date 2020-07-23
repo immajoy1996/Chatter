@@ -33,7 +33,7 @@ import kotlinx.android.synthetic.main.fragment_story_board_one.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 
-class StoryBoardOneFragment : Fragment() {
+class StoryBoardOneFragment : BaseFragment() {
 
     var botTitle: String? = null
     private lateinit var database: DatabaseReference
@@ -193,7 +193,7 @@ class StoryBoardOneFragment : Fragment() {
     }
 
     private fun setUpBearClick() {
-        bear_profile.setOnClickListener {
+        bear_profile.setOnDebouncedClickListener {
             animateBearShake()
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop()
@@ -256,24 +256,20 @@ class StoryBoardOneFragment : Fragment() {
             if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
                 Toast.makeText(context, "Turn up your volume", Toast.LENGTH_LONG).show()
             }
-            playMedia(BEAR_YAWN_PATH)
+            playBearYawn()
             wake_up_bear_button.isClickable = false
             showInitializeAudioMessage()
             setUpAudio()
         }
     }
 
-    private fun playMedia(audio: String) {
+    private fun playBearYawn() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop()
             mediaPlayer.release()
         }
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(audio)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.start()
-        }
+        mediaPlayer = MediaPlayer.create(context, R.raw.bear_yawn)
+        mediaPlayer.start()
     }
 
     private fun setUpTopBar() {

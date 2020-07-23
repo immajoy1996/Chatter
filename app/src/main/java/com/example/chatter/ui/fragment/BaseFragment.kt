@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.example.chatter.R
+import com.example.chatter.extra.Preferences
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -14,6 +16,14 @@ import java.util.*
 
 abstract class BaseFragment : Fragment() {
     var timerTaskArray = arrayListOf<TimerTask>()
+    lateinit var preferences: Preferences
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        context?.let {
+            preferences = Preferences(it)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,5 +76,20 @@ abstract class BaseFragment : Fragment() {
 
         }
         valueEventListener
+    }
+
+    fun View.setOnDebouncedClickListener(doStuff: () -> (Unit)) {
+        this.setOnClickListener {
+            val lastClickTime: Long = preferences.getLastClickTime(it.id) ?: -1L
+            val currentTime = System.currentTimeMillis()
+            if (lastClickTime == -1L || currentTime - lastClickTime > MIN_TIME_BETWEEN_CLICKS) {
+                preferences.storeLastClickTime(it.id, System.currentTimeMillis())
+                doStuff()
+            }
+        }
+    }
+
+    companion object {
+        const val MIN_TIME_BETWEEN_CLICKS = 700L
     }
 }

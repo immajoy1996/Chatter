@@ -341,7 +341,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun loadNewGemAquiredFragment(title: String, imageGem: Int) {
-        playMedia(NOTIFICATION_SOUND_EFFECT_PATH)
+        playNotificationSound()
         easterEggFragment =
             EasterEggFragment.newInstance(title, imageGem)
         supportFragmentManager
@@ -352,7 +352,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     fun loadEasterEggFragment(title: String, points: Long, imageSrc: String) {
-        playMedia(NOTIFICATION_SOUND_EFFECT_PATH)
+        playNotificationSound()
         easterEggFragment =
             EasterEggFragment.newInstance(
                 title,
@@ -544,17 +544,13 @@ class ChatterActivity : BaseChatActivity(),
         }
     }
 
-    private fun playMedia(audio: String) {
+    private fun playNotificationSound() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop()
             mediaPlayer.release()
         }
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(audio)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.start()
-        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.notification)
+        mediaPlayer.start()
     }
 
     private fun getMessageTextBubbleId(): Int {
@@ -812,7 +808,6 @@ class ChatterActivity : BaseChatActivity(),
             matches?.let {
                 Log.d("Voice String", it[0])
                 messageOptionsFragment.selectOptionsWithVoice(it[0])
-                toggleIsVocabFragmentFlag(false)
             }
         }
     }
@@ -831,7 +826,7 @@ class ChatterActivity : BaseChatActivity(),
                     latestScore = newScore.toInt()
                     database.child(USERS).child(userUid).child("points").setValue(newScore)
                         .addOnSuccessListener {
-                            Toast.makeText(this, "Points added", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "Points added", Toast.LENGTH_SHORT).show()
                             if (oldScore != null && latestScore != null && newGemAquired(
                                     oldScore as Int,
                                     latestScore as Int
@@ -845,7 +840,7 @@ class ChatterActivity : BaseChatActivity(),
                                 }
                             }
                         }.addOnFailureListener {
-                            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
                         }
                 }
                 pathRef.addListenerForSingleValueEvent(pointsListener)
@@ -869,7 +864,7 @@ class ChatterActivity : BaseChatActivity(),
                     )
                 }
             }
-            Toast.makeText(this, "Points added", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Points added", Toast.LENGTH_SHORT).show()
         }
     }
 

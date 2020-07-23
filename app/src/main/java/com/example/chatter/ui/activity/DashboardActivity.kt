@@ -2,14 +2,18 @@ package com.example.chatter.ui.activity
 
 import android.content.Intent
 import android.content.res.Resources
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chatter.*
 import com.example.chatter.adapters.BotAdapter
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.BotClickInterface
+import com.example.chatter.ui.fragment.EasterEggFragment
 import com.example.chatter.ui.fragment.NavigationDrawerFragment
 import com.example.chatter.ui.fragment.RetrievingOptionsFragment
 import com.google.firebase.auth.FirebaseAuth
@@ -26,14 +30,11 @@ class DashboardActivity : BaseActivity(),
     private var categoryList = ArrayList<String>()
     private var levelList = ArrayList<String>()
     private var isEnabledInGuestMode = ArrayList<Boolean>()
-    private var navigationDrawerFragment =
-        NavigationDrawerFragment.newInstance(
-            "",
-            "All Bots"
-        )
+    private var totalEnabled = -1
+    private var countEnabled = -1
+    private var newBotsAcquiredMessageShown = false
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var preferences: Preferences
     private var botItemSpacing: Int? = 20
 
     private var retrievingOptionsFragment =
@@ -42,6 +43,16 @@ class DashboardActivity : BaseActivity(),
     private var targetLanguage = ""
     private var targetBotCategory = "All Bots"
 
+    private var navigationDrawerFragment =
+        NavigationDrawerFragment.newInstance(
+            "",
+            "All Bots"
+        )
+
+    private var newBotsAquiredFragment =
+        EasterEggFragment.newInstance("You've acquired new chat bots!")
+    private var mediaPlayer = MediaPlayer()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
@@ -49,11 +60,7 @@ class DashboardActivity : BaseActivity(),
         setIsGuestMode(guestMode)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
-        preferences = Preferences(this)
-        //botItemSpacing = getBotItemSpacing()
         setUpTopBar()
-        //setUpBotGridView()
-        //loadBots()
     }
 
     override fun setUpTopBar() {
@@ -96,7 +103,7 @@ class DashboardActivity : BaseActivity(),
         return (px / Resources.getSystem().getDisplayMetrics().density).toInt()
     }
 
-    fun showLoadingProgress() {
+    private fun showLoadingProgress() {
         supportFragmentManager
             .beginTransaction()
             .replace(loading_bar.id, retrievingOptionsFragment)
@@ -104,8 +111,8 @@ class DashboardActivity : BaseActivity(),
             .commit()
     }
 
-    fun removeLoadingProgress() {
-        supportFragmentManager?.popBackStack()
+    private fun removeLoadingProgress() {
+        supportFragmentManager.popBackStack()
     }
 
     private fun loadBots() {
@@ -113,15 +120,6 @@ class DashboardActivity : BaseActivity(),
         setTimerTask("loadBots", 2000, {
             setUpBots()
         })
-    }
-
-    private fun retrieveUserLevelAndSetUpBots() {
-        setUpBots()
-    }
-
-    private fun setUpCategories() {
-        //val items = arrayListOf<String>("funny", "beginner")
-        //category_spinner.adapter = ArrayAdapter<String>(this, R.layout.category_item_layout, items)
     }
 
     private fun setUpBotGridView() {
@@ -141,6 +139,19 @@ class DashboardActivity : BaseActivity(),
         botItemSpacing?.let {
             //dashboard_recycler.addItemDecoration(BotGridItemDecoration(0, 20))
         }
+    }
+
+    private fun loadNewBotsAquiredFragment() {
+        playNotificationSound()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(dashboard_root_layout.id, newBotsAquiredFragment)
+            .addToBackStack(newBotsAquiredFragment.javaClass.name)
+            .commit()
+    }
+
+    fun removeNewBotsAquiredFragment() {
+        supportFragmentManager.popBackStack()
     }
 
     private fun loadNavigationDrawer() {
@@ -195,6 +206,9 @@ class DashboardActivity : BaseActivity(),
             val botTitle = it.child("botTitle").value.toString()
             val botCategory = it.child("category").value.toString()
             val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
+            if (retrievingOptionsFragment.isVisible) {
+                removeLoadingProgress()
+            }
             if (auth.currentUser != null) {
                 val pointsNeeded = it.child("pointsNeeded").value as Long?
                 auth.currentUser?.uid?.let {
@@ -209,7 +223,11 @@ class DashboardActivity : BaseActivity(),
                         }
                         handleNewBot(botImage, botTitle, botCategory, botEnabled)
                         setBotAdapter()
-                        removeLoadingProgress()
+                        if (countEnabled > totalEnabled && totalEnabled != -1 && !newBotsAcquiredMessageShown) {
+                            loadNewBotsAquiredFragment()
+                            newBotsAcquiredMessageShown = true
+                        }
+                        preferences.storeCountEnabledBots(countEnabled)
                     }
                     pointsRef.addListenerForSingleValueEvent(pointsListener)
                 }
@@ -236,45 +254,21 @@ class DashboardActivity : BaseActivity(),
         botImage: String,
         botTitle: String,
         botCategory: String,
-        isEnabledGuest: Boolean
+        botEnabled: Boolean
     ) {
-        if (isEnabledGuest) {
+        if (botEnabled) {
+            if (countEnabled == -1) countEnabled = 0
+            countEnabled++
             imageList.add(0, botImage)
             titleList.add(0, botTitle)
             categoryList.add(0, botCategory)
-            isEnabledInGuestMode.add(0, isEnabledGuest)
+            isEnabledInGuestMode.add(0, botEnabled)
         } else {
             imageList.add(botImage)
             titleList.add(botTitle)
             categoryList.add(botCategory)
-            isEnabledInGuestMode.add(isEnabledGuest)
+            isEnabledInGuestMode.add(botEnabled)
         }
-        /*when (levelEnabled) {
-            "Pawn" -> {
-                botPawnImages.add(botImage)
-                botPawnTitles.add(botTitle)
-                botPawnGuestModeEnabled.add(isEnabledInGuestMode)
-                botPawnLevelList.add(levelEnabled)
-            }
-            "Knight" -> {
-                botKnightImages.add(botImage)
-                botKnightTitles.add(botTitle)
-                botKnightGuestModeEnabled.add(isEnabledInGuestMode)
-                botKnightLevelList.add(levelEnabled)
-            }
-            "Bishop" -> {
-                botBishopImages.add(botImage)
-                botBishopTitles.add(botTitle)
-                botBishopGuestModeEnabled.add(isEnabledInGuestMode)
-                botBishopLevelList.add(levelEnabled)
-            }
-            "Rook" -> {
-                botRookImages.add(botImage)
-                botRookTitles.add(botTitle)
-                botRookGuestModeEnabled.add(isEnabledInGuestMode)
-                botRookLevelList.add(levelEnabled)
-            }
-        }*/
     }
 
     override fun onBotItemClicked(imagePath: String, botTitle: String) {
@@ -285,8 +279,20 @@ class DashboardActivity : BaseActivity(),
         startActivity(intent)
     }
 
+    private fun playNotificationSound() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.notification)
+        mediaPlayer.start()
+    }
+
     override fun onResume() {
         super.onResume()
+        countEnabled = 0
+        totalEnabled = preferences.getEnabledBotCount()
+        newBotsAcquiredMessageShown = false
         setUpBotGridView()
         loadBots()
         if (top_bar_plus_button.visibility == View.VISIBLE) {
@@ -347,13 +353,11 @@ class DashboardActivity : BaseActivity(),
         val newTitleList = arrayListOf<String>()
         val newImageList = arrayListOf<String>()
         val newIsEnabledGuestList = arrayListOf<Boolean>()
-        val newLevelList = arrayListOf<String>()
         for (index in 0..categoryList.size - 1) {
             if (categoryList[index] == category || category == "All Bots") {
                 newTitleList.add(titleList[index])
                 newImageList.add(imageList[index])
                 newIsEnabledGuestList.add(isEnabledInGuestMode[index])
-                newLevelList.add(levelList[index])
             }
         }
         val botAdapter =

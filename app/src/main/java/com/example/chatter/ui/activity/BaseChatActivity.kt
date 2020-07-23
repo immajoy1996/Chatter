@@ -7,6 +7,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
@@ -56,7 +57,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         setContentView(R.layout.activity_base_chat)
         setUpTranslateService()
         preferences = Preferences(this)
-        //preferences?.setUpPreferences()
         setUpTextToSpeech()
     }
 
@@ -402,5 +402,18 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     }
 
     override fun onRmsChanged(rmsdB: Float) {
+    }
+
+    fun View.setOnDebouncedClickListener(doStuff: () -> (Unit)) {
+        val lastClickTime: Long = preferences?.getLastClickTime(this.id) ?: -1L
+        val currentTime = System.currentTimeMillis()
+        if (lastClickTime == -1L || currentTime - lastClickTime > MIN_TIME_BETWEEN_CLICKS) {
+            preferences?.storeLastClickTime(this.id, System.currentTimeMillis())
+            doStuff()
+        }
+    }
+
+    companion object {
+        private const val MIN_TIME_BETWEEN_CLICKS = 700L
     }
 }

@@ -48,14 +48,12 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
     private val languageMap = HashMap<String, String>()
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
-    private lateinit var preferences: Preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_language_selection)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
-        preferences = Preferences(this)
         sortLanguagesAlphabetically()
         setUpTopBar()
         setUpBottomNavBar()

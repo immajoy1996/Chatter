@@ -27,7 +27,6 @@ import kotlinx.android.synthetic.main.fragment_navigation_drawer.*
 class NavigationDrawerFragment : BaseFragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
-    private lateinit var preferences: Preferences
     private var isGuestMode = false
     private var targetLanguage: String? = null
     private var languageMap = HashMap<String, String>()

@@ -15,7 +15,7 @@ import com.example.chatter.R
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 
-class GetStartedActivity : AppCompatActivity() {
+class GetStartedActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +26,7 @@ class GetStartedActivity : AppCompatActivity() {
     }
 
     private fun setUpButtons() {
-        get_started_button.setOnClickListener {
+        get_started_button.setOnDebouncedClickListener {
             if (auth.currentUser != null) {
                 startActivity(Intent(this, DashboardActivity::class.java))
             } else {
@@ -94,6 +94,10 @@ class GetStartedActivity : AppCompatActivity() {
             .setNegativeButton("Cancel", null)
             .create()
             .show()
+    }
+
+    override fun setUpTopBar() {
+        //TODO("Not yet implemented")
     }
 
     companion object {

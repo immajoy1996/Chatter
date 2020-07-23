@@ -28,7 +28,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     private lateinit var database: DatabaseReference
     private lateinit var timerTask: TimerTask
-    private lateinit var preferences: Preferences
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,9 +40,6 @@ class MessageMenuOptionsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
-        context?.let {
-            preferences = Preferences(it)
-        }
         //setUpRestartButton()
         checkIfConversationEnd()
     }
@@ -112,16 +109,26 @@ class MessageMenuOptionsFragment : BaseFragment() {
         option: TextView,
         optionType: String
     ) {
-        val path = currentPath + optionType + "/"
-        option.setOnClickListener {
-            chatterActivity.let {
-                it.currentPath = path
-                it.removeOptionsMenu()
-                val userText = option.text.toString()
-                it.addUserMessage(userText)
-                it.handleNewMessageLogic(userText)
-                getBotResponse(it.currentPath)
-            }
+        option.setOnDebouncedClickListener {
+            handleOptionClick(currentPath, option, optionType)
+        }
+    }
+
+    private fun handleOptionClick(path: String, option: TextView, optionType: String) {
+        chatterActivity.let {
+            val path = it.currentPath + optionType + "/"
+            it.currentPath = path
+            chatterActivity.removeOptionsMenu()
+            chatterActivity.addUserMessage(option.text.toString())
+            it.handleNewMessageLogic(option.text.toString())
+            getBotResponse(it.currentPath)
+
+            /*it.currentPath = path
+            it.removeOptionsMenu()
+            val userText = option.text.toString()
+            it.addUserMessage(userText)
+            it.handleNewMessageLogic(userText)
+            getBotResponse(it.currentPath)*/
         }
     }
 
@@ -207,30 +214,41 @@ class MessageMenuOptionsFragment : BaseFragment() {
         return count > MATCH_PERCENTAGE * parts.size
     }
 
-    private fun performOptionClick(optionType: String, userText: String) {
-        chatterActivity.let {
-            val path = it.currentPath + optionType + "/"
-            it.currentPath = path
-            chatterActivity.removeOptionsMenu()
-            chatterActivity.addUserMessage(userText)
-            it.handleNewMessageLogic(userText)
-            getBotResponse(it.currentPath)
+    private fun performDebouncedOptionClick(optionType: String, userText: String) {
+        var optionId: Int = R.id.optionA
+        if (optionType == "optionB") optionId = R.id.optionB
+        else if (optionType == "optionC") optionId = R.id.optionC
+
+        val lastClickTime: Long = preferences.getLastClickTime(optionId)
+        val currentTime = System.currentTimeMillis()
+
+        if (lastClickTime == -1L || currentTime - lastClickTime > MIN_TIME_BETWEEN_CLICKS) {
+            preferences.storeLastClickTime(optionId, currentTime)
+            chatterActivity.let {
+                val path = it.currentPath + optionType + "/"
+                it.currentPath = path
+                chatterActivity.removeOptionsMenu()
+                chatterActivity.addUserMessage(userText)
+                it.handleNewMessageLogic(userText)
+                getBotResponse(it.currentPath)
+            }
         }
     }
 
     fun selectOptionsWithVoice(text: String) {
         if (isTextMatch(text, optionA.text.toString())) {
             optionA.performClick()
-            //performOptionClick("optionA", optionA.text.toString())
+            //performDebouncedOptionClick("optionA", optionA.text.toString())
             showScoreBoostAnimation(false)
             chatterActivity.updateTotalScore(25)
         } else if (isTextMatch(text, optionB.text.toString())) {
             optionB.performClick()
-            //performOptionClick("optionB", optionB.text.toString())
+            //performDebouncedOptionClick("optionB", optionB.text.toString())
             showScoreBoostAnimation(false)
             chatterActivity.updateTotalScore(25)
         } else if (isTextMatch(text, optionC.text.toString())) {
             optionC.performClick()
+            //performDebouncedOptionClick("optionC", optionC.text.toString())
             showScoreBoostAnimation(false)
             chatterActivity.updateTotalScore(25)
         } else {
