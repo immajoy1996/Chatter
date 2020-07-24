@@ -1,5 +1,6 @@
 package com.example.chatter.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -74,6 +75,8 @@ class ProfileActivity : BaseActivity(),
                         database.child("Users/${uid}").child("profileImage")
                             .setValue(selectedProfileImage as String).addOnSuccessListener {
                                 Toast.makeText(this, "Selection saved", Toast.LENGTH_LONG).show()
+                                val intent = Intent()
+                                setResult(DashboardActivity.PROFILE_REQUEST_CODE, intent)
                                 finish()
                             }.addOnFailureListener {
                                 Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
@@ -83,6 +86,8 @@ class ProfileActivity : BaseActivity(),
                 } else {
                     preferences.storeProfileImageSelection(selectedProfileImage as String)
                     Toast.makeText(this, "Selection saved", Toast.LENGTH_LONG).show()
+                    val intent = Intent()
+                    setResult(DashboardActivity.PROFILE_REQUEST_CODE, intent)
                     finish()
                 }
             } else {

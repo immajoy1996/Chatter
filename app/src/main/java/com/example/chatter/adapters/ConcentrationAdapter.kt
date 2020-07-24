@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.interfaces.RevealItemInterface
+import com.example.chatter.ui.activity.BaseActivity
 import kotlinx.android.synthetic.main.concentration_item_layout.view.*
 
 class ConcentrationAdapter(
@@ -19,8 +21,7 @@ class ConcentrationAdapter(
     RecyclerView.Adapter<ConcentrationAdapter.ConcentrationViewHolder>() {
     private var selectedPosOne = -1
     private var selectedPosTwo = -1
-    private var isMatch = false
-    private var refreshBoard = false
+    private var imagesLeft = 25
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConcentrationViewHolder {
         return ConcentrationViewHolder(
@@ -36,30 +37,35 @@ class ConcentrationAdapter(
         val image = imageList[position]
         holder.bind(image, position)
         holder.itemView.setOnClickListener {
-            if ((selectedPosOne == -1 || selectedPosTwo == -1) && selectedPosOne != position && selectedPosTwo != position) {
+            if (imagesLeft == 1) {
+                //game end
+                revealItemInterface.endGame()
+            }
+            if (selectedPosOne != -1 && selectedPosTwo != -1) {
+                //do nothing
+            } else if ((selectedPosOne == -1 || selectedPosTwo == -1) && selectedPosOne != position && selectedPosTwo != position) {
                 if (holder.itemView.concentration_item_enabled_image.visibility == View.GONE) {
                     holder.itemView.concentration_item_enabled_image.visibility = View.VISIBLE
                     holder.itemView.concentration_item_disabled_image.visibility = View.GONE
-                } else {
-                    holder.itemView.concentration_item_enabled_image.visibility = View.GONE
-                    holder.itemView.concentration_item_disabled_image.visibility = View.VISIBLE
                 }
                 if (selectedPosOne == -1) {
                     selectedPosOne = position
                 } else if (selectedPosTwo == -1) {
                     selectedPosTwo = position
-                    //refreshBoard = true
-                    //isMatch = (imageList[selectedPosOne] == imageList[selectedPosTwo])
                     if (imageList[selectedPosOne] == imageList[selectedPosTwo]) {
                         imageList[selectedPosOne] = "-1"
                         imageList[selectedPosTwo] = "-1"
+                        imagesLeft -= 2
                     }
-                    selectedPosOne = -1
-                    selectedPosTwo = -1
                     revealItemInterface.revealItem()
                 }
             }
         }
+    }
+
+    fun resetSelectedPositions() {
+        selectedPosOne = -1
+        selectedPosTwo = -1
     }
 
     override fun getItemCount(): Int = imageList.size
@@ -75,6 +81,7 @@ class ConcentrationAdapter(
             if (image == "-1") {
                 itemView.concentration_item_inner_layout.visibility = View.GONE
             } else {
+                itemView.concentration_item_inner_layout.visibility = View.VISIBLE
                 itemView.concentration_item_enabled_image.visibility = View.GONE
                 itemView.concentration_item_disabled_image.visibility = View.VISIBLE
                 botImage?.let {
@@ -83,31 +90,6 @@ class ConcentrationAdapter(
                         .into(it)
                 }
             }
-            /*if (refreshBoard) {
-                if (selectedPosOne == -1 && selectedPosTwo == -1) {
-                    refreshBoard = false
-                    isMatch = false
-                } else if (isMatch) {
-                    if (position == selectedPosOne || position == selectedPosTwo) {
-                        itemView.concentration_item_inner_layout.visibility = View.GONE
-                        if (position == selectedPosOne) {
-                            selectedPosOne = -1
-                        } else if (position == selectedPosTwo) {
-                            selectedPosTwo = -1
-                        }
-                    }
-                } else {
-                    if (position == selectedPosOne || position == selectedPosTwo) {
-                        itemView.concentration_item_enabled_image.visibility = View.GONE
-                        itemView.concentration_item_disabled_image.visibility = View.VISIBLE
-                        if (position == selectedPosOne) {
-                            selectedPosOne = -1
-                        } else if (position == selectedPosTwo) {
-                            selectedPosTwo = -1
-                        }
-                    }
-                }
-            }*/
         }
     }
 }

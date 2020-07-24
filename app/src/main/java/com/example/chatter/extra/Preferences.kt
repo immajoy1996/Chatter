@@ -266,6 +266,14 @@ class Preferences(val context: Context) {
         return sharedPreferences.getInt(ENABLED_BOT_COUNT, -1)
     }
 
+    fun getBestScore(): String {
+        return sharedPreferences.getString(BEST_SCORE, "") ?: ""
+    }
+
+    fun storeNewBestScore(bestScore: String) {
+        sharedPreferences.edit().putString(BEST_SCORE, bestScore)
+    }
+
     companion object {
         const val SHARED_PREFERENCES_KEY = "Shared Preferences"
         const val USER_LEVEL = "User Level"
@@ -276,5 +284,6 @@ class Preferences(val context: Context) {
         const val AUDIOS = "Audios/"
         const val QUOTE_INDEX = "QuoteIndex"
         const val ENABLED_BOT_COUNT = "Enabled_Bot_Count"
+        const val BEST_SCORE = "Best_Score"
     }
 }

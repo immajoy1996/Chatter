@@ -33,6 +33,8 @@ class DashboardActivity : BaseActivity(),
     private var totalEnabled = -1
     private var countEnabled = -1
     private var newBotsAcquiredMessageShown = false
+    private var changedProfile: Boolean? = null
+    private var refreshBots = true
 
     private lateinit var auth: FirebaseAuth
     private var botItemSpacing: Int? = 20
@@ -79,7 +81,9 @@ class DashboardActivity : BaseActivity(),
             startActivity(Intent(this, CreateBotActivity::class.java))
         }
         top_bar_quiz.setOnClickListener {
-            startActivity(Intent(this, QuizActivity::class.java))
+            val intent = Intent(this, QuizActivity::class.java)
+            intent.putStringArrayListExtra("botImages", imageList)
+            startActivity(intent)
         }
         top_bar_title.text = "Dashboard"
         top_bar_mic.visibility = View.GONE
@@ -197,6 +201,7 @@ class DashboardActivity : BaseActivity(),
         imageList.clear()
         isEnabledInGuestMode.clear()
         levelList.clear()
+        categoryList.clear()
     }
 
     private fun setUpBots() {
@@ -293,8 +298,11 @@ class DashboardActivity : BaseActivity(),
         countEnabled = 0
         totalEnabled = preferences.getEnabledBotCount()
         newBotsAcquiredMessageShown = false
-        setUpBotGridView()
-        loadBots()
+        if (!navigationDrawerFragment.isVisible && targetBotCategory == "All Bots") {
+            setUpBotGridView()
+            loadBots()
+        }
+        refreshBots = true
         if (top_bar_plus_button.visibility == View.VISIBLE) {
             top_bar_plus_button.visibility = View.GONE
         }
@@ -337,6 +345,7 @@ class DashboardActivity : BaseActivity(),
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             CATEGORY_REQUEST_CODE -> {
+                refreshBots = false
                 val selectedCategory = data?.getStringExtra("SelectedCategory")
                 selectedCategory?.let {
                     showBotsBasedOnCategory(it)
@@ -353,7 +362,7 @@ class DashboardActivity : BaseActivity(),
         val newTitleList = arrayListOf<String>()
         val newImageList = arrayListOf<String>()
         val newIsEnabledGuestList = arrayListOf<Boolean>()
-        for (index in 0..categoryList.size - 1) {
+        for (index in 0 until categoryList.size) {
             if (categoryList[index] == category || category == "All Bots") {
                 newTitleList.add(titleList[index])
                 newImageList.add(imageList[index])
@@ -380,5 +389,6 @@ class DashboardActivity : BaseActivity(),
         const val TARGET_LANGUAGE = "Target_Language"
         const val CHANGING_DEFAULT_LANG = -1
         const val CATEGORY_REQUEST_CODE = 10
+        const val PROFILE_REQUEST_CODE = 25
     }
 }

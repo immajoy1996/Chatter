@@ -10,6 +10,8 @@ import android.view.animation.AnimationUtils
 import com.example.chatter.extra.Preferences
 import com.example.chatter.R
 import com.example.chatter.ui.activity.ChatterActivity
+import com.example.chatter.ui.activity.ConcentrationActivity
+import com.example.chatter.ui.activity.CreateChatActivity
 import com.example.chatter.ui.activity.DashboardActivity
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_easter_egg.*
@@ -45,7 +47,15 @@ class EasterEggFragment : Fragment() {
 
     private fun updateUserTotalScore() {
         points?.let {
-            (activity as? ChatterActivity)?.updateTotalScore(it)
+            when (activity) {
+                is ChatterActivity -> (activity as? ChatterActivity)?.updateTotalScore(it)
+                is ConcentrationActivity -> (activity as? ConcentrationActivity)?.updateTotalScore(
+                    it
+                )
+                else -> {
+                    //do nothing
+                }
+            }
         }
     }
 
@@ -53,6 +63,16 @@ class EasterEggFragment : Fragment() {
         easter_egg_close_button.setOnClickListener {
             if (activity is DashboardActivity) {
                 (activity as? DashboardActivity)?.removeNewBotsAquiredFragment()
+            } else if (activity is ConcentrationActivity) {
+                if (points == null) {
+                    (activity as? ConcentrationActivity)?.let {
+                        it.removeStartGameFragment()
+                        it.startGame()
+                    }
+                } else {
+                    updateUserTotalScore()
+                    activity?.finish()
+                }
             } else {
                 (activity as? ChatterActivity)?.let {
                     it.closeEasterEggFragment()
@@ -68,17 +88,35 @@ class EasterEggFragment : Fragment() {
             easter_egg_price_tag_layout.visibility = View.GONE
             new_gem_image.visibility = View.GONE
             new_bots_image.visibility = View.VISIBLE
+            start_game_image.visibility = View.GONE
+        } else if (activity is ConcentrationActivity) {
+            if (points == null) {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.GONE
+                new_gem_image.visibility = View.GONE
+                start_game_image.visibility = View.VISIBLE
+                easter_egg_close_button.text = "Go"
+            } else {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.VISIBLE
+                easter_egg_price.text = points.toString()
+                new_gem_image.visibility = View.GONE
+                start_game_image.visibility = View.VISIBLE
+                easter_egg_close_button.text = "Close"
+            }
         } else {
             easter_egg_message.text = message
             if (points != null) {
                 easter_egg_price_tag_layout.visibility = View.VISIBLE
                 new_gem_image.visibility = View.GONE
                 new_bots_image.visibility = View.GONE
+                start_game_image.visibility = View.GONE
                 easter_egg_price.text = points.toString()
             } else {
                 easter_egg_price_tag_layout.visibility = View.GONE
                 new_gem_image.visibility = View.VISIBLE
                 new_bots_image.visibility = View.GONE
+                start_game_image.visibility = View.GONE
                 imageGem?.let {
                     new_gem_image.setImageResource(it)
                 }
@@ -122,6 +160,13 @@ class EasterEggFragment : Fragment() {
         fun newInstance(message: String): EasterEggFragment {
             val fragment = EasterEggFragment()
             fragment.message = message
+            return fragment
+        }
+
+        fun newInstance(message: String, points: Long): EasterEggFragment {
+            val fragment = EasterEggFragment()
+            fragment.message = message
+            fragment.points = points
             return fragment
         }
     }

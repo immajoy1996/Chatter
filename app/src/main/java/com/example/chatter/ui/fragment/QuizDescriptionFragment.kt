@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
 import com.example.chatter.ui.activity.ConcentrationActivity
+import com.example.chatter.ui.activity.QuizActivity
 import kotlinx.android.synthetic.main.fragment_quiz_description.*
 
 class QuizDescriptionFragment : Fragment() {
@@ -29,7 +30,10 @@ class QuizDescriptionFragment : Fragment() {
             activity?.finish()
         }
         start_quiz_button.setOnClickListener {
+            val botImages =
+                (activity as? QuizActivity)?.intent?.getStringArrayListExtra("botImages")
             val intent = Intent(context, ConcentrationActivity::class.java)
+            intent.putStringArrayListExtra("botImages", botImages)
             startActivity(intent)
         }
     }
