@@ -24,6 +24,14 @@ abstract class BaseActivity : AppCompatActivity() {
         preferences = Preferences(this)
     }
 
+    fun getNextJoke(): String {
+        return preferences.getNextJoke()
+    }
+
+    fun getCurrentJokeAnswer(): String {
+        return preferences.getCurrentJokeAnswer()
+    }
+
     val baseChildEventListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->
         val childEventListener = object : ChildEventListener {
             override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {

@@ -35,8 +35,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:text="Chatter"
         android:fontFamily="@font/avenir_next"
+        android:text="Chatter"
         android:textColor="#0084FF"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -100,6 +100,17 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/top_bar_jokebook"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="20dp"
+        android:src="@drawable/funny_guy"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/top_bar_quiz"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView

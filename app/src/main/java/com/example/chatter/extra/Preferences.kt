@@ -121,6 +121,13 @@ class Preferences(val context: Context) {
         return result
     }
 
+    fun getNextJoke(): String {
+        val quoteIndex = getQuoteIndex() % quotesArray.size
+        val result = quotesArray[quoteIndex]
+        incrementQuoteIndex()
+        return result
+    }
+
     fun getCurrentJokeAnswer(): String {
         val quoteIndex = getQuoteIndex() % quotesArray.size
         val oldIndex = (quoteIndex - 1 + quotesArray.size) % quotesArray.size

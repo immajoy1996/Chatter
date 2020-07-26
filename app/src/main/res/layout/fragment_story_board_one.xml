@@ -13,9 +13,10 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
+        android:fontFamily="@font/avenir_next"
         android:gravity="center"
         android:textColor="#696969"
-        android:textSize="20sp"
+        android:textSize="25sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,19 +27,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".25" />
+        app:layout_constraintGuide_percent=".2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".6" />
+        app:layout_constraintGuide_percent=".5" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/bear_profile"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:clickable="true"
         android:src="@drawable/business_profile"
         android:visibility="gone"
@@ -50,8 +51,8 @@
     <ImageView
         android:id="@+id/bear_chat_bubble"
         android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="60dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="100dp"
         android:layout_marginBottom="20dp"
         android:src="@drawable/chat_bubble"
         android:visibility="gone"
@@ -63,9 +64,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
+        android:fontFamily="@font/avenir_next"
         android:text="Tap me!"
         android:textColor="#000000"
-        android:textSize="10sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/bear_chat_bubble"
         app:layout_constraintEnd_toEndOf="@id/bear_chat_bubble"
@@ -86,18 +89,10 @@
             android:id="@+id/story_message2"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/option_bubble"
+            android:background="@drawable/message_bubble_selector"
             android:padding="20dp"
             android:textColor="#ffffff"
-            android:textSize="20sp"
-            app:layout_constraintStart_toEndOf="@id/helper_profile2" />
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/helper_profile2"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/business_profile"
-            app:layout_constraintBottom_toBottomOf="@id/story_message2" />
+            android:textSize="20sp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -110,7 +105,7 @@
         android:text="Wake up Bear Bot"
         android:textColor="#ffffff"
         android:textSize="15sp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bear_profile" />
@@ -162,6 +157,96 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bear_answer_button" />
 
-    <include layout="@layout/bottom_nav_bar" />
+    <TextView
+        android:id="@+id/joke_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:fontFamily="@font/avenir_next"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textColor="#000000"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1" />
+
+    <Button
+        android:id="@+id/show_answer_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/close_button_background"
+        android:fontFamily="@font/avenir_next"
+        android:maxWidth="300dp"
+        android:padding="10dp"
+        android:text="Show Answer"
+        android:textAllCaps="false"
+        android:textColor="#ffffff"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline2" />
+
+    <TextView
+        android:id="@+id/answer_textview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:fontFamily="@font/avenir_next"
+        android:textColor="#000000"
+        android:textSize="25sp"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline2" />
+
+    <TextView
+        android:id="@+id/did_you_get_it"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Did you get it?"
+        android:textColor="#696969"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline_buttons" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/did_you_get_it">
+
+        <ImageView
+            android:id="@+id/happy"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/happy" />
+
+        <ImageView
+            android:id="@+id/sad"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="5dp"
+            android:src="@drawable/sad"
+            app:layout_constraintStart_toEndOf="@id/happy" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/story_board_bottom_nav"
+        layout="@layout/bottom_nav_bar"
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

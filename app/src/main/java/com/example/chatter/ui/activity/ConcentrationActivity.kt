@@ -77,13 +77,9 @@ class ConcentrationActivity : BaseActivity(),
             mediaPlayer.stop()
             mediaPlayer.release()
         }
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(audio)
-        mediaPlayer.prepareAsync()
+        mediaPlayer = MediaPlayer.create(this, R.raw.game_music)
         mediaPlayer.isLooping = true
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.start()
-        }
+        mediaPlayer.start()
     }
 
     private fun playNotificationSound() {

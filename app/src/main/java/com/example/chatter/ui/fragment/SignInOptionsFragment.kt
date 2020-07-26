@@ -1,10 +1,12 @@
 package com.example.chatter.ui.fragment
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import com.example.chatter.R
 import com.example.chatter.ui.activity.SignInActivity
 import kotlinx.android.synthetic.main.fragment_sign_in_options.*
@@ -21,6 +23,17 @@ class SignInOptionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpButtons()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        resetProceedAsGuestColor()
+    }
+
+    private fun resetProceedAsGuestColor() {
+        context?.let {
+            proceed_as_guest.setTextColor(Color.parseColor("#000000"))
+        }
     }
 
     private fun setUpButtons() {
@@ -40,6 +53,9 @@ class SignInOptionsFragment : Fragment() {
             (activity as? SignInActivity)?.let {
                 it.setScenario(PROCEED_AS_GUEST)
                 it.signInAsGuest()
+                context?.let {
+                    proceed_as_guest.setTextColor(Color.parseColor("#0084FF"))
+                }
             }
         }
     }

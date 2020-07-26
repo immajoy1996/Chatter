@@ -8,19 +8,20 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chatter.*
 import com.example.chatter.adapters.BotAdapter
 import com.example.chatter.adapters.BotGridItemDecoration
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.BotClickInterface
-import com.example.chatter.ui.fragment.EasterEggFragment
-import com.example.chatter.ui.fragment.NavigationDrawerFragment
-import com.example.chatter.ui.fragment.RetrievingOptionsFragment
+import com.example.chatter.ui.fragment.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_dashboard.*
+import kotlinx.android.synthetic.main.activity_quiz.*
+import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 class DashboardActivity : BaseActivity(),
@@ -53,6 +54,7 @@ class DashboardActivity : BaseActivity(),
 
     private var newBotsAquiredFragment =
         EasterEggFragment.newInstance("You've acquired new chat bots!")
+    private var loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading ...")
     private var mediaPlayer = MediaPlayer()
     private var enableMusic = true
 
@@ -92,21 +94,33 @@ class DashboardActivity : BaseActivity(),
         top_bar_mic.visibility = View.GONE
         top_bar_quiz.visibility = View.VISIBLE
 
-        top_bar_music_dashboard.visibility = View.VISIBLE
-        top_bar_music_enabled.visibility = View.VISIBLE
-        top_bar_music_disabled.visibility = View.GONE
-        top_bar_music_enabled.setOnClickListener {
+        //top_bar_music_dashboard.visibility = View.VISIBLE
+        //top_bar_music_enabled.visibility = View.VISIBLE
+        //top_bar_music_disabled.visibility = View.GONE
+        /*top_bar_music_enabled.setOnClickListener {
             top_bar_music_enabled.visibility = View.GONE
             top_bar_music_disabled.visibility = View.VISIBLE
             enableMusic = false
             disableMusic()
+        }*/
+        top_bar_jokebook.visibility = View.VISIBLE
+        top_bar_jokebook.setOnDebouncedClickListener {
+            loadFragment(QuizDescriptionFragment.newInstance(false))
         }
-        top_bar_music_disabled.setOnClickListener {
+        /*top_bar_music_disabled.setOnClickListener {
             top_bar_music_disabled.visibility = View.GONE
             top_bar_music_enabled.visibility = View.VISIBLE
             enableMusic = true
             playMedia(ConcentrationActivity.GAME_BACKGROUND_MUSIC)
-        }
+        }*/
+    }
+
+    fun loadFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(dashboard_root_layout.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
     }
 
     private fun disableMusic() {
@@ -140,13 +154,9 @@ class DashboardActivity : BaseActivity(),
             mediaPlayer.stop()
             mediaPlayer.release()
         }
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(audio)
-        mediaPlayer.prepareAsync()
+        mediaPlayer = MediaPlayer.create(this, R.raw.game_music)
         mediaPlayer.isLooping = true
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.start()
-        }
+        //mediaPlayer.start()
     }
 
     private fun showLoadingProgress() {
@@ -161,8 +171,21 @@ class DashboardActivity : BaseActivity(),
         supportFragmentManager.popBackStack()
     }
 
+    private fun removeLoadingAnimatedFragment() {
+        supportFragmentManager.popBackStack()
+    }
+
+    private fun loadAnimatedLoadingFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(dashboard_inner_container.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
+    }
+
     private fun loadBots() {
-        showLoadingProgress()
+        //showLoadingProgress()
+        loadAnimatedLoadingFragment(loadingAnimatedFragment)
         setTimerTask("loadBots", 2000, {
             setUpBots()
         })
@@ -253,8 +276,11 @@ class DashboardActivity : BaseActivity(),
             val botTitle = it.child("botTitle").value.toString()
             val botCategory = it.child("category").value.toString()
             val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
-            if (retrievingOptionsFragment.isVisible) {
+            /*if (retrievingOptionsFragment.isVisible) {
                 removeLoadingProgress()
+            }*/
+            if (loadingAnimatedFragment.isVisible) {
+                removeLoadingAnimatedFragment()
             }
             if (auth.currentUser != null) {
                 val pointsNeeded = it.child("pointsNeeded").value as Long?
@@ -282,7 +308,7 @@ class DashboardActivity : BaseActivity(),
                 val botEnabled = isEnabledGuest
                 handleNewBot(botImage, botTitle, botCategory, botEnabled)
                 setBotAdapter()
-                removeLoadingProgress()
+                removeLoadingAnimatedFragment()
             }
         })
     }
@@ -338,7 +364,7 @@ class DashboardActivity : BaseActivity(),
     override fun onResume() {
         super.onResume()
         if (enableMusic) {
-            playMedia(ConcentrationActivity.GAME_BACKGROUND_MUSIC)
+            playMedia("dfd")
         }
         countEnabled = 0
         totalEnabled = preferences.getEnabledBotCount()

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0084FF"
+    android:clickable="true"
     tools:context=".ui.fragment.QuizDescriptionFragment">
 
     <ImageView
@@ -41,6 +42,7 @@
             android:textColor="#ffffff"
             android:textSize="35sp"
             android:textStyle="bold"
+            android:fontFamily="@font/avenir_next"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/quiz_icon" />
@@ -55,6 +57,7 @@
             android:text="Start Game"
             android:textColor="#ffffff"
             android:textSize="20sp"
+            android:fontFamily="@font/avenir_next"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/welcome_to_quiz_message" />
@@ -65,9 +68,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:text="Earn 100 coins every time you set a new record"
+            android:text="Move fast and earn coins"
             android:textColor="#ffffff"
             android:textSize="20sp"
+            android:fontFamily="@font/avenir_next"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/start_quiz_button" />

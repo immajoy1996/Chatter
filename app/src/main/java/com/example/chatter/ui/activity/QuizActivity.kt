@@ -16,7 +16,7 @@ class QuizActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
         setUpTopBar()
-        loadFragment(QuizDescriptionFragment())
+        loadFragment(QuizDescriptionFragment.newInstance(true))
     }
 
     override fun setUpTopBar() {

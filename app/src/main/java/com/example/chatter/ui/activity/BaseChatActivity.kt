@@ -127,13 +127,17 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     }
 
     fun sayBearsNextQuote() {
-        preferences?.getCurrentQuote()?.let {
+        preferences.getCurrentQuote().let {
             letBearSpeak(it)
         }
     }
 
     fun getCurrentJokeAnswer(): String {
         return preferences?.getCurrentJokeAnswer() ?: "Oops, something went wrong"
+    }
+
+    fun getNextJoke(): String {
+        return preferences.getNextJoke()
     }
 
     fun runThroughVoiceList() {

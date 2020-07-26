@@ -19,7 +19,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
-import com.example.chatter.ui.fragment.SignInOptionsFragment
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.CHOOSE_PASSWORD
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.ENTER_EMAIL
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.ENTER_PASSWORD
@@ -28,20 +27,19 @@ import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.ENTER_USE
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.REENTER_PASSWORD
 import com.example.chatter.ui.fragment.NavigationDrawerFragment.Companion.USERS
 import com.example.chatter.ui.fragment.SignInOptionsFragment.Companion.SIGN_IN
-import com.example.chatter.ui.fragment.SignUpOptionsFragment
 import com.example.chatter.ui.fragment.SignUpOptionsFragment.Companion.SIGN_UP_INDIVIDUAL
 import com.example.chatter.ui.fragment.SignUpOptionsFragment.Companion.SIGN_UP_STUDENT
 import com.example.chatter.data.User
-import com.example.chatter.ui.fragment.EnterPinFragment
-import com.example.chatter.ui.fragment.EnterUsernameFragment
-import com.example.chatter.ui.fragment.RetrievingOptionsFragment
-import com.example.chatter.ui.fragment.SignInErrorFragment
+import com.example.chatter.ui.fragment.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
+import kotlinx.android.synthetic.main.activity_chatter.messagesInnerLayout
+import kotlinx.android.synthetic.main.activity_chatter.optionsPopupContainer
+import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.*
 import javax.mail.*
@@ -67,6 +65,8 @@ class SignInActivity : BaseChatActivity() {
         EnterPinFragment()
     private var retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Retrieving options")
+
+    private var loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading ...")
 
     private lateinit var timerTask: TimerTask
 
@@ -163,7 +163,7 @@ class SignInActivity : BaseChatActivity() {
     override fun setUpTopBar() {
         top_bar_title.visibility = View.GONE
         top_bar_messaging_image_container.visibility = View.VISIBLE
-        top_bar_title_desc.text = "Bear Bot"
+        top_bar_title_desc.text = "Helper Monkey"
         top_bar_mic.visibility = View.INVISIBLE
         home.setOnClickListener {
             refreshSignInFlow()
@@ -193,6 +193,14 @@ class SignInActivity : BaseChatActivity() {
         supportFragmentManager
             .beginTransaction()
             .replace(optionsPopupContainer.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
+    }
+
+    private fun loadAnimatedLoadingFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(root_container.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
     }
@@ -533,12 +541,19 @@ class SignInActivity : BaseChatActivity() {
         })
     }
 
+    private fun removeLoadingAnimatedFragment() {
+        supportFragmentManager.popBackStack()
+        loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading ...")
+    }
+
     fun signInAsGuest() {
-        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Guest Mode")
-        loadRetrievingOptionsFragment()
+        //retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Guest Mode")
+        //loadRetrievingOptionsFragment()
+        //loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading Guest Mode ...")
+        loadAnimatedLoadingFragment(loadingAnimatedFragment)
         auth.signOut()
         setTimerTask("signInAsGuest", 2000, {
-            removeRetrievingOptionsFragment()
+            removeLoadingAnimatedFragment()
             toggleRestartFlag(false)
             val intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             intent.putExtra("GUEST_MODE", true)

@@ -120,7 +120,7 @@ class ChatterActivity : BaseChatActivity(),
         setUpStoryBoardFragments()
         setUpNavButtons()
         setUpWordByWordRecycler()
-        loadFirstStoryBoardFragment()
+        loadBotStoryFragment()
     }
 
     private fun setUpDimensions() {
@@ -325,6 +325,17 @@ class ChatterActivity : BaseChatActivity(),
 
     fun loadFirstStoryBoardFragment() {
         storyBoardOneFragment.let {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(chatter_activity_root_container.id, it)
+                .addToBackStack(it.javaClass.name)
+                .commit()
+        }
+    }
+
+    fun loadBotStoryFragment() {
+        val botStoryFragment = BotStoryFragment()
+        botStoryFragment.let {
             supportFragmentManager
                 .beginTransaction()
                 .replace(chatter_activity_root_container.id, it)

@@ -17,15 +17,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentManager
 import com.example.chatter.R
+import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.ui.activity.BaseChatActivity
 import com.example.chatter.ui.activity.ChatterActivity
 import com.example.chatter.ui.activity.CreateChatActivity
+import com.example.chatter.ui.activity.DashboardActivity
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
@@ -38,7 +41,7 @@ class StoryBoardOneFragment : BaseFragment() {
     var botTitle: String? = null
     private lateinit var database: DatabaseReference
     private var topMessage1 =
-        "Wake up Bear Bot to hear a good joke. Jokes and puns are an important part of grasping any language."
+        "Jokes and puns are an important part of grasping any language."
     private var topMessage2 = " Jokes and puns are an important part of grasping any language."
     private var continueMessage = "Click Next to start"
 
@@ -53,6 +56,9 @@ class StoryBoardOneFragment : BaseFragment() {
     private var mediaPlayer = MediaPlayer()
     private lateinit var audioManager: AudioManager
 
+    private var sadToastShow = false
+    private var happyToastShown = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,12 +70,33 @@ class StoryBoardOneFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
         audioManager = context?.getSystemService(AUDIO_SERVICE) as AudioManager
-        top_message.text = topMessage1
         setUpTopBar()
         setUpNavButtons()
-        setUpPersonalityButtons()
-        setUpBearClick()
-        setUpAnswerButton()
+        //setUpPersonalityButtons()
+        //setUpBearClick()
+        //setUpAnswerButton()
+        showNextJoke()
+        setUpJokeButtons()
+    }
+
+    private fun showTypingAnimation(textView: TextView, delay: Long, message: String) {
+        val handler = Handler()
+        var pos = 0
+        val characterAdder: Runnable = object : Runnable {
+            override fun run() {
+                val setStr = message.subSequence(0, pos + 1)
+                textView.setText(setStr)
+                pos++
+                if (pos == message.length) {
+                    handler.removeCallbacksAndMessages(null)
+                } else {
+                    handler.postDelayed(this, delay)
+                }
+            }
+        }
+
+        handler.removeCallbacks(characterAdder);
+        handler.postDelayed(characterAdder, delay)
     }
 
     override fun onResume() {
@@ -82,20 +109,6 @@ class StoryBoardOneFragment : BaseFragment() {
             enableNextButton()
         } else {
             disableNextButton()
-        }
-    }
-
-    private fun setUpAnswerButton() {
-        bear_answer_button.setOnClickListener {
-            bear_answer_button.isClickable = false
-            var jokeAnswer: String? = null
-            if (activity is ChatterActivity) {
-                jokeAnswer = (activity as? ChatterActivity)?.getCurrentJokeAnswer()
-            } else {
-                jokeAnswer = (activity as? CreateChatActivity)?.getCurrentJokeAnswer()
-            }
-            joke_answer_textview.text = jokeAnswer ?: "Oops, something went wrong"
-            jokeAnswerTextviewFadeIn()
         }
     }
 
@@ -192,8 +205,15 @@ class StoryBoardOneFragment : BaseFragment() {
         bear_profile.startAnimation(aniShake)
     }
 
+    private fun showNextJoke() {
+        val joke =
+            (activity as? DashboardActivity)?.getNextJoke() ?: ""
+        showTypingAnimation(joke_textview, 50, joke)
+    }
+
     private fun setUpBearClick() {
         bear_profile.setOnDebouncedClickListener {
+
             animateBearShake()
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop()
@@ -205,27 +225,14 @@ class StoryBoardOneFragment : BaseFragment() {
             }
             if (activity is ChatterActivity) {
                 (activity as? ChatterActivity)?.sayBearsNextQuote()
+                val joke =
+                    (activity as? ChatterActivity)?.getNextJoke() ?: ""
+                //showTypingAnimation(tap_me_textview, 300, joke)
             } else {
                 (activity as? CreateChatActivity)?.sayBearsNextQuote()
             }
             answerButtonFadeIn()
         }
-    }
-
-    private fun jokeAnswerTextviewFadeIn() {
-        joke_answer_textview.visibility = View.INVISIBLE
-        val aniFadeIn = AnimationUtils.loadAnimation(
-            context,
-            R.anim.fade_in
-        )
-        joke_answer_textview.startAnimation(aniFadeIn)
-        aniFadeIn.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(arg0: Animation) {}
-            override fun onAnimationRepeat(arg0: Animation) {}
-            override fun onAnimationEnd(arg0: Animation) {
-                joke_answer_textview.visibility = View.VISIBLE
-            }
-        })
     }
 
     private fun answerButtonFadeIn() {
@@ -273,7 +280,13 @@ class StoryBoardOneFragment : BaseFragment() {
     }
 
     private fun setUpTopBar() {
-        top_bar_title.setText("Bear Bot")
+        top_bar_title.setText("Jokes!")
+        back.visibility = View.VISIBLE
+        back.setOnClickListener {
+            fragmentManager?.popBackStack()
+            (activity as? DashboardActivity)?.loadFragment(QuizDescriptionFragment.newInstance(false))
+        }
+        home.visibility = View.GONE
         top_bar_mic.visibility = View.INVISIBLE
     }
 
@@ -314,6 +327,62 @@ class StoryBoardOneFragment : BaseFragment() {
         button_next.setOnClickListener {
             fragmentManager?.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             (activity as? ChatterActivity)?.onStoriesFinished()
+        }
+    }
+
+    private fun setUpJokeButtons() {
+        show_answer_button.setOnDebouncedClickListener {
+            show_answer_button.visibility = View.GONE
+            var jokeAnswer: String? = null
+            if (activity is DashboardActivity) {
+                jokeAnswer = (activity as? DashboardActivity)?.getCurrentJokeAnswer()
+            }
+            answer_textview.text = jokeAnswer ?: "Oops, something went wrong"
+            val fadeInAni =
+                AnimationUtils.loadAnimation(context, R.anim.fade_in)
+            answer_textview.visibility = View.INVISIBLE
+            answer_textview.startAnimation(fadeInAni)
+            fadeInAni.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(arg0: Animation) {}
+                override fun onAnimationRepeat(arg0: Animation) {}
+                override fun onAnimationEnd(arg0: Animation) {
+                    answer_textview.visibility = View.VISIBLE
+                }
+            })
+        }
+        happy.setOnDebouncedClickListener {
+            if (!happyToastShown) {
+                Toast.makeText(
+                    context,
+                    "Thanks! Your feedback lets us choose jokes at your level",
+                    Toast.LENGTH_LONG
+                ).show()
+                happyToastShown = true
+            }
+            val shakeAni =
+                AnimationUtils.loadAnimation(context, R.anim.shake)
+            happy.startAnimation(shakeAni)
+            show_answer_button.visibility = View.VISIBLE
+            show_answer_button.text = "Show Answer"
+            answer_textview.visibility = View.GONE
+            showNextJoke()
+        }
+        sad.setOnDebouncedClickListener {
+            if (!sadToastShow) {
+                Toast.makeText(
+                    context,
+                    "Thanks! Your feedback lets us choose jokes at your level",
+                    Toast.LENGTH_LONG
+                ).show()
+                sadToastShow = true
+            }
+            val shakeAni =
+                AnimationUtils.loadAnimation(context, R.anim.shake)
+            happy.startAnimation(shakeAni)
+            show_answer_button.visibility = View.VISIBLE
+            show_answer_button.text = "Show Answer"
+            answer_textview.visibility = View.GONE
+            showNextJoke()
         }
     }
 
