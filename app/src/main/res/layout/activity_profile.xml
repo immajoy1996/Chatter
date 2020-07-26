@@ -5,7 +5,7 @@
     android:id="@+id/dashboard_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dcdcdc"
+    android:background="#ffffff"
     tools:context=".ui.activity.ProfileActivity">
 
     <include
@@ -16,11 +16,13 @@
         android:id="@+id/profile_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select your profile image"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Select your Profile Image"
         android:textColor="#696969"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_bar"

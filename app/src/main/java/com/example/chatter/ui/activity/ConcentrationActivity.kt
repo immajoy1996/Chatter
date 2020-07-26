@@ -32,6 +32,7 @@ class ConcentrationActivity : BaseActivity(),
     private var currentTime = ConcentrationTime(0, 0)
     private var mediaPlayer = MediaPlayer()
     private var gameStarted = false
+    private var enableMusic = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,6 @@ class ConcentrationActivity : BaseActivity(),
         setUpProfileGridView()
         fetchBotItemImages()
         loadStartGameFragment()
-        playMedia(GAME_BACKGROUND_MUSIC)
     }
 
     override fun revealItem() {
@@ -135,11 +135,34 @@ class ConcentrationActivity : BaseActivity(),
         back.visibility = View.VISIBLE
         home.visibility = View.GONE
         top_bar_mic.visibility = View.GONE
-        top_bar_title.text = "Concentration"
+        top_bar_title.text = "Play!"
         concentration_game_timer.visibility = View.VISIBLE
+        top_bar_music_concentration.visibility = View.VISIBLE
+        top_bar_music_enabled_concentration.visibility = View.VISIBLE
+        top_bar_music_disabled_concentration.visibility = View.GONE
+        top_bar_music_enabled_concentration.setOnClickListener {
+            top_bar_music_enabled_concentration.visibility = View.GONE
+            top_bar_music_disabled_concentration.visibility = View.VISIBLE
+            enableMusic = false
+            disableMusic()
+        }
+        top_bar_music_disabled_concentration.setOnClickListener {
+            top_bar_music_disabled_concentration.visibility = View.GONE
+            top_bar_music_enabled_concentration.visibility = View.VISIBLE
+            enableMusic = true
+            playMedia(GAME_BACKGROUND_MUSIC)
+        }
         back.setOnClickListener {
             finish()
         }
+    }
+
+    private fun disableMusic() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+        }
+        mediaPlayer.release()
+        mediaPlayer = MediaPlayer()
     }
 
     override fun onResume() {
@@ -148,13 +171,17 @@ class ConcentrationActivity : BaseActivity(),
             val resumeGameFragment = EasterEggFragment.newInstance("Resume Game?")
             loadFragment(resumeGameFragment)
         }
-        playMedia(GAME_BACKGROUND_MUSIC)
+        if (enableMusic) {
+            playMedia(GAME_BACKGROUND_MUSIC)
+        }
     }
 
     override fun onPause() {
         super.onPause()
         timer.cancel()
-        mediaPlayer.pause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
     }
 
     override fun onDestroy() {
@@ -262,7 +289,7 @@ class ConcentrationActivity : BaseActivity(),
     }
 
     companion object {
-        private const val GAME_BACKGROUND_MUSIC =
+        const val GAME_BACKGROUND_MUSIC =
             "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/vocabAudio%2FCollege%20Dropout.mp3?alt=media&token=17d3eaf3-7665-479c-89d9-ebd00c3d9929"
         const val GIFT_IMAGE =
             "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Fgift.png?alt=media&token=42c1890c-db5e-45eb-a296-871e271d27cc"

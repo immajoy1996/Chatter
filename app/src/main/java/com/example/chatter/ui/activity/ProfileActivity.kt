@@ -48,7 +48,7 @@ class ProfileActivity : BaseActivity(),
     }
 
     private fun setUpProfileGridView() {
-        profiles_recycler.layoutManager = GridLayoutManager(this, 5)
+        profiles_recycler.layoutManager = GridLayoutManager(this, 2)
 
         val profileAdapter = ProfileAdapter(
             this,

@@ -2,6 +2,7 @@ package com.example.chatter.ui.activity
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.text.Spannable
@@ -14,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
@@ -159,7 +161,9 @@ class SignInActivity : BaseChatActivity() {
     }
 
     override fun setUpTopBar() {
-        top_bar_title.text = "Sign In"
+        top_bar_title.visibility = View.GONE
+        top_bar_messaging_image_container.visibility = View.VISIBLE
+        top_bar_title_desc.text = "Bear Bot"
         top_bar_mic.visibility = View.INVISIBLE
         home.setOnClickListener {
             refreshSignInFlow()
@@ -590,14 +594,17 @@ class SignInActivity : BaseChatActivity() {
 
     fun setUpMessageTextView(msg: String) {
         messageTextView = TextView(this)
+        val typeface: Typeface? =
+            ResourcesCompat.getFont(this.applicationContext, R.font.avenir_next)
         messageTextView?.apply {
             if (newSide == "right") {
                 setBackgroundResource(R.drawable.option_bubble)
                 setTextColor(Color.parseColor("#FFFFFF"))
             } else {
                 setBackgroundResource(R.drawable.message_bubble_selector)
-                setTextColor(Color.parseColor("#696969"))
+                setTextColor(Color.parseColor("#000000"))
             }
+            setTypeface(typeface)
             setPadding(MESSAGE_PADDING)
             setId(newMsgId)
 
@@ -614,9 +621,12 @@ class SignInActivity : BaseChatActivity() {
         profileImgView = ImageView(this)
         profileImgView?.apply {
             id = getIdProfileImageView()
-            setImageDrawable(ContextCompat.getDrawable(context,
-                R.drawable.business_profile
-            ))
+            setImageDrawable(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.business_profile
+                )
+            )
         }
     }
 
@@ -729,16 +739,19 @@ class SignInActivity : BaseChatActivity() {
 
     private fun setUpSpaceView(spaceId: Int) {
         messageTextView = TextView(this)
+        val typeface: Typeface? =
+            ResourcesCompat.getFont(this.applicationContext, R.font.avenir_next)
         messageTextView?.apply {
             if (newSide == "left") {
-                setBackgroundColor(Color.parseColor("#dcdcdc"))
-                setTextColor(Color.parseColor("#dcdcdc"))
+                setBackgroundColor(Color.parseColor("#ffffff"))
+                setTextColor(Color.parseColor("#ffffff"))
             }
             setPadding(MESSAGE_PADDING)
             setId(spaceId)
             text = "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
                     "dfsdfdsfdsfdsfdsfdsfdsdsfdsfds" +
                     "dsfdsfdsfdshelloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd"
+            setTypeface(typeface)
             textSize = TEXT_SIZE_MESSAGE
             isFocusableInTouchMode = true
             requestFocus()

@@ -5,26 +5,12 @@
     android:id="@+id/concentration_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dcdcdc"
+    android:background="#ffffff"
     tools:context=".ui.activity.ConcentrationActivity">
 
     <include
         android:id="@+id/top_bar"
         layout="@layout/top_bar" />
-
-    <Button
-        android:id="@+id/concentration_timer_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/close_button_background"
-        android:padding="10dp"
-        android:text="Start"
-        android:textSize="20sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/concentration_recycler"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/concentration_recycler"

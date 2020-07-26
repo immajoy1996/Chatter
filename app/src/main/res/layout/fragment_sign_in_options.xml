@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragment.MessageMenuOptionsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/restart"
@@ -21,57 +21,55 @@
             android:layout_height="30dp"
             android:src="@drawable/refresh"
             android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/sign_in"
             android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
-            android:text="Sign In"
-            android:textColor="#ffffff"
-            android:padding="10dp"
-            android:background="@drawable/option_bubble"
-            android:gravity="center"
-            android:textSize="20sp"
             android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/restart"
-            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/option_bubble"
+            android:fontFamily="@font/avenir_next"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Log In"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
-            ></Button>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/restart"></Button>
 
         <Button
             android:id="@+id/sign_up"
             android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
-            android:text="Sign Up"
-            android:padding="10dp"
-            android:background="@drawable/option_bubble"
             android:layout_marginTop="10dp"
+            android:background="@drawable/option_bubble"
+            android:fontFamily="@font/avenir_next"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Sign Up"
             android:textColor="#ffffff"
             android:textSize="20sp"
-            android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@+id/sign_in"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            ></Button>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sign_in"></Button>
 
-        <Button
+        <TextView
             android:id="@+id/proceed_as_guest"
             android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
-            android:text="Proceed as Guest"
-            android:padding="10dp"
-            android:background="@drawable/option_bubble"
             android:layout_marginTop="10dp"
-            android:textColor="#ffffff"
+            android:fontFamily="@font/avenir_next"
             android:gravity="center"
+            android:padding="10dp"
+            android:text="Proceed as Guest"
+            android:textColor="#000000"
             android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/sign_up"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            ></Button>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sign_up"></TextView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

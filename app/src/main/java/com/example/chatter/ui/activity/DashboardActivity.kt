@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chatter.*
 import com.example.chatter.adapters.BotAdapter
+import com.example.chatter.adapters.BotGridItemDecoration
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.BotClickInterface
 import com.example.chatter.ui.fragment.EasterEggFragment
@@ -34,7 +35,6 @@ class DashboardActivity : BaseActivity(),
     private var countEnabled = -1
     private var newBotsAcquiredMessageShown = false
     private var changedProfile: Boolean? = null
-    private var refreshBots = true
 
     private lateinit var auth: FirebaseAuth
     private var botItemSpacing: Int? = 20
@@ -54,6 +54,7 @@ class DashboardActivity : BaseActivity(),
     private var newBotsAquiredFragment =
         EasterEggFragment.newInstance("You've acquired new chat bots!")
     private var mediaPlayer = MediaPlayer()
+    private var enableMusic = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +70,8 @@ class DashboardActivity : BaseActivity(),
         home.setOnClickListener {
             loadNavigationDrawer()
         }
+        top_bar_title.visibility = View.VISIBLE
+        top_bar_messaging_image_container.visibility = View.GONE
         home.setOnLongClickListener {
             if (top_bar_plus_button.visibility == View.VISIBLE) {
                 top_bar_plus_button.visibility = View.GONE
@@ -85,10 +88,35 @@ class DashboardActivity : BaseActivity(),
             intent.putStringArrayListExtra("botImages", imageList)
             startActivity(intent)
         }
-        top_bar_title.text = "Dashboard"
+        top_bar_title.text = "Bots"
         top_bar_mic.visibility = View.GONE
         top_bar_quiz.visibility = View.VISIBLE
+
+        top_bar_music_dashboard.visibility = View.VISIBLE
+        top_bar_music_enabled.visibility = View.VISIBLE
+        top_bar_music_disabled.visibility = View.GONE
+        top_bar_music_enabled.setOnClickListener {
+            top_bar_music_enabled.visibility = View.GONE
+            top_bar_music_disabled.visibility = View.VISIBLE
+            enableMusic = false
+            disableMusic()
+        }
+        top_bar_music_disabled.setOnClickListener {
+            top_bar_music_disabled.visibility = View.GONE
+            top_bar_music_enabled.visibility = View.VISIBLE
+            enableMusic = true
+            playMedia(ConcentrationActivity.GAME_BACKGROUND_MUSIC)
+        }
     }
+
+    private fun disableMusic() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+        }
+        mediaPlayer.release()
+        mediaPlayer = MediaPlayer()
+    }
+
 
     private fun getBotItemSpacing(): Int {
         val displayMetrics = DisplayMetrics();
@@ -105,6 +133,20 @@ class DashboardActivity : BaseActivity(),
 
     fun pxToDp(px: Int): Int {
         return (px / Resources.getSystem().getDisplayMetrics().density).toInt()
+    }
+
+    private fun playMedia(audio: String) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(audio)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.isLooping = true
+        mediaPlayer.setOnPreparedListener {
+            mediaPlayer.start()
+        }
     }
 
     private fun showLoadingProgress() {
@@ -140,9 +182,9 @@ class DashboardActivity : BaseActivity(),
             isEnabledInGuestMode
         )
         dashboard_recycler.adapter = botAdapter
-        botItemSpacing?.let {
-            //dashboard_recycler.addItemDecoration(BotGridItemDecoration(0, 20))
-        }
+        /*botItemSpacing?.let {
+            dashboard_recycler.addItemDecoration(BotGridItemDecoration(0, 20))
+        }*/
     }
 
     private fun loadNewBotsAquiredFragment() {
@@ -295,6 +337,9 @@ class DashboardActivity : BaseActivity(),
 
     override fun onResume() {
         super.onResume()
+        if (enableMusic) {
+            playMedia(ConcentrationActivity.GAME_BACKGROUND_MUSIC)
+        }
         countEnabled = 0
         totalEnabled = preferences.getEnabledBotCount()
         newBotsAcquiredMessageShown = false
@@ -302,7 +347,6 @@ class DashboardActivity : BaseActivity(),
             setUpBotGridView()
             loadBots()
         }
-        refreshBots = true
         if (top_bar_plus_button.visibility == View.VISIBLE) {
             top_bar_plus_button.visibility = View.GONE
         }
@@ -345,7 +389,6 @@ class DashboardActivity : BaseActivity(),
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             CATEGORY_REQUEST_CODE -> {
-                refreshBots = false
                 val selectedCategory = data?.getStringExtra("SelectedCategory")
                 selectedCategory?.let {
                     showBotsBasedOnCategory(it)
@@ -379,9 +422,24 @@ class DashboardActivity : BaseActivity(),
         dashboard_recycler.adapter = botAdapter
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+        }
+        mediaPlayer.release()
+    }
+
     companion object {
         private const val USERS = "Users/"
-        private const val NUM_COLUMNS = 3
+        private const val NUM_COLUMNS = 2
         private const val TOTAL_BOTS = 4
         private const val BOT_ITEM_SPACING = 40
         private const val BOT_TITLE = "BOT_TITLE"
@@ -390,5 +448,7 @@ class DashboardActivity : BaseActivity(),
         const val CHANGING_DEFAULT_LANG = -1
         const val CATEGORY_REQUEST_CODE = 10
         const val PROFILE_REQUEST_CODE = 25
+        private const val GAME_BACKGROUND_MUSIC =
+            "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/vocabAudio%2FCollege%20Dropout.mp3?alt=media&token=17d3eaf3-7665-479c-89d9-ebd00c3d9929"
     }
 }

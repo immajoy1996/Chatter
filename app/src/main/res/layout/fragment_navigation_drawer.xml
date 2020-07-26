@@ -4,32 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="300dp"
     android:layout_height="match_parent"
-    android:background="#D3D3D3">
+    android:background="#628BFF"
+    android:clickable="true"
+    tools:context=".ui.activity.DashboardActivity">
+
+    <ImageView
+        android:id="@+id/navigation_drawer_back"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header_layout"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:background="@drawable/navigation_option"
-        android:clickable="true">
-
-        <ImageView
-            android:id="@+id/navigation_drawer_back"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/circle_background_profile"
+        android:padding="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/sound_effects_button_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintCircle="@id/user_badge_layout"
             app:layout_constraintCircleAngle="220"
-            app:layout_constraintCircleRadius="120dp">
+            app:layout_constraintCircleRadius="80dp">
 
             <TextView
                 android:id="@+id/sound_effects_button"
@@ -56,10 +63,10 @@
             android:id="@+id/stories_button_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintCircle="@id/user_badge_layout"
             app:layout_constraintCircleAngle="140"
-            android:visibility="gone"
-            app:layout_constraintCircleRadius="120dp">
+            app:layout_constraintCircleRadius="80dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/stories_button"
@@ -108,7 +115,6 @@
                 android:layout_marginBottom="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_username"
                 tools:layout_editor_absoluteY="15dp" />
 
             <ImageView
@@ -120,18 +126,6 @@
                 android:src="@drawable/camera"
                 app:layout_constraintStart_toStartOf="@id/user_badge"
                 app:layout_constraintTop_toTopOf="@id/user_badge" />
-
-            <TextView
-                android:id="@+id/navigation_drawer_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:textColor="#000000"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
@@ -176,12 +170,82 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/navigation_drawer_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Jerry Jones"
+        android:textColor="#000000"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/chest_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        app:layout_constraintEnd_toEndOf="@id/header_layout"
+        app:layout_constraintStart_toStartOf="@id/header_layout"
+        app:layout_constraintTop_toBottomOf="@id/navigation_drawer_username">
+
+        <ImageView
+            android:id="@+id/chest"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="5dp"
+            android:src="@drawable/jackpot" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/drawer_close_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/navigation_option"
+            android:padding="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/chest"
+            app:layout_constraintStart_toEndOf="@id/chest"
+            app:layout_constraintTop_toTopOf="@id/chest">
+
+            <ImageView
+                android:id="@+id/drawer_close_image"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/coin"
+                app:layout_constraintStart_toEndOf="@id/drawer_close_text" />
+
+            <TextView
+                android:id="@+id/drawer_close_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/avenir_next"
+                android:gravity="center"
+                android:text="0"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_settings_layout"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="50dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/navigation_option"
-        app:layout_constraintTop_toBottomOf="@id/header_layout">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chest_layout">
 
         <ImageView
             android:id="@+id/drawer_settings_image"
@@ -197,12 +261,14 @@
             android:id="@+id/drawer_settings_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="70dp"
+            android:fontFamily="@font/avenir_next"
             android:gravity="center"
             android:text="Achievements"
             android:textAllCaps="false"
-            android:textColor="#696969"
+            android:textColor="#000000"
             android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -211,9 +277,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_categories_layout"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/navigation_option"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/drawer_settings_layout">
 
         <ImageView
@@ -230,21 +299,27 @@
             android:id="@+id/drawer_caregories_text"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="70dp"
+            android:fontFamily="@font/avenir_next"
             android:gravity="center"
-            android:text="Category: All Bots"
+            android:text="All Bots"
             android:textAllCaps="false"
-            android:textColor="#696969"
+            android:textColor="#000000"
             android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_language_layout"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/navigation_option"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/drawer_categories_layout">
 
         <ImageView
@@ -261,21 +336,27 @@
             android:id="@+id/drawer_language_text"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="70dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/avenir_next"
             android:gravity="center"
-            android:text="Language: Hindi"
+            android:text="Hindi"
             android:textAllCaps="false"
-            android:textColor="#696969"
+            android:textColor="#000000"
             android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/drawer_my_logout_layout"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/navigation_option"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/drawer_language_layout">
 
         <ImageView
@@ -292,70 +373,15 @@
             android:id="@+id/drawer_logout_text"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="70dp"
+            android:fontFamily="@font/avenir_next"
             android:gravity="center"
             android:text="Logout"
             android:textAllCaps="false"
-            android:textColor="#696969"
+            android:textColor="#000000"
             android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/chest"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="5dp"
-        android:src="@drawable/jackpot"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/drawer_my_logout_layout" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/drawer_close_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/navigation_option"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chest">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/drawer_close_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:src="@drawable/coin"
-                app:layout_constraintStart_toEndOf="@id/drawer_close_text" />
-
-            <TextView
-                android:id="@+id/drawer_close_text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="0"
-                android:textAllCaps="false"
-                android:textColor="#000000"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

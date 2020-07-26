@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatter.adapters.LanguageAdapter
@@ -19,29 +20,9 @@ import kotlinx.android.synthetic.main.top_bar.*
 
 class LanguageSelectionActivity : BaseSelectionActivity(),
     LanguageSelectedInterface {
-    private var nations = arrayListOf<String>(
-        "Spanish",
-        "French",
-        "German",
-        "Arabic",
-        "Mandarin",
-        "Hebrew",
-        "Dutch",
-        "Hindi",
-        "Russian"
-    )
+    private var nations = arrayListOf<String>()
     private var flagImages =
-        arrayListOf<Int>(
-            R.drawable.spanishflag,
-            R.drawable.frenchflag,
-            R.drawable.germanflag,
-            R.drawable.spanishflag,
-            R.drawable.spanishflag,
-            R.drawable.frenchflag,
-            R.drawable.germanflag,
-            R.drawable.spanishflag,
-            R.drawable.spanishflag
-        )
+        arrayListOf<String>()
 
     var selectedLang: String? = null
 
@@ -59,8 +40,9 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
         setUpBottomNavBar()
         setUpLanguageMap()
         setUpDropdownRecycler()
-        setUpScrollListener()
-        setUpArrowClicks()
+        fetchFlags()
+        //setUpScrollListener()
+        //setUpArrowClicks()
     }
 
     private fun setUpLanguageMap() {
@@ -105,7 +87,7 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                         startActivity(intent)
                     } ?: Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show()
                 }
-            }else{
+            } else {
                 Toast.makeText(this, "Select a language", Toast.LENGTH_LONG).show()
             }
         }
@@ -167,14 +149,25 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
         }
     }
 
-    override fun setUpDropdownRecycler() {
-        language_recycler.apply {
-            layoutManager = LinearLayoutManager(this@LanguageSelectionActivity)
-            adapter = LanguageAdapter(
+    private fun fetchFlags() {
+        database.child("Languages").addChildEventListener(baseChildEventListener {
+            val image = it.child("flagImage").value.toString()
+            val langName = it.child("languageName").value.toString()
+            placeLanguageAlphabetically(langName, image)
+            language_recycler.adapter = LanguageAdapter(
                 this@LanguageSelectionActivity,
                 nations,
                 flagImages,
                 this@LanguageSelectionActivity
+            )
+        })
+    }
+
+    override fun setUpDropdownRecycler() {
+        language_recycler.apply {
+            layoutManager = GridLayoutManager(
+                this@LanguageSelectionActivity,
+                2
             )
         }
     }
@@ -219,6 +212,22 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
 
     override fun onLanguageSelected(language: String) {
         selectedLang = language
+    }
+
+    private fun placeLanguageAlphabetically(lang: String, flagImg: String) {
+        var added = false
+        for (index in 0 until nations.size) {
+            if (lang.compareTo(nations[index]) < 0) {
+                nations.add(index, lang)
+                flagImages.add(index, flagImg)
+                added = true
+                break
+            }
+        }
+        if (!added) {
+            nations.add(lang)
+            flagImages.add(flagImg)
+        }
     }
 
     private fun sortLanguagesAlphabetically() {

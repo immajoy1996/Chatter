@@ -3,7 +3,6 @@
     <item android:state_pressed="false">
         <shape android:layout_width="match_parent" android:layout_height="match_parent" android:shape="rectangle">
             <solid android:color="#0084FF" />
-            <stroke android:width="1dp" android:color="#D3D3D3" />
             <padding />
             <corners android:radius="20dp" />
 
@@ -12,7 +11,6 @@
     <item android:state_pressed="true">
         <shape android:layout_width="match_parent" android:layout_height="match_parent" android:shape="rectangle">
             <solid android:color="#0000F5" />
-            <stroke android:width="1dp" android:color="#D3D3D3" />
             <padding />
             <corners android:radius="20dp" />
         </shape>

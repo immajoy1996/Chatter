@@ -104,7 +104,7 @@ class NavigationDrawerFragment : BaseFragment() {
                 val pointsRef = databaseReference.child(USERS.plus(it)).child("points")
                 val pointsListener = baseValueEventListener { dataSnapshot ->
                     val pointTotal = dataSnapshot.value.toString()
-                    drawer_close_text.text = pointTotal
+                    //drawer_close_text.text = pointTotal
                     getNewGem(pointTotal.toInt())?.let {
                         drawer_settings_image.setImageResource(it)
                     }
@@ -113,7 +113,7 @@ class NavigationDrawerFragment : BaseFragment() {
             }
         } else {
             navigation_drawer_username.text = "Guest"
-            drawer_close_text.text = preferences.getCurrentScore().toString()
+            //drawer_close_text.text = preferences.getCurrentScore().toString()
             getNewGem(preferences.getCurrentScore())?.let {
                 drawer_settings_image.setImageResource(it)
             }
@@ -139,10 +139,10 @@ class NavigationDrawerFragment : BaseFragment() {
     }
 
     fun setUpLanguageTextField(targetLang: String) {
-        val prefix = "Language: "
+        val prefix = ""
         var spannableStringLanguage: SpannableString? = null
         if (targetLang.isEmpty()) {
-            val langText = "Language: N/A"
+            val langText = "N/A"
             spannableStringLanguage = SpannableString(langText)
             spannableStringLanguage.setSpan(
                 StyleSpan(Typeface.BOLD), prefix.length, langText.length,
@@ -150,7 +150,7 @@ class NavigationDrawerFragment : BaseFragment() {
             )
             drawer_language_text.setText(spannableStringLanguage)
         } else if (languageMap.containsKey(targetLang)) {
-            val langText = "Language: ${languageMap[targetLang]}"
+            val langText = "${languageMap[targetLang]}"
             spannableStringLanguage = SpannableString(langText)
             spannableStringLanguage.setSpan(
                 StyleSpan(Typeface.BOLD), prefix.length, langText.length,
@@ -178,10 +178,10 @@ class NavigationDrawerFragment : BaseFragment() {
 
     fun setUpBotCategoryTextField(selectedCategory: String) {
         targetBotCategory = selectedCategory
-        val prefix = "Category: "
+        val prefix = ""
         var spannableStringCategory: SpannableString? = null
         if (selectedCategory.isEmpty()) {
-            val categoryText = "Category: All Bots"
+            val categoryText = "All Bots"
             spannableStringCategory = SpannableString(categoryText)
             spannableStringCategory.setSpan(
                 StyleSpan(Typeface.BOLD), prefix.length, categoryText.length,
@@ -189,7 +189,7 @@ class NavigationDrawerFragment : BaseFragment() {
             )
             drawer_caregories_text.setText(spannableStringCategory)
         } else {
-            val categoryText = "Category: ${selectedCategory}"
+            val categoryText = "${selectedCategory}"
             spannableStringCategory = SpannableString(categoryText)
             spannableStringCategory.setSpan(
                 StyleSpan(Typeface.BOLD), prefix.length, categoryText.length,
@@ -206,7 +206,7 @@ class NavigationDrawerFragment : BaseFragment() {
         drawer_settings_layout.setOnClickListener {
             val intent = Intent(context, MyStashActivity::class.java)
             intent.putExtra("gem_image", drawer_settings_image.id)
-            intent.putExtra("points", drawer_close_text.text.toString().toInt())
+            //intent.putExtra("points", drawer_close_text.text.toString().toInt())
             context?.startActivity(intent)
         }
         drawer_my_logout_layout.setOnClickListener {

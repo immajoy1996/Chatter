@@ -5,15 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.interfaces.CategorySelectionInterface
 import com.example.chatter.interfaces.LanguageSelectedInterface
+import kotlinx.android.synthetic.main.bot_layout.view.*
 import kotlinx.android.synthetic.main.nations_item_view.view.*
 
 class LanguageAdapter(
     val context: Context,
     var nations: ArrayList<String>,
-    var flags: ArrayList<Int>,
+    var flags: ArrayList<String>,
     var languageSelectedInterface: LanguageSelectedInterface? = null,
     var categorySelectionInterface: CategorySelectionInterface? = null
 ) :
@@ -23,7 +25,7 @@ class LanguageAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
         return LanguageViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.nations_item_view,
+                R.layout.bot_layout,
                 parent,
                 false
             )
@@ -33,7 +35,7 @@ class LanguageAdapter(
     override fun onBindViewHolder(holder: LanguageViewHolder, position: Int) {
         val nation = nations[position]
         val flagImg = flags[position]
-        holder.itemView.nations_item_layout.setOnClickListener {
+        holder.itemView.bot_item_layout.setOnClickListener {
             selectLanguageItem(position)
         }
         holder.bind(nation, flagImg, position)
@@ -50,15 +52,20 @@ class LanguageAdapter(
 
     inner class LanguageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind(nation: String, flagResId: Int, position: Int) {
-            itemView.country.text = nation
-            itemView.flagImg.setImageResource(flagResId)
+        fun bind(nation: String, flagImg: String, position: Int) {
+            itemView.title.text = nation
+            //itemView.flagImg.setImageResource(flagResId)
+            itemView.image?.let {
+                Glide.with(context)
+                    .load(flagImg)
+                    .into(it)
+            }
             if (selectedPos == position) {
-                itemView.language_selector_green_check.visibility = View.VISIBLE
-                itemView.nations_item_layout.setBackgroundResource(R.drawable.nation_item_view_background_enabled)
+                itemView.green_check.visibility = View.VISIBLE
+                itemView.bot_item_inner_layout.setBackgroundResource(R.drawable.profile_item_enabled)
             } else {
-                itemView.language_selector_green_check.visibility = View.GONE
-                itemView.nations_item_layout.setBackgroundResource(R.drawable.nation_item_view_background)
+                itemView.green_check.visibility = View.GONE
+                itemView.bot_item_inner_layout.setBackgroundResource(R.drawable.profile_item_disabled)
             }
         }
     }

@@ -5,7 +5,7 @@
     android:id="@+id/chatter_activity_root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dcdcdc"
+    android:background="#ffffff"
     tools:context=".ui.activity.ChatterActivity">
 
     <include
@@ -33,14 +33,14 @@
         android:id="@+id/chat_instructions_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tap chat bubbles for translation, long press for audio"
-        android:textColor="#696969"
+        android:background="@drawable/message_bubble_selector"
         android:gravity="center"
         android:padding="5dp"
-        android:background="@drawable/message_bubble_selector"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        android:text="Tap chat bubbles for translation, long press for audio"
+        android:textColor="#696969"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar">
 
     </TextView>
 
@@ -56,6 +56,26 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/wordByWordContainer"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="#dcdcdc"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/wordByWordRecycler"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/score_boost_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,28 +83,25 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/bottom_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/score_boost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="50sp"
             android:text="+25"
-            android:textStyle="bold"
             android:textColor="#0084FF"
-            />
+            android:textSize="50sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/coin"
             android:layout_marginStart="5dp"
-            app:layout_constraintStart_toEndOf="@id/score_boost"
-            app:layout_constraintTop_toTopOf="@id/score_boost"
+            android:src="@drawable/coin"
             app:layout_constraintBottom_toBottomOf="@id/score_boost"
-            />
+            app:layout_constraintStart_toEndOf="@id/score_boost"
+            app:layout_constraintTop_toTopOf="@id/score_boost" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

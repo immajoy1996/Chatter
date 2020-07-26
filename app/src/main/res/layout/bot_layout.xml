@@ -2,15 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bot_item_layout"
-    android:layout_width="@dimen/bot_item_layout_dimen"
-    android:layout_height="@dimen/bot_item_layout_dimen"
+    android:layout_width="180dp"
+    android:layout_height="190dp"
     android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bot_item_inner_layout"
-        android:layout_width="@dimen/bot_item_dimen"
-        android:layout_height="@dimen/bot_item_dimen"
-        android:background="@drawable/gem_item_selector"
+        android:layout_width="160dp"
+        android:layout_height="180dp"
+        android:background="@drawable/profile_item_disabled"
         android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,19 +31,19 @@
 
         <ImageView
             android:id="@+id/bot_locked_image"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="20dp"
             android:src="@drawable/lock"
             android:visibility="gone"
-            android:layout_marginTop="5dp"
             app:layout_constraintBottom_toTopOf="@id/image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
             android:src="@drawable/concentration"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -53,11 +53,13 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/avenir_next"
             android:gravity="center"
             android:padding="5dp"
             android:text="Title"
-            android:textColor="#696969"
-            android:textSize="14sp"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/image" />
@@ -68,6 +70,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent=".15" />
+
+        <ImageView
+            android:id="@+id/green_check"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/green_check"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

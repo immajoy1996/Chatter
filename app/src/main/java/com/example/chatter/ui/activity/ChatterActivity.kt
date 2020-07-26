@@ -20,6 +20,8 @@ import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -30,8 +32,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.chatter.R
+import com.example.chatter.adapters.WordByWordAdapter
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.ExpressionClickInterface
 import com.example.chatter.interfaces.StoryBoardFinishedInterface
@@ -44,6 +48,7 @@ import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.fragment_vocab.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -70,6 +75,7 @@ class ChatterActivity : BaseChatActivity(),
     var currentPath = ""
 
     private var profileImgView: ImageView? = null
+    private var bookImgView: ImageView? = null
     private var translationImgView: CircleImageView? = null
     private var messageTextView: TextView? = null
     private var translationTextView: TextView? = null
@@ -92,6 +98,7 @@ class ChatterActivity : BaseChatActivity(),
     private var MESSAGE_PADDING = 20
     private var MESSAGE_VERTICAL_SPACING = 50
     private var PROFILE_IMAGE_SIZE = 50
+    private var BOOK_IMAGE_SIZE = 70
 
     var executorService: ExecutorService? = null
     private var isRefreshed = false
@@ -112,6 +119,7 @@ class ChatterActivity : BaseChatActivity(),
         setUpTopBar()
         setUpStoryBoardFragments()
         setUpNavButtons()
+        setUpWordByWordRecycler()
         loadFirstStoryBoardFragment()
     }
 
@@ -166,8 +174,6 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     override fun initializeMessagesContainer() {
-        //initializeVariables()
-        //messagesInnerLayout.removeAllViewsInLayout()
         constraintSet.clone(messagesInnerLayout)
     }
 
@@ -191,23 +197,18 @@ class ChatterActivity : BaseChatActivity(),
     override fun addMessage(msg: String) {
         setUpMessageTextView(msg)
         setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
-        //setUpTranslationTextView("Sample translation")
         setupProfileImgView()
         addConstraintToProfileImageView()
         addConstraintsForMessageTextView()
         addConstraintsForTranslationTextView()
-        //addConstraintToTranslationImageView()
-        //addGeneralConstraintsForProfileImageAndTranslationText()
         addGeneralConstraintsForProfileImageAndMessageText()
+        setupBookImgView()
+        addConstraintToBookImageView()
+        addGeneralConstraintsForBookImageAndMessageText()
         setConstraintsToLayout()
     }
 
     fun refreshChatMessages() {
-        //isRefreshed = true
-        /*finish()
-        overridePendingTransition(0, 0)
-        startActivity(intent)
-        overridePendingTransition(0, 0)*/
         messagesInnerLayout.removeAllViews()
         initializeVariables()
         startChatting()
@@ -302,14 +303,6 @@ class ChatterActivity : BaseChatActivity(),
         //loadChatInstructionsFragment()
         startChatting()
     }
-
-    /*private fun loadChatInstructionsFragment() {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(chat_instructions_container.id, chatInstructionsFragment)
-            .addToBackStack(chatInstructionsFragment.javaClass.name)
-            .commit()
-    }*/
 
     fun closeEasterEggFragment() {
         supportFragmentManager?.popBackStack(
@@ -448,6 +441,66 @@ class ChatterActivity : BaseChatActivity(),
         }
     }
 
+    private fun addGeneralConstraintsForBookImageAndMessageText() {
+        var position = -1
+        if (isFirst) position = ConstraintSet.TOP
+        else position = ConstraintSet.BOTTOM
+
+        val textView = messageTextView as TextView
+        val profileImg = bookImgView as ImageView
+
+        if (newSide == "right") {
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.BOTTOM,
+                textView.id,
+                ConstraintSet.BOTTOM,
+                0
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.END,
+                textView.id,
+                ConstraintSet.START,
+                10
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.TOP,
+                textView.id,
+                ConstraintSet.TOP,
+                0
+            )
+
+        } else if (newSide == "left") {
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.BOTTOM,
+                textView.id,
+                ConstraintSet.BOTTOM,
+                0
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.START,
+                textView.id,
+                ConstraintSet.END,
+                10
+            )
+
+            constraintSet.connect(
+                profileImg.id,
+                ConstraintSet.TOP,
+                textView.id,
+                ConstraintSet.TOP,
+                0
+            )
+        }
+    }
+
     private fun addGeneralConstraintsForProfileImageAndMessageText() {
         var position = -1
         if (isFirst) position = ConstraintSet.TOP
@@ -515,14 +568,34 @@ class ChatterActivity : BaseChatActivity(),
         addTranslationViewToLayout(translationTextView as TextView)
     }
 
+    private fun toggleBookImage(msgId: Int) {
+        val msgCount = msgId / 10
+        val bookId = 1000 * msgCount + 1
+        val bookView = findViewById<ImageView>(bookId)
+        if (bookView.visibility == View.VISIBLE) {
+            bookView?.id?.let {
+                constraintSet.setVisibility(it, View.GONE)
+                setConstraintsToLayout()
+            }
+        } else {
+            bookView?.id?.let {
+                constraintSet.setVisibility(it, View.VISIBLE)
+                setConstraintsToLayout()
+                bookView.visibility = View.VISIBLE
+                bookView.setAlpha(0f)
+                bookView.animate().alpha(1f).setDuration(500)
+            }
+        }
+    }
+
     private fun setUpMessageBubbleClickListener() {
         val textView = messageTextView
         textView?.setOnClickListener {
-            //Toast.makeText(this,"clicked",Toast.LENGTH_SHORT).show()
             val otherView = findViewById<TextView>(textView.id + 9)
             val str1 = textView.text.toString()
             textView.text = otherView.text.toString()
             otherView.text = str1
+            toggleBookImage(textView.id)
         }
         textView?.setOnLongClickListener {
             if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
@@ -604,6 +677,41 @@ class ChatterActivity : BaseChatActivity(),
         }
     }
 
+    private fun setupBookImgView() {
+        bookImgView = ImageView(this)
+        bookImgView?.apply {
+            id = getIdBookImageView()
+            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.translation))
+        }
+        setupBookImgClickListener()
+    }
+
+    private fun setupBookImgClickListener() {
+        val bookView = bookImgView
+        bookView?.setOnDebouncedClickListener {
+            if (wordByWordContainer.visibility == View.VISIBLE) {
+                wordByWordContainer.visibility = View.GONE
+            } else {
+                wordByWordContainer.visibility = View.VISIBLE
+                val bookId = bookView.id
+                val msgCount = (bookId - 1) / 1000
+                val msgId = 10 * msgCount
+                val msgTextView = findViewById<TextView>(msgId)
+                val wordString = msgTextView.text.toString()
+                val words = wordString.split(" ", ",", ".", "?", "!") as ArrayList<String>
+                val translations = arrayListOf<String>()
+                for (word in words) {
+                    translations.add("mommia")
+                }
+                wordByWordRecycler.adapter = WordByWordAdapter(this, words, translations)
+            }
+        }
+    }
+
+    private fun getIdBookImageView(): Int {
+        return 1000 * msgCount + 1
+    }
+
     private fun setUpMessageTextView(msg: String, shouldFocus: Boolean = true) {
         messageTextView = TextView(this)
         messageTextView?.apply {
@@ -619,10 +727,6 @@ class ChatterActivity : BaseChatActivity(),
 
             text = msg
             textSize = TEXT_SIZE_MESSAGE
-            /*if (newSide == "right") {
-                isFocusableInTouchMode = true
-                requestFocus()
-            }*/
         }
         setUpMessageBubbleClickListener()
     }
@@ -663,6 +767,17 @@ class ChatterActivity : BaseChatActivity(),
         }
     }
 
+    private fun addConstraintToBookImageView() {
+        bookImgView?.apply {
+            constraintSet.constrainHeight(id, BOOK_IMAGE_SIZE)
+            constraintSet.constrainWidth(id, BOOK_IMAGE_SIZE)
+            addBookViewToLayout(this)
+        }
+        /*bookImgView?.id?.let {
+            constraintSet.setVisibility(it, View.INVISIBLE)
+        }*/
+    }
+
     private fun getIdProfileImageView(): Int {
         return 10 * msgCount + 1
     }
@@ -684,6 +799,13 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun addViewToLayout(view: View) {
+        view.visibility = View.INVISIBLE
+        messagesInnerLayout.addView(view)
+        view.setAlpha(0f)
+        view.animate().alpha(1f).setDuration(500)
+    }
+
+    private fun addBookViewToLayout(view: View) {
         view.visibility = View.INVISIBLE
         messagesInnerLayout.addView(view)
         view.setAlpha(0f)
@@ -758,8 +880,8 @@ class ChatterActivity : BaseChatActivity(),
         messageTextView = TextView(this)
         messageTextView?.apply {
             if (newSide == "left") {
-                setBackgroundColor(Color.parseColor("#dcdcdc"))
-                setTextColor(Color.parseColor("#dcdcdc"))
+                setBackgroundColor(Color.parseColor("#ffffff"))
+                setTextColor(Color.parseColor("#ffffff"))
             }
             setPadding(MESSAGE_PADDING)
             setId(spaceId)
@@ -982,6 +1104,10 @@ class ChatterActivity : BaseChatActivity(),
             .setNegativeButton("Cancel", null)
             .create()
             .show()
+    }
+
+    private fun setUpWordByWordRecycler() {
+        wordByWordRecycler.layoutManager = LinearLayoutManager(this)
     }
 
     override fun onResume() {

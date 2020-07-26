@@ -4,62 +4,39 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatter.interfaces.CategorySelectionInterface
 import com.example.chatter.ui.activity.DashboardActivity.Companion.CATEGORY_REQUEST_CODE
 import com.example.chatter.adapters.LanguageAdapter
 import com.example.chatter.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_category_selection.*
+import kotlinx.android.synthetic.main.activity_language_selection.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 class CategorySelectionActivity : BaseActivity(),
     CategorySelectionInterface {
-    private var categories = arrayListOf<String>(
-        "All Bots",
-        "Funny",
-        "Day-to-Day",
-        "Famous People",
-        "Politics",
-        "Quirky",
-        "Sporty"
-    )
+    private var categories = arrayListOf<String>()
     private var categoryImages =
-        arrayListOf<Int>(
-            R.drawable.earth,
-            R.drawable.funny,
-            R.drawable.house,
-            R.drawable.spanishflag,
-            R.drawable.spanishflag,
-            R.drawable.frenchflag,
-            R.drawable.germanflag,
-            R.drawable.spanishflag,
-            R.drawable.spanishflag
-        )
+        arrayListOf<String>()
 
     private var selectedCategory: String? = null
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_category_selection)
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
-        setUpBottomNavBar()
         setUpDropdownRecycler()
-        setUpScrollListener()
-        setUpArrowClicks()
-    }
-
-    private fun setUpBottomNavBar() {
-        button_back.setOnClickListener {
-            this.finish()
-        }
-        button_next.setOnClickListener {
-            val intent = Intent(this, DashboardActivity::class.java)
-            intent.putExtra("GUEST_MODE", true)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-        }
+        fetchCategories()
     }
 
     override fun setUpTopBar() {
@@ -72,7 +49,6 @@ class CategorySelectionActivity : BaseActivity(),
         home.visibility = View.GONE
         back.visibility = View.VISIBLE
         top_bar_save_button.visibility = View.VISIBLE
-        category_selection_bottom_bar.visibility = View.GONE
         top_bar_save_button.setOnClickListener {
             val intent = Intent()
             if (selectedCategory != null) {
@@ -93,52 +69,41 @@ class CategorySelectionActivity : BaseActivity(),
 
     private fun setUpDropdownRecycler() {
         category_recycler.apply {
-            layoutManager = LinearLayoutManager(this@CategorySelectionActivity)
-            adapter = LanguageAdapter(
+            layoutManager = GridLayoutManager(
                 this@CategorySelectionActivity,
-                categories,
-                categoryImages,
-                null,
-                this@CategorySelectionActivity
+                2
             )
         }
     }
 
-    private fun setUpScrollListener() {
-        val layoutManager = category_recycler.layoutManager as LinearLayoutManager
-        category_recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()
-                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
-                if (firstVisibleItem == 0) {
-                    category_selection_up_arrow.visibility = View.INVISIBLE
-                } else {
-                    category_selection_up_arrow.visibility = View.VISIBLE
-                }
-                if (lastVisibleItem == totalItemCount - 1) {
-                    category_selection_down_arrow.visibility = View.INVISIBLE
-                } else {
-                    category_selection_down_arrow.visibility = View.VISIBLE
-                }
-            }
+    private fun fetchCategories() {
+        database.child("Categories").addChildEventListener(baseChildEventListener {
+            val image = it.child("categoryImage").value.toString()
+            val langName = it.child("categoryName").value.toString()
+            placeCategoryAlphabetically(langName, image)
+            category_recycler.adapter = LanguageAdapter(
+                this,
+                categories,
+                categoryImages,
+                null,
+                this
+            )
         })
     }
 
-    private fun setUpArrowClicks() {
-        val layoutManager = category_recycler.layoutManager as LinearLayoutManager
-        category_selection_up_arrow.setOnClickListener {
-            val firstVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()
-            val targetPos = if (firstVisibleItem - 3 >= 0) firstVisibleItem - 3 else 0
-            category_recycler.smoothScrollToPosition(targetPos)
+    private fun placeCategoryAlphabetically(category: String, categoryImg: String) {
+        var added = false
+        for (index in 0 until categories.size) {
+            if (category.compareTo(categories[index]) < 0) {
+                categories.add(index, category)
+                categoryImages.add(index, categoryImg)
+                added = true
+                break
+            }
         }
-        category_selection_down_arrow.setOnClickListener {
-            val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
-            val totalItemCount = layoutManager.itemCount
-            val targetPos =
-                if (lastVisibleItem + 3 < totalItemCount) lastVisibleItem + 3 else totalItemCount - 1
-            category_recycler.smoothScrollToPosition(targetPos)
+        if (!added) {
+            categories.add(category)
+            categoryImages.add(categoryImg)
         }
     }
 

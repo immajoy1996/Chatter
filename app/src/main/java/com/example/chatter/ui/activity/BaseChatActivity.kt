@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.example.chatter.extra.Preferences
 import com.example.chatter.R
+import com.example.chatter.ui.fragment.BaseFragment
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.translate.Translate
 import com.google.cloud.translate.TranslateOptions
@@ -45,7 +46,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     private var textToSpeech: TextToSpeech? = null
     private var textToSpeechInitialized = false
 
-    private var preferences: Preferences? = null
+    private lateinit var preferences: Preferences
     private var targetBearBotSpeakerName = "en-us-x-sfg-local"
     private var targetMaleAmericanSpeaker = "en-us-x-sfg#male_2-local"
     private var targetFemaleAmericanSpeaker = "en-us-x-sfg#female_2-local"
@@ -405,11 +406,13 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     }
 
     fun View.setOnDebouncedClickListener(doStuff: () -> (Unit)) {
-        val lastClickTime: Long = preferences?.getLastClickTime(this.id) ?: -1L
-        val currentTime = System.currentTimeMillis()
-        if (lastClickTime == -1L || currentTime - lastClickTime > MIN_TIME_BETWEEN_CLICKS) {
-            preferences?.storeLastClickTime(this.id, System.currentTimeMillis())
-            doStuff()
+        this.setOnClickListener {
+            val lastClickTime: Long = preferences.getLastClickTime(it.id) ?: -1L
+            val currentTime = System.currentTimeMillis()
+            if (lastClickTime == -1L || currentTime - lastClickTime > BaseFragment.MIN_TIME_BETWEEN_CLICKS) {
+                preferences.storeLastClickTime(it.id, System.currentTimeMillis())
+                doStuff()
+            }
         }
     }
 
