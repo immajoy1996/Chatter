@@ -25,7 +25,7 @@ class LanguageAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
         return LanguageViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.bot_layout,
+                R.layout.bot_item_original_layout,
                 parent,
                 false
             )

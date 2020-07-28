@@ -13,11 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.example.chatter.extra.Preferences
-import com.example.chatter.ui.activity.ProfileActivity
 import com.example.chatter.R
-import com.example.chatter.ui.activity.SignInActivity
-import com.example.chatter.ui.activity.DashboardActivity
-import com.example.chatter.ui.activity.MyStashActivity
+import com.example.chatter.ui.activity.*
 import com.example.chatter.ui.activity.SignInActivity.Companion.BEAR_PROFILE_PATH
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -211,8 +208,8 @@ class NavigationDrawerFragment : BaseFragment() {
         }
         drawer_my_logout_layout.setOnClickListener {
             activity?.finish()
-            auth.signOut()
-            val intent = Intent(context, SignInActivity::class.java)
+            //auth.signOut()
+            val intent = Intent(context, HomeNavigationActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }

@@ -32,7 +32,11 @@ class BotStoryFragment : Fragment() {
     }
 
     private fun setUpTopBar() {
-        home.visibility = View.VISIBLE
+        home.visibility = View.GONE
+        back.visibility = View.VISIBLE
+        back.setOnClickListener {
+            activity?.finish()
+        }
         top_bar_mic.visibility = View.GONE
         top_bar_quiz.visibility = View.GONE
         top_bar_jokebook.visibility = View.GONE
@@ -41,11 +45,10 @@ class BotStoryFragment : Fragment() {
     }
 
     private fun setUpBottomNavBar() {
-        button_back.setOnClickListener {
-            activity?.finish()
-        }
-        button_next.text = "Start"
-        button_next.setOnClickListener {
+        button_back.visibility = View.GONE
+        button_next.visibility = View.GONE
+        button_start.visibility = View.VISIBLE
+        button_start.setOnClickListener {
             fragmentManager?.popBackStack()
             (activity as? ChatterActivity)?.onStoriesFinished()
         }

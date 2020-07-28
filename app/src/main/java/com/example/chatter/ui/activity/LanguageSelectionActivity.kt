@@ -81,7 +81,7 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                 } else {
                     languageMap[selectedLang as String]?.let {
                         preferences.storeNativeLanguageSelection(it)
-                        val intent = Intent(this, DashboardActivity::class.java)
+                        val intent = Intent(this, HomeNavigationActivity::class.java)
                         intent.putExtra("GUEST_MODE", true)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         startActivity(intent)

@@ -69,9 +69,20 @@ class DashboardActivity : BaseActivity(),
     }
 
     override fun setUpTopBar() {
+        home.visibility = View.GONE
+        back.visibility = View.VISIBLE
+        top_bar_categories.visibility = View.VISIBLE
+        back.setOnClickListener {
+            finish()
+        }
+        top_bar_categories.setOnClickListener {
+            loadCategoriesSelectionScreen()
+        }
         home.setOnClickListener {
             loadNavigationDrawer()
         }
+        top_bar_jokebook.visibility = View.GONE
+        top_bar_quiz.visibility = View.GONE
         top_bar_title.visibility = View.VISIBLE
         top_bar_messaging_image_container.visibility = View.GONE
         home.setOnLongClickListener {
@@ -92,7 +103,6 @@ class DashboardActivity : BaseActivity(),
         }
         top_bar_title.text = "Bots"
         top_bar_mic.visibility = View.GONE
-        top_bar_quiz.visibility = View.VISIBLE
 
         //top_bar_music_dashboard.visibility = View.VISIBLE
         //top_bar_music_enabled.visibility = View.VISIBLE
@@ -103,7 +113,6 @@ class DashboardActivity : BaseActivity(),
             enableMusic = false
             disableMusic()
         }*/
-        top_bar_jokebook.visibility = View.VISIBLE
         top_bar_jokebook.setOnDebouncedClickListener {
             loadFragment(QuizDescriptionFragment.newInstance(false))
         }
@@ -419,9 +428,9 @@ class DashboardActivity : BaseActivity(),
                 selectedCategory?.let {
                     showBotsBasedOnCategory(it)
                     targetBotCategory = it
-                    if (navigationDrawerFragment.isVisible) {
+                    /*if (navigationDrawerFragment.isVisible) {
                         navigationDrawerFragment.setUpBotCategoryTextField(it)
-                    }
+                    }*/
                 }
             }
         }

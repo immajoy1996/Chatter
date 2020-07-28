@@ -25,10 +25,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentManager
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
-import com.example.chatter.ui.activity.BaseChatActivity
-import com.example.chatter.ui.activity.ChatterActivity
-import com.example.chatter.ui.activity.CreateChatActivity
-import com.example.chatter.ui.activity.DashboardActivity
+import com.example.chatter.ui.activity.*
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
@@ -207,7 +204,7 @@ class StoryBoardOneFragment : BaseFragment() {
 
     private fun showNextJoke() {
         val joke =
-            (activity as? DashboardActivity)?.getNextJoke() ?: ""
+            (activity as? HomeNavigationActivity)?.getNextJoke() ?: ""
         showTypingAnimation(joke_textview, 50, joke)
     }
 
@@ -334,9 +331,7 @@ class StoryBoardOneFragment : BaseFragment() {
         show_answer_button.setOnDebouncedClickListener {
             show_answer_button.visibility = View.GONE
             var jokeAnswer: String? = null
-            if (activity is DashboardActivity) {
-                jokeAnswer = (activity as? DashboardActivity)?.getCurrentJokeAnswer()
-            }
+            jokeAnswer = (activity as? HomeNavigationActivity)?.getCurrentJokeAnswer()
             answer_textview.text = jokeAnswer ?: "Oops, something went wrong"
             val fadeInAni =
                 AnimationUtils.loadAnimation(context, R.anim.fade_in)

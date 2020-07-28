@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
 import com.example.chatter.ui.activity.ConcentrationActivity
 import com.example.chatter.ui.activity.DashboardActivity
+import com.example.chatter.ui.activity.HomeNavigationActivity
 import com.example.chatter.ui.activity.QuizActivity
+import kotlinx.android.synthetic.main.activity_home_navigation.*
 import kotlinx.android.synthetic.main.fragment_quiz_description.*
 
 class QuizDescriptionFragment : Fragment() {
@@ -44,7 +47,7 @@ class QuizDescriptionFragment : Fragment() {
     }
 
     private fun setUpButtons() {
-        if(isQuizFragment) {
+        if (isQuizFragment) {
             quiz_back_button.setOnClickListener {
                 activity?.finish()
             }
@@ -55,13 +58,13 @@ class QuizDescriptionFragment : Fragment() {
                 intent.putStringArrayListExtra("botImages", botImages)
                 startActivity(intent)
             }
-        }else{
+        } else {
             quiz_back_button.setOnClickListener {
                 fragmentManager?.popBackStack()
             }
             start_quiz_button.setOnClickListener {
                 fragmentManager?.popBackStack()
-                (activity as? DashboardActivity)?.loadFragment(StoryBoardOneFragment())
+                (activity as? HomeNavigationActivity)?.loadFragment(StoryBoardOneFragment())
             }
         }
     }

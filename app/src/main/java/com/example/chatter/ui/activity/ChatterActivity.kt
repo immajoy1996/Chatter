@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.AnimationDrawable
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -29,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -132,7 +134,10 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     override fun setUpTopBar() {
-        top_bar_title.text = "Chatter"
+        top_bar_title.visibility = View.GONE
+        top_bar_messaging_image_container.visibility = View.VISIBLE
+        top_bar_title_desc.text = "Helper Monkey"
+        top_bar_mic.visibility = View.VISIBLE
         top_bar_mic.setOnClickListener {
             if (!isMicActive) {
                 if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
@@ -202,9 +207,9 @@ class ChatterActivity : BaseChatActivity(),
         addConstraintsForMessageTextView()
         addConstraintsForTranslationTextView()
         addGeneralConstraintsForProfileImageAndMessageText()
-        setupBookImgView()
-        addConstraintToBookImageView()
-        addGeneralConstraintsForBookImageAndMessageText()
+        //setupBookImgView()
+        //addConstraintToBookImageView()
+        //addGeneralConstraintsForBookImageAndMessageText()
         setConstraintsToLayout()
     }
 
@@ -287,6 +292,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun setUpNavButtons() {
+        word_by_word_translate_button.visibility = View.VISIBLE
         button_back.setOnClickListener {
             toggleRestartFlag(false)
             finish()
@@ -606,7 +612,7 @@ class ChatterActivity : BaseChatActivity(),
             val str1 = textView.text.toString()
             textView.text = otherView.text.toString()
             otherView.text = str1
-            toggleBookImage(textView.id)
+            //toggleBookImage(textView.id)
         }
         textView?.setOnLongClickListener {
             if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
@@ -725,14 +731,17 @@ class ChatterActivity : BaseChatActivity(),
 
     private fun setUpMessageTextView(msg: String, shouldFocus: Boolean = true) {
         messageTextView = TextView(this)
+        val typeface: Typeface? =
+            ResourcesCompat.getFont(this.applicationContext, R.font.avenir_next)
         messageTextView?.apply {
             if (newSide == "right") {
                 setBackgroundResource(R.drawable.option_bubble)
                 setTextColor(Color.parseColor("#FFFFFF"))
             } else {
                 setBackgroundResource(R.drawable.message_bubble_selector)
-                setTextColor(Color.parseColor("#696969"))
+                setTextColor(Color.parseColor("#000000"))
             }
+            setTypeface(typeface)
             setPadding(MESSAGE_PADDING)
             setId(newMsgId)
 

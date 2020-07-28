@@ -23,7 +23,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
-        android:background="@drawable/circle_background_profile"
         android:padding="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -198,13 +197,14 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginEnd="5dp"
+            android:visibility="gone"
             android:src="@drawable/jackpot" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/drawer_close_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/navigation_option"
+
             android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="@id/chest"
             app:layout_constraintStart_toEndOf="@id/chest"
@@ -216,8 +216,8 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
-                android:src="@drawable/coin"
-                app:layout_constraintStart_toEndOf="@id/drawer_close_text" />
+                android:src="@drawable/double_trouble"
+                />
 
             <TextView
                 android:id="@+id/drawer_close_text"
@@ -226,10 +226,12 @@
                 android:fontFamily="@font/avenir_next"
                 android:gravity="center"
                 android:text="0"
+                android:layout_marginStart="5dp"
                 android:textAllCaps="false"
                 android:textColor="#000000"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/drawer_close_image"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -376,7 +378,7 @@
             android:layout_marginStart="70dp"
             android:fontFamily="@font/avenir_next"
             android:gravity="center"
-            android:text="Logout"
+            android:text="Return to Home"
             android:textAllCaps="false"
             android:textColor="#000000"
             android:textSize="20sp"
