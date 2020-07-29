@@ -14,8 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.HomeNavigationActivity"
+            android:name=".ui.activity.FlashCardActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <activity
+            android:name=".ui.activity.HomeNavigationActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".ui.activity.CreateChatActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

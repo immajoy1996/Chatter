@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".ui.fragment.FlashCardCategoriesFragment">
+
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/top_bar" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/flashcard_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".3"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/flashcard_guideline">
+
+        <TextView
+            android:id="@+id/top_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/avenir_next"
+            android:text="Select a Flashcard Category"
+            android:textColor="#696969"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/flashcard_button1_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/flashcard_test_background"
+            android:elevation="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_message">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/flashcard_button1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="200dp"
+                    android:layout_height="70dp"
+                    android:fontFamily="@font/avenir_next"
+                    android:gravity="center"
+                    android:text="Chat Partners"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="50dp"
+                android:layout_height="70dp"
+                android:background="@drawable/flashcard_arrow_background"
+                app:layout_constraintBottom_toBottomOf="@id/flashcard_button1"
+                app:layout_constraintStart_toEndOf="@id/flashcard_button1"
+                app:layout_constraintTop_toTopOf="@id/flashcard_button1">
+
+                <ImageView
+                    android:id="@+id/flashcard_button1_arrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/right_arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/flashcard_button2_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/flashcard_test_background"
+            android:elevation="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/flashcard_button1_container">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/flashcard_button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="200dp"
+                    android:layout_height="70dp"
+                    android:fontFamily="@font/avenir_next"
+                    android:gravity="center"
+                    android:text="My Favorites"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="50dp"
+                android:layout_height="70dp"
+                android:background="@drawable/flashcard_arrow_background_green"
+                app:layout_constraintBottom_toBottomOf="@id/flashcard_button2"
+                app:layout_constraintStart_toEndOf="@id/flashcard_button2"
+                app:layout_constraintTop_toTopOf="@id/flashcard_button2">
+
+                <ImageView
+                    android:id="@+id/flashcard_button2_arrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/right_arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/flashcard_button3_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="invisible"
+            android:background="@drawable/flashcard_test_background"
+            android:elevation="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/flashcard_button2_container">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/flashcard_button3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="200dp"
+                    android:layout_height="70dp"
+                    android:fontFamily="@font/avenir_next"
+                    android:gravity="center"
+                    android:text="Chat Partners"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="50dp"
+                android:layout_height="70dp"
+                android:background="@drawable/flashcard_arrow_background"
+                app:layout_constraintBottom_toBottomOf="@id/flashcard_button3"
+                app:layout_constraintStart_toEndOf="@id/flashcard_button3"
+                app:layout_constraintTop_toTopOf="@id/flashcard_button3">
+
+                <ImageView
+                    android:id="@+id/flashcard_button3_arrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/right_arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

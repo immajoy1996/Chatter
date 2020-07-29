@@ -50,6 +50,8 @@
             android:background="@drawable/login_button_background"
             android:fontFamily="@font/avenir_next"
             android:padding="10dp"
+            android:elevation="10dp"
+            android:translationZ="10dp"
             android:text="Get Started"
             android:textColor="#ffffff"
             android:textSize="20sp"

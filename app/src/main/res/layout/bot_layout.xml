@@ -11,6 +11,7 @@
         android:layout_width="160dp"
         android:layout_height="180dp"
         android:background="@drawable/profile_item_disabled"
+        android:elevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,10 +20,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bot_level_banner"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:visibility="visible"
+            android:layout_height="30dp"
             android:background="@drawable/bot_level_banner_background"
-           >
+            android:visibility="visible">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
@@ -35,9 +35,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="5dp"
                     android:fontFamily="@font/avenir_next"
-                    android:text="Level 1"
+                    android:text="Easy"
                     android:textColor="#ffffff"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -48,11 +48,11 @@
 
                 <ImageView
                     android:id="@+id/bot_locked_image"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="2dp"
                     android:src="@drawable/lock"
-                    android:visibility="gone"
-                    android:layout_marginTop="5dp"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 

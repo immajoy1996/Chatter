@@ -551,7 +551,9 @@ class SignInActivity : BaseChatActivity() {
         //loadRetrievingOptionsFragment()
         //loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading Guest Mode ...")
         loadAnimatedLoadingFragment(loadingAnimatedFragment)
-        auth.signOut()
+        if (auth.currentUser != null) {
+            auth.signOut()
+        }
         setTimerTask("signInAsGuest", 2000, {
             removeLoadingAnimatedFragment()
             toggleRestartFlag(false)
@@ -619,6 +621,7 @@ class SignInActivity : BaseChatActivity() {
                 setBackgroundResource(R.drawable.message_bubble_selector)
                 setTextColor(Color.parseColor("#000000"))
             }
+            elevation = 5f
             setTypeface(typeface)
             setPadding(MESSAGE_PADDING)
             setId(newMsgId)

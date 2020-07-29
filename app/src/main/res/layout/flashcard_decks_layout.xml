@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:id="@+id/decks_item_layout"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/flashcard_bot_image_container"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/flashcard_deck_item_view"
+        android:elevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <ImageView
+            android:id="@+id/flashcard_bot_image"
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+            android:src="@drawable/dinosaur"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/flashcard_deck_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="The Dinosaur"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/flashcard_bot_image_container"
+        app:layout_constraintTop_toTopOf="@id/flashcard_bot_image_container" />
+
+    <TextView
+        android:id="@+id/flashcard_deck_desc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Learn words and expressions which will help you survive the next extinction"
+        android:textColor="#696969"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/flashcard_bot_image_container"
+        app:layout_constraintTop_toBottomOf="@id/flashcard_deck_title" />
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/flashcard_deck_button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:elevation="5dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Learn"
+        android:textAllCaps="false"
+        android:textColor="#0084FF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:translationZ="5dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toEndOf="@id/flashcard_bot_image_container"
+        app:layout_constraintBottom_toBottomOf="@id/flashcard_bot_image_container"></TextView>
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/flashcard_deck_button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:elevation="5dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Study"
+        android:textAllCaps="false"
+        android:textColor="#3cb371"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:translationZ="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/flashcard_deck_button1"
+        app:layout_constraintStart_toEndOf="@id/flashcard_deck_button1"
+        app:layout_constraintTop_toTopOf="@id/flashcard_deck_button1"></TextView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#e4e5e9"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/flashcard_bot_image_container"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@ import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
+import com.example.chatter.ui.fragment.FlashCardCategoriesFragment
 import com.example.chatter.ui.fragment.NavigationDrawerFragment
 import com.example.chatter.ui.fragment.QuizDescriptionFragment
 import com.google.firebase.auth.FirebaseAuth
@@ -43,10 +44,15 @@ class HomeNavigationActivity : BaseActivity() {
             }
         }
         nav_image2.setOnDebouncedClickListener {
-            nav_image2.startBounceAnimation {}
+            nav_image2.startBounceAnimation {
+                val intent = Intent(this, FlashCardActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
+            }
         }
         nav_image3.setOnDebouncedClickListener {
-            nav_image3.startBounceAnimation {}
+            nav_image3.startBounceAnimation {
+            }
         }
         nav_image4.setOnDebouncedClickListener {
             nav_image4.startBounceAnimation {
