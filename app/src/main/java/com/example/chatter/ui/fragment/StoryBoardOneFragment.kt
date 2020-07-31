@@ -202,9 +202,9 @@ class StoryBoardOneFragment : BaseFragment() {
         bear_profile.startAnimation(aniShake)
     }
 
-    private fun showNextJoke() {
+    fun showNextJoke() {
         val joke =
-            (activity as? HomeNavigationActivity)?.getNextJoke() ?: ""
+            (activity as? JokesActivity)?.getNextJoke() ?: ""
         showTypingAnimation(joke_textview, 50, joke)
     }
 
@@ -280,7 +280,8 @@ class StoryBoardOneFragment : BaseFragment() {
         top_bar_title.setText("Jokes!")
         back.visibility = View.VISIBLE
         back.setOnClickListener {
-            fragmentManager?.popBackStack()
+            activity?.finish()
+            //fragmentManager?.popBackStack()
             (activity as? DashboardActivity)?.loadFragment(QuizDescriptionFragment.newInstance(false))
         }
         home.visibility = View.GONE
@@ -331,7 +332,7 @@ class StoryBoardOneFragment : BaseFragment() {
         show_answer_button.setOnDebouncedClickListener {
             show_answer_button.visibility = View.GONE
             var jokeAnswer: String? = null
-            jokeAnswer = (activity as? HomeNavigationActivity)?.getCurrentJokeAnswer()
+            jokeAnswer = (activity as? JokesActivity)?.getCurrentJokeAnswer()
             answer_textview.text = jokeAnswer ?: "Oops, something went wrong"
             val fadeInAni =
                 AnimationUtils.loadAnimation(context, R.anim.fade_in)
@@ -345,40 +346,53 @@ class StoryBoardOneFragment : BaseFragment() {
                 }
             })
         }
-        happy.setOnDebouncedClickListener {
+        happy_button.setOnDebouncedClickListener {
             if (!happyToastShown) {
-                Toast.makeText(
+                /*Toast.makeText(
                     context,
                     "Thanks! Your feedback lets us choose jokes at your level",
                     Toast.LENGTH_LONG
-                ).show()
+                ).show()*/
                 happyToastShown = true
             }
             val shakeAni =
                 AnimationUtils.loadAnimation(context, R.anim.shake)
-            happy.startAnimation(shakeAni)
+            happy_button.startAnimation(shakeAni)
             show_answer_button.visibility = View.VISIBLE
             show_answer_button.text = "Show Answer"
             answer_textview.visibility = View.GONE
             showNextJoke()
         }
-        sad.setOnDebouncedClickListener {
+        sad_button.setOnDebouncedClickListener {
             if (!sadToastShow) {
-                Toast.makeText(
+                /*Toast.makeText(
                     context,
                     "Thanks! Your feedback lets us choose jokes at your level",
                     Toast.LENGTH_LONG
-                ).show()
+                ).show()*/
                 sadToastShow = true
             }
             val shakeAni =
                 AnimationUtils.loadAnimation(context, R.anim.shake)
-            happy.startAnimation(shakeAni)
+            sad_button.startAnimation(shakeAni)
+            (activity as? JokesActivity)?.loadJokesExplanationFragment()
             show_answer_button.visibility = View.VISIBLE
             show_answer_button.text = "Show Answer"
             answer_textview.visibility = View.GONE
-            showNextJoke()
+            hideSmilesButtonsLayout()
         }
+    }
+
+    private fun hideSmilesButtonsLayout() {
+        happy_layout.visibility = View.GONE
+        sad_layout.visibility = View.GONE
+        did_you_get_it.visibility = View.GONE
+    }
+
+    private fun showSmilesButtonsLayout() {
+        happy_layout.visibility = View.VISIBLE
+        sad_layout.visibility = View.VISIBLE
+        did_you_get_it.visibility = View.VISIBLE
     }
 
     private fun disableNextButton() {

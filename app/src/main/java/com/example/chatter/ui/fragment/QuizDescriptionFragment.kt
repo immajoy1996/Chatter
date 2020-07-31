@@ -8,10 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
-import com.example.chatter.ui.activity.ConcentrationActivity
-import com.example.chatter.ui.activity.DashboardActivity
-import com.example.chatter.ui.activity.HomeNavigationActivity
-import com.example.chatter.ui.activity.QuizActivity
+import com.example.chatter.ui.activity.*
 import kotlinx.android.synthetic.main.activity_home_navigation.*
 import kotlinx.android.synthetic.main.fragment_quiz_description.*
 
@@ -60,11 +57,11 @@ class QuizDescriptionFragment : Fragment() {
             }
         } else {
             quiz_back_button.setOnClickListener {
-                fragmentManager?.popBackStack()
+                activity?.finish()
             }
             start_quiz_button.setOnClickListener {
                 fragmentManager?.popBackStack()
-                (activity as? HomeNavigationActivity)?.loadFragment(StoryBoardOneFragment())
+                (activity as? JokesActivity)?.loadActualJokesPage()
             }
         }
     }

@@ -101,7 +101,7 @@ class DashboardActivity : BaseActivity(),
             intent.putStringArrayListExtra("botImages", imageList)
             startActivity(intent)
         }
-        top_bar_title.text = "Bots"
+        top_bar_title.text = "Chats"
         top_bar_mic.visibility = View.GONE
 
         //top_bar_music_dashboard.visibility = View.VISIBLE

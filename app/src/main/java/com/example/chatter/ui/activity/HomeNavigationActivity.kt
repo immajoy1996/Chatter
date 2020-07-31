@@ -56,7 +56,9 @@ class HomeNavigationActivity : BaseActivity() {
         }
         nav_image4.setOnDebouncedClickListener {
             nav_image4.startBounceAnimation {
-                loadFragment(jokesFragment)
+                val intent = Intent(this, JokesActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
             }
         }
         signout_bar.setOnDebouncedClickListener {

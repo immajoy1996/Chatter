@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".ui.fragment.ViewFlashcardsFragment">
+
+    <ImageView
+        android:id="@+id/view_flashcards_back_button"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/flashcards_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="50dp"
+        android:indeterminate="false"
+        android:indeterminateTint="#0084FF"
+        android:progress="30"
+        android:progressDrawable="@drawable/progress_bar_states"
+        app:layout_constraintEnd_toEndOf="@id/view_flashcards_container"
+        app:layout_constraintStart_toStartOf="@id/view_flashcards_container"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/view_flashcards_container"
+        android:layout_width="300dp"
+        android:layout_height="350dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/flashcard_deck_item_view"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/flashcard_image"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:src="@drawable/dinosaur"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/flashcard_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/avenir_next"
+            android:text="dinosaur"
+            android:textColor="#000000"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/flashcard_audio"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:src="@drawable/audio"
+        android:translationZ="20dp"
+        app:layout_constraintEnd_toEndOf="@id/view_flashcards_container"
+        app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
+
+    <ImageView
+        android:id="@+id/flashcard_favorite"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="15dp"
+        android:src="@drawable/star_unclicked"
+        android:translationZ="20dp"
+        app:layout_constraintEnd_toStartOf="@id/flashcard_audio"
+        app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
+
+    <ImageView
+        android:id="@+id/flashcard_learn_mode"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="15dp"
+        android:src="@drawable/settings"
+        android:translationZ="20dp"
+        app:layout_constraintEnd_toStartOf="@id/flashcard_favorite"
+        app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
+
+    <Button
+        android:id="@+id/flashcards_continue_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/continue_button_background"
+        android:elevation="10dp"
+        android:fontFamily="@font/avenir_next"
+        android:stateListAnimator="@null"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textColor="#ffffff"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:translationZ="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

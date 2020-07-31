@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
+    android:clickable="true"
     tools:context=".ui.activity.ChatterActivity">
 
     <include
@@ -23,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
+            android:clickable="true"
             android:padding="10dp">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -33,10 +35,11 @@
         android:id="@+id/chat_instructions_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/message_bubble_selector"
+        android:background="@drawable/three_buttons_background"
         android:gravity="center"
         android:padding="5dp"
-        android:text="Tap chat bubbles for translation, long press for audio"
+        android:fontFamily="@font/avenir_next"
+        android:text="Hold down chat bubble for options"
         android:textColor="#696969"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

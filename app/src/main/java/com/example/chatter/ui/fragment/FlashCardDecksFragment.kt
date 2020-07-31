@@ -53,6 +53,10 @@ class FlashCardDecksFragment : BaseFragment() {
     private fun setUpBottomBar() {
         button_back.visibility = View.GONE
         button_start.visibility = View.VISIBLE
+        button_start.setOnDebouncedClickListener {
+            fragmentManager?.popBackStack()
+            (activity as? FlashCardActivity)?.loadViewFlashCardsFragment()
+        }
         button_next.visibility = View.GONE
     }
 

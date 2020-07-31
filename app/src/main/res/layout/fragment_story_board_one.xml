@@ -195,9 +195,9 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         android:fontFamily="@font/avenir_next"
+        android:gravity="center"
         android:textColor="#000000"
         android:textSize="25sp"
-        android:gravity="center"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -207,15 +207,15 @@
         android:id="@+id/did_you_get_it"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="10dp"
         android:fontFamily="@font/avenir_next"
+        android:gravity="center"
         android:text="Did you get it?"
         android:textColor="#696969"
         android:textSize="25sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_buttons" />
@@ -228,19 +228,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/did_you_get_it">
 
-        <ImageView
-            android:id="@+id/happy"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/happy" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/happy_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:background="@drawable/circle_backgroun"
+            >
 
-        <ImageView
-            android:id="@+id/sad"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="5dp"
-            android:src="@drawable/sad"
-            app:layout_constraintStart_toEndOf="@id/happy" />
+            <ImageView
+                android:id="@+id/happy_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/happy"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sad_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:padding="5dp"
+            android:background="@drawable/circle_backgroun"
+            app:layout_constraintStart_toEndOf="@id/happy_layout">
+
+            <ImageView
+                android:id="@+id/sad_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="5dp"
+                android:src="@drawable/sad" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

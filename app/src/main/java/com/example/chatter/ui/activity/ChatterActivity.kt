@@ -21,13 +21,12 @@ import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -50,7 +49,6 @@ import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
-import kotlinx.android.synthetic.main.fragment_vocab.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -101,6 +99,9 @@ class ChatterActivity : BaseChatActivity(),
     private var MESSAGE_VERTICAL_SPACING = 50
     private var PROFILE_IMAGE_SIZE = 50
     private var BOOK_IMAGE_SIZE = 70
+    private var THREE_BUTTONS_VIEW_WIDTH = 400
+    private var THREE_BUTTONS_VIEW_HEIGHT = 80
+    private var TRANSLATE_BUTTON_DIMENSION = 60
 
     var executorService: ExecutorService? = null
     private var isRefreshed = false
@@ -125,6 +126,10 @@ class ChatterActivity : BaseChatActivity(),
         loadBotStoryFragment()
     }
 
+    override fun onUserInteraction() {
+        dismissThreeImagesViewIfVisible()
+    }
+
     private fun setUpDimensions() {
         TEXT_SIZE_MESSAGE = 1.0f * (this.resources.getInteger(R.integer.message_bubble_text_size))
         MESSAGE_BUBBLE_WIDTH = this.resources.getInteger(R.integer.message_bubble_width)
@@ -134,6 +139,11 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     override fun setUpTopBar() {
+        back.visibility = View.VISIBLE
+        home.visibility = View.GONE
+        back.setOnClickListener {
+            finish()
+        }
         top_bar_title.visibility = View.GONE
         top_bar_messaging_image_container.visibility = View.VISIBLE
         top_bar_title_desc.text = "Helper Monkey"
@@ -207,6 +217,11 @@ class ChatterActivity : BaseChatActivity(),
         addConstraintsForMessageTextView()
         addConstraintsForTranslationTextView()
         addGeneralConstraintsForProfileImageAndMessageText()
+        setUpThreeButtonsView()
+        setUpWordByWordImageInThreeButtonsView()
+        setUpAudioImageInThreeButtonsView()
+        setUpTranslateImageInThreeButtonsView()
+        setUpMessageBubbleClickListener()
         //setupBookImgView()
         //addConstraintToBookImageView()
         //addGeneralConstraintsForBookImageAndMessageText()
@@ -292,7 +307,12 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun setUpNavButtons() {
-        word_by_word_translate_button.visibility = View.VISIBLE
+        //word_by_word_translate_button.visibility = View.VISIBLE
+        button_back.visibility = View.GONE
+        button_refresh.visibility = View.VISIBLE
+        button_refresh.setOnDebouncedClickListener {
+            refreshChatMessages()
+        }
         button_back.setOnClickListener {
             toggleRestartFlag(false)
             finish()
@@ -607,21 +627,35 @@ class ChatterActivity : BaseChatActivity(),
 
     private fun setUpMessageBubbleClickListener() {
         val textView = messageTextView
-        textView?.setOnClickListener {
+        /*textView?.setOnClickListener {
             val otherView = findViewById<TextView>(textView.id + 9)
             val str1 = textView.text.toString()
             textView.text = otherView.text.toString()
             otherView.text = str1
             //toggleBookImage(textView.id)
-        }
+        }*/
         textView?.setOnLongClickListener {
-            if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+            /*if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
                 Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
             }
             val messageText = textView.text.toString()
-            readMessageBubble(messageText)
+            readMessageBubble(messageText)*/
+            val msgCount = textView.id / 10
+            val threeImagesView = findViewById<ConstraintLayout>(1000 * msgCount + 7)
+            if (threeImagesView.visibility == View.GONE) {
+                showThreeButtonsView(threeImagesView.id)
+            }
             true
         }
+    }
+
+    private fun showThreeButtonsView(id: Int) {
+        //id=1000*msgCount+7
+        constraintSet.setVisibility(id, View.VISIBLE)
+        constraintSet.setVisibility(id - 6, View.VISIBLE)
+        constraintSet.setVisibility(id - 4, View.VISIBLE)
+        constraintSet.setVisibility(id - 2, View.VISIBLE)
+        setConstraintsToLayout()
     }
 
     private fun setUpTranslationBubbleClickListener() {
@@ -729,6 +763,210 @@ class ChatterActivity : BaseChatActivity(),
         return 1000 * msgCount + 1
     }
 
+    private fun getIdThreeButtonsView(): Int {
+        return 1000 * msgCount + 7
+    }
+
+    private fun setUpTranslateImageInThreeButtonsView() {
+        val translateImageView = ImageView(this)
+        translateImageView.apply {
+            setId(getIdTranslateImage())
+            constraintSet.constrainHeight(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.constrainWidth(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.setVisibility(id, View.GONE)
+            elevation = 10f
+            setImageResource(R.drawable.translate_circular)
+        }
+        addViewToLayout(translateImageView)
+        val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView())
+        val wordByWordImage = findViewById<ImageView>(getIdWordByWordImage())
+        val aniWobble = AnimationUtils.loadAnimation(this@ChatterActivity, R.anim.wobble_forever)
+        wordByWordImage.startAnimation(aniWobble)
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.BOTTOM,
+            constraintLayout.id,
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.TOP,
+            constraintLayout.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.START,
+            constraintLayout.id,
+            ConstraintSet.START
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.END,
+            wordByWordImage.id,
+            ConstraintSet.START
+        )
+    }
+
+    private fun setUpAudioImageInThreeButtonsView() {
+        val translateImageView = ImageView(this)
+        translateImageView.apply {
+            setId(getIdAudioImage())
+            constraintSet.constrainHeight(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.constrainWidth(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.setVisibility(id, View.GONE)
+            elevation = 10f
+            setImageResource(R.drawable.audio_circular)
+        }
+        addViewToLayout(translateImageView)
+        val aniWobble = AnimationUtils.loadAnimation(this, R.anim.wobble_forever)
+        translateImageView.startAnimation(aniWobble)
+        val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView())
+        val wordByWordImage = findViewById<ImageView>(getIdWordByWordImage())
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.BOTTOM,
+            constraintLayout.id,
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.TOP,
+            constraintLayout.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.END,
+            constraintLayout.id,
+            ConstraintSet.END
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.START,
+            wordByWordImage.id,
+            ConstraintSet.END
+        )
+    }
+
+    private fun setUpWordByWordImageInThreeButtonsView() {
+        val translateImageView = ImageView(this)
+        translateImageView.apply {
+            setId(getIdWordByWordImage())
+            constraintSet.constrainHeight(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.constrainWidth(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.setVisibility(id, View.GONE)
+            elevation = 10f
+            setImageResource(R.drawable.word_by_word_circular)
+        }
+        addViewToLayout(translateImageView)
+        val aniWobble = AnimationUtils.loadAnimation(this, R.anim.wobble_forever)
+        translateImageView.startAnimation(aniWobble)
+        val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView())
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.BOTTOM,
+            constraintLayout.id,
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.TOP,
+            constraintLayout.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.START,
+            constraintLayout.id,
+            ConstraintSet.START
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.END,
+            constraintLayout.id,
+            ConstraintSet.END
+        )
+    }
+
+    private fun getIdTranslateImage(): Int {
+        return 1000 * msgCount + 1
+    }
+
+    private fun getIdWordByWordImage(): Int {
+        return 1000 * msgCount + 3
+    }
+
+    private fun getIdAudioImage(): Int {
+        return 1000 * msgCount + 5
+    }
+
+    private fun setUpThreeButtonsView() {
+        val constraintLayout = ConstraintLayout(this)
+        constraintLayout.apply {
+            setId(getIdThreeButtonsView())
+            constraintSet.constrainHeight(id, THREE_BUTTONS_VIEW_HEIGHT)
+            constraintSet.constrainWidth(id, THREE_BUTTONS_VIEW_WIDTH)
+            constraintSet.setVisibility(id, View.GONE)
+            setBackgroundResource(R.drawable.three_buttons_background)
+            elevation = 10f
+        }
+        addViewToLayout(constraintLayout)
+        //val constraintSetThreeButtons = ConstraintSet()
+        //constraintSetThreeButtons.clone(constraintLayout)
+
+        val messageView = findViewById<TextView>(getMessageTextBubbleId())
+
+        constraintSet.connect(
+            constraintLayout.id,
+            ConstraintSet.BOTTOM,
+            messageView.id,
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            constraintLayout.id,
+            ConstraintSet.TOP,
+            messageView.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            constraintLayout.id,
+            ConstraintSet.START,
+            messageView.id,
+            ConstraintSet.START
+        )
+        constraintSet.connect(
+            constraintLayout.id,
+            ConstraintSet.END,
+            messageView.id,
+            ConstraintSet.END
+        )
+    }
+
+    private fun dismissThreeImagesViewIfVisible() {
+        for (x in 1 until (msgCount + 1)) {
+            val id = 1000 * x + 7
+            val threeImagesView = findViewById<ConstraintLayout>(id)
+            if (threeImagesView.visibility == View.VISIBLE) {
+                constraintSet.setVisibility(id, View.GONE)
+                constraintSet.setVisibility(id - 2, View.GONE)
+                constraintSet.setVisibility(id - 4, View.GONE)
+                constraintSet.setVisibility(id - 6, View.GONE)
+                setConstraintsToLayout()
+            }
+        }
+    }
+
     private fun setUpMessageTextView(msg: String, shouldFocus: Boolean = true) {
         messageTextView = TextView(this)
         val typeface: Typeface? =
@@ -748,7 +986,6 @@ class ChatterActivity : BaseChatActivity(),
             text = msg
             textSize = TEXT_SIZE_MESSAGE
         }
-        setUpMessageBubbleClickListener()
     }
 
     private fun setUpTranslationTextView(translation: String, shouldFocus: Boolean = true) {
