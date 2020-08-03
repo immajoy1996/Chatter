@@ -6,25 +6,23 @@ import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatter.R
-import com.example.chatter.extra.MyBounceInterpolator
-import com.example.chatter.ui.activity.DashboardActivity
-import kotlinx.android.synthetic.main.bot_layout.view.*
+import com.example.chatter.interfaces.ConcentrationGameClickedInterface
 import kotlinx.android.synthetic.main.flashcard_decks_layout.view.*
-import kotlinx.android.synthetic.main.top_bar.view.*
 
 class FlashCardDecksAdapter(
     val context: Context,
     var botTitles: ArrayList<String>,
-    var botImages: ArrayList<String>,
-    var botDescriptions: ArrayList<String>
+    var botImages: ArrayList<String>? = null,
+    var gameImages: ArrayList<Int>? = null,
+    var botDescriptions: ArrayList<String>,
+    var isGameFragment: Boolean? = null,
+    var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null
 ) :
     RecyclerView.Adapter<FlashCardDecksAdapter.FlashCardLevelsViewHolder>() {
 
@@ -40,9 +38,16 @@ class FlashCardDecksAdapter(
 
     override fun onBindViewHolder(holder: FlashCardLevelsViewHolder, position: Int) {
         val title = botTitles[position]
-        val image = botImages[position]
         val desc = botDescriptions[position]
-        holder.bind(image, title, desc)
+        if (isGameFragment == true) {
+            gameImages?.let {
+                holder.bind(it[position], title, desc)
+            }
+        } else {
+            botImages?.let {
+                holder.bind(it[position], title, desc)
+            }
+        }
     }
 
     override fun getItemCount(): Int = botTitles.size
@@ -60,24 +65,13 @@ class FlashCardDecksAdapter(
             botDesc = view.flashcard_deck_desc
         }
 
-        fun bind(imagePath: String, title: String, desc: String) {
-            /*val aniShakeForever = AnimationUtils.loadAnimation(
-                context,
-                R.anim.shake_forever
-            )
-            val aniWobbleForever = AnimationUtils.loadAnimation(
-                context,
-                R.anim.wobble_forever
-            )
-            var animPicked = aniShakeForever
-            if (Math.random() > .5) {
-                animPicked = aniWobbleForever
-            }
-            botImage?.startAnimation(animPicked)*/
+        fun bind(image: String, title: String, desc: String) {
+            itemView.decks_progress_bar.visibility = View.VISIBLE
+            itemView.flashcard_completion_rate.visibility = View.VISIBLE
             if (title.isNotEmpty()) {
                 botImage?.let {
                     Glide.with(context)
-                        .load(imagePath)
+                        .load(image)
                         .into(it)
                 }
                 botTitle?.text = title
@@ -86,7 +80,24 @@ class FlashCardDecksAdapter(
             onDeckSelected()
         }
 
-        fun onDeckSelected() {
+        fun bind(imagePath: Int, title: String, desc: String) {
+            if (title.isNotEmpty()) {
+                botImage?.setImageResource(imagePath)
+                botTitle?.text = title
+                botDesc?.text = desc
+            }
+            itemView.decks_progress_bar.visibility = View.GONE
+            itemView.flashcard_completion_rate.visibility = View.GONE
+            onGameSelected(title)
+        }
+
+        private fun onGameSelected(title: String) {
+            itemView.setOnClickListener {
+                launchGames(title)
+            }
+        }
+
+        private fun onDeckSelected() {
             itemView.setOnClickListener {
                 if ((itemView.decks_item_layout.background as ColorDrawable).color == Color.parseColor(
                         "#ffffff"
@@ -97,7 +108,14 @@ class FlashCardDecksAdapter(
                     itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#ffffff"))
                 }
             }
+        }
 
+        private fun launchGames(gameTitle: String) {
+            when (gameTitle) {
+                "Concentration" -> {
+                    concentrationGameClickedInterface?.onConcentrationGameClicked()
+                }
+            }
         }
     }
 }

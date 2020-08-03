@@ -27,8 +27,8 @@ class ConcentrationActivity : BaseActivity(),
     var concentrationGameImages = arrayListOf<String>()
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
-    private var gameStartFragment = EasterEggFragment.newInstance("Timer starts when you click Go")
-    private lateinit var timer: Timer
+    private var gameStartFragment = EasterEggFragment.newInstance("Timer starts when you click Play")
+    private var timer = Timer()
     private var currentTime = ConcentrationTime(0, 0)
     private var mediaPlayer = MediaPlayer()
     private var gameStarted = false
@@ -46,7 +46,7 @@ class ConcentrationActivity : BaseActivity(),
     }
 
     override fun revealItem() {
-        setTimerTask("revealCardItem", 500) {
+        setTimerTask("revealCardItem", 250) {
             (concentration_recycler.adapter as? ConcentrationAdapter)?.resetSelectedPositions()
             concentration_recycler.adapter?.notifyDataSetChanged()
         }
@@ -94,6 +94,8 @@ class ConcentrationActivity : BaseActivity(),
     fun startGame() {
         gameStarted = true
         timer = Timer()
+        currentTime = ConcentrationTime(0, 0)
+        fetchBotItemImages()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 currentTime.addOneSecond()
@@ -106,25 +108,29 @@ class ConcentrationActivity : BaseActivity(),
 
     private fun fetchBotItemImages() {
         imageList = intent.getStringArrayListExtra("botImages") ?: arrayListOf()
-        if (imageList.size >= 12) {
-            Collections.shuffle(imageList)
-            for (index in 0 until 12) {
-                concentrationGameImages.add(imageList[index])
-                concentrationGameImages.add(imageList[index])
+        if (imageList.size < BOT_COUNT) {
+            while (imageList.size < BOT_COUNT) {
+                imageList.add(GIFT_IMAGE)
             }
-            concentrationGameImages.add(GIFT_IMAGE)
-            Collections.shuffle(concentrationGameImages)
-            concentration_recycler.adapter =
-                ConcentrationAdapter(
-                    this,
-                    concentrationGameImages,
-                    this
-                )
         }
+        Collections.shuffle(imageList)
+        concentrationGameImages.clear()
+        for (index in 0 until BOT_COUNT) {
+            concentrationGameImages.add(imageList[index])
+            concentrationGameImages.add(imageList[index])
+        }
+        concentrationGameImages.add(GIFT_IMAGE)
+        Collections.shuffle(concentrationGameImages)
+        concentration_recycler.adapter =
+            ConcentrationAdapter(
+                this,
+                concentrationGameImages,
+                this
+            )
     }
 
     private fun setUpProfileGridView() {
-        concentration_recycler.layoutManager = GridLayoutManager(this, 5)
+        concentration_recycler.layoutManager = GridLayoutManager(this, 3)
     }
 
     override fun setUpTopBar() {
@@ -132,8 +138,10 @@ class ConcentrationActivity : BaseActivity(),
         home.visibility = View.GONE
         top_bar_mic.visibility = View.GONE
         top_bar_title.text = "Play!"
+        top_bar_title.visibility = View.GONE
         concentration_game_timer.visibility = View.VISIBLE
-        top_bar_music_concentration.visibility = View.VISIBLE
+        score_to_beat.visibility = View.VISIBLE
+        //top_bar_music_concentration.visibility = View.VISIBLE
         top_bar_music_enabled_concentration.visibility = View.VISIBLE
         top_bar_music_disabled_concentration.visibility = View.GONE
         top_bar_music_enabled_concentration.setOnClickListener {
@@ -168,7 +176,7 @@ class ConcentrationActivity : BaseActivity(),
             loadFragment(resumeGameFragment)
         }
         if (enableMusic) {
-            playMedia(GAME_BACKGROUND_MUSIC)
+            //playMedia(GAME_BACKGROUND_MUSIC)
         }
     }
 
@@ -226,45 +234,15 @@ class ConcentrationActivity : BaseActivity(),
         val newScoreFragment =
             EasterEggFragment.newInstance("You've set a new high score!", 25L)
         val thanksForPlayingFragment =
-            EasterEggFragment.newInstance("You didn't set any records but thanks for playing", 10L)
+            EasterEggFragment.newInstance("Better luck next time!")
         val betterThanOneMinuteFragment =
-            EasterEggFragment.newInstance("You finished in under 2 minutes!", 20L)
-        if (auth.currentUser != null) {
-            auth.currentUser?.uid?.let {
-                val uid = it
-                val newScoreRef = database.child("Users/$uid").child("highScore")
-                val scoreListener = baseValueEventListener { dataSnapshot ->
-                    val bestScore = dataSnapshot.value
-                    if (bestScore == null || newScore.isBetterTimeThan(bestScore.toString())) {
-                        newScoreRef.setValue(newScore).addOnSuccessListener {
-                            playNotificationSound()
-                            loadFragment(newScoreFragment)
-                        }.addOnFailureListener {
-                            Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
-                        }
-                    } else if (newScore.isBetterTimeThan(RESPECTABLE_TIME)) {
-                        playNotificationSound()
-                        loadFragment(betterThanOneMinuteFragment)
-                    } else {
-                        playNotificationSound()
-                        loadFragment(thanksForPlayingFragment)
-                    }
-                }
-                newScoreRef.addListenerForSingleValueEvent(scoreListener)
-            }
+            EasterEggFragment.newInstance("Congrats! You've won.", 20L)
+        if (newScore.isBetterTimeThan(RESPECTABLE_TIME)) {
+            playNotificationSound()
+            loadFragment(betterThanOneMinuteFragment)
         } else {
-            val bestScore = preferences.getBestScore()
-            if (bestScore.isEmpty() || newScore.isBetterTimeThan(bestScore)) {
-                preferences.storeNewBestScore(bestScore)
-                playNotificationSound()
-                loadFragment(newScoreFragment)
-            } else if (newScore.isBetterTimeThan(RESPECTABLE_TIME)) {
-                playNotificationSound()
-                loadFragment(betterThanOneMinuteFragment)
-            } else {
-                playNotificationSound()
-                loadFragment(thanksForPlayingFragment)
-            }
+            playNotificationSound()
+            loadFragment(thanksForPlayingFragment)
         }
     }
 
@@ -289,6 +267,7 @@ class ConcentrationActivity : BaseActivity(),
             "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/vocabAudio%2FCollege%20Dropout.mp3?alt=media&token=17d3eaf3-7665-479c-89d9-ebd00c3d9929"
         const val GIFT_IMAGE =
             "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Fgift.png?alt=media&token=42c1890c-db5e-45eb-a296-871e271d27cc"
-        const val RESPECTABLE_TIME = "2:00"
+        const val RESPECTABLE_TIME = "0:30"
+        const val BOT_COUNT = 7
     }
 }

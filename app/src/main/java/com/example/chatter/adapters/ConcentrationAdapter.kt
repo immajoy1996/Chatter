@@ -21,7 +21,7 @@ class ConcentrationAdapter(
     RecyclerView.Adapter<ConcentrationAdapter.ConcentrationViewHolder>() {
     private var selectedPosOne = -1
     private var selectedPosTwo = -1
-    private var imagesLeft = 25
+    private var imagesLeft = imageList.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConcentrationViewHolder {
         return ConcentrationViewHolder(

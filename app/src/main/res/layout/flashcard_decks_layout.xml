@@ -111,8 +111,8 @@
         app:layout_constraintStart_toStartOf="@id/flashcard_bot_image_container" />
 
     <TextView
-        android:visibility="visible"
         android:id="@+id/flashcard_completion_rate"
+        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="32%"

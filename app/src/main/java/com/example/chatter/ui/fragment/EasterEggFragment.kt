@@ -70,8 +70,10 @@ class EasterEggFragment : Fragment() {
                         it.startGame()
                     }
                 } else {
-                    updateUserTotalScore()
-                    activity?.finish()
+                    (activity as? ConcentrationActivity)?.let {
+                        it.removeStartGameFragment()
+                        it.startGame()
+                    }
                 }
             } else {
                 (activity as? ChatterActivity)?.let {
@@ -79,6 +81,9 @@ class EasterEggFragment : Fragment() {
                     updateUserTotalScore()
                 }
             }
+        }
+        easter_egg_exit_button.setOnClickListener {
+            activity?.finish()
         }
     }
 
@@ -93,16 +98,18 @@ class EasterEggFragment : Fragment() {
             if (points == null) {
                 easter_egg_message.text = message
                 easter_egg_price_tag_layout.visibility = View.GONE
+                jackpot_layout.visibility = View.VISIBLE
+                jackpot_image.setImageResource(R.drawable.concentration)
                 new_gem_image.visibility = View.GONE
-                start_game_image.visibility = View.VISIBLE
-                easter_egg_close_button.text = "Go"
+                easter_egg_close_button.text = "Play"
+                easter_egg_exit_button.visibility = View.VISIBLE
             } else {
                 easter_egg_message.text = message
                 easter_egg_price_tag_layout.visibility = View.VISIBLE
                 easter_egg_price.text = points.toString()
                 new_gem_image.visibility = View.GONE
-                start_game_image.visibility = View.VISIBLE
-                easter_egg_close_button.text = "Close"
+                easter_egg_close_button.text = "Play"
+                easter_egg_exit_button.visibility = View.VISIBLE
             }
         } else {
             easter_egg_message.text = message

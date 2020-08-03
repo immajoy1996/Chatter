@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="250dp"
     android:background="@drawable/easter_egg_background"
+    android:elevation="20dp"
     android:padding="10dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
@@ -15,13 +16,14 @@
         android:id="@+id/jackpot_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/jackpot_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:src="@drawable/bell"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,6 +36,7 @@
             android:textColor="#0084FF"
             android:textSize="30sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/jackpot_image"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,14 +47,17 @@
         android:id="@+id/easter_egg_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
+        android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:layout_marginTop="30dp"
-        android:textColor="#696969"
+        android:padding="5dp"
+        android:text="Pete loves you!"
+        android:textColor="#000000"
         android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/jackpot_layout" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/new_gem_image"
@@ -89,13 +95,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/easter_egg_price_tag_layout"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginTop="25dp"
-        android:background="@drawable/navigation_option"
+        android:layout_height="wrap_content"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/easter_egg_message">
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
@@ -107,21 +110,23 @@
 
             <ImageView
                 android:id="@+id/easter_egg_coin_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="5dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="5dp"
-                android:src="@drawable/coin"
+                android:src="@drawable/double_trouble"
                 app:layout_constraintStart_toEndOf="@id/easter_egg_price" />
 
             <TextView
                 android:id="@+id/easter_egg_price"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/avenir_next"
                 android:gravity="center"
+                android:text="200"
                 android:textAllCaps="false"
-                android:textColor="#000000"
-                android:textSize="20sp"
+                android:textColor="#0084FF"
+                android:textSize="40sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -135,11 +140,30 @@
         android:layout_width="70dp"
         android:layout_height="40dp"
         android:background="@drawable/close_button_background"
+        android:elevation="10dp"
+        android:fontFamily="@font/avenir_next"
         android:padding="10dp"
         android:text="close"
         android:textColor="#ffffff"
         android:textSize="15sp"
+        android:translationZ="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/easter_egg_exit_button"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
+        android:background="@drawable/close_button_background"
+        android:elevation="10dp"
+        android:fontFamily="@font/avenir_next"
+        android:padding="10dp"
+        android:text="exit"
+        android:textColor="#ffffff"
+        android:textSize="15sp"
+        android:translationZ="10dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
