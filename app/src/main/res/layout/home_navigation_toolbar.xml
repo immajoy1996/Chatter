@@ -5,12 +5,11 @@
     android:layout_height="60dp"
     android:background="#ffffff">
 
-    <ImageButton
+    <ImageView
         android:id="@+id/home_bar_flag"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="10dp"
-        android:background="@drawable/lebanon_no_flagpole"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -71,10 +70,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:fontFamily="@font/avenir_next"
-            android:text="230"
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:text="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/home_bar_coin_image"
             app:layout_constraintTop_toTopOf="parent" />

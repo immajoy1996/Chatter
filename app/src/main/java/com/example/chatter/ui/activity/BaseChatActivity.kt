@@ -18,6 +18,8 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.translate.Translate
 import com.google.cloud.translate.TranslateOptions
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import java.io.IOException
 import java.util.*
@@ -46,16 +48,19 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     private var textToSpeech: TextToSpeech? = null
     private var textToSpeechInitialized = false
 
-    private lateinit var preferences: Preferences
+    lateinit var preferences: Preferences
     private var targetBearBotSpeakerName = "en-us-x-sfg-local"
     private var targetMaleAmericanSpeaker = "en-us-x-sfg#male_2-local"
     private var targetFemaleAmericanSpeaker = "en-us-x-sfg#female_2-local"
+
+    private lateinit var firebaseStorage: FirebaseStorage
 
     private var translateService: Translate? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base_chat)
+        firebaseStorage = FirebaseStorage.getInstance()
         setUpTranslateService()
         preferences = Preferences(this)
         setUpTextToSpeech()
@@ -84,17 +89,27 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     }
 
     private fun setUpTranslateService() {
-        try {
-            resources.openRawResource(R.raw.translate_api).use {
-                val myCredentials = GoogleCredentials.fromStream(it)
-                val translateOptions =
-                    TranslateOptions.newBuilder().setCredentials(myCredentials).build()
-                translateService = translateOptions.service
+        firebaseStorage.getReferenceFromUrl(TRANSLATE_API_URL).stream.addOnSuccessListener { downloadTask ->
+            Thread(Runnable {
+                val inputStream = downloadTask.stream
+                inputStream.use {
+                    val myCredentials = GoogleCredentials.fromStream(it)
+                    val translateOptions =
+                        TranslateOptions.newBuilder().setCredentials(myCredentials).build()
+                    translateService = translateOptions.service
+                }
             }
-        } catch (exception: IOException) {
-            exception.printStackTrace()
-
+            ).start()
+            Toast.makeText(this, "Translate api success", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Translate api failed", Toast.LENGTH_SHORT).show()
         }
+        /*resources.openRawResource(R.raw.translate_api).use {
+            val myCredentials = GoogleCredentials.fromStream(it)
+            val translateOptions =
+                TranslateOptions.newBuilder().setCredentials(myCredentials).build()
+            translateService = translateOptions.service
+        }*/
     }
 
     fun translate(text: String, targetLanguage: String): String? {
@@ -422,5 +437,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     companion object {
         private const val MIN_TIME_BETWEEN_CLICKS = 700L
+        private const val TRANSLATE_API_URL =
+            "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/TranslateApi%2Ftranslate_api.json?alt=media&token=e6a7cd6a-15af-45e3-98a7-654ed48257fb"
     }
 }

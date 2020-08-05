@@ -91,7 +91,6 @@ class ChatterActivity : BaseChatActivity(),
     private var mediaPlayer = MediaPlayer()
 
     private var isMicActive = false
-    lateinit var preferences: Preferences
 
     private var TEXT_SIZE_MESSAGE: Float = 15f
     private var MESSAGE_BUBBLE_WIDTH = 600
@@ -114,9 +113,6 @@ class ChatterActivity : BaseChatActivity(),
         setContentView(R.layout.activity_chatter)
         database = FirebaseDatabase.getInstance().reference
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        preferences = getMyPreferences() ?: Preferences(
-            this
-        )
         executorService = Executors.newFixedThreadPool(5)
         targetLanguage = intent.getStringExtra(TARGET_LANGUAGE) ?: ""
         setUpDimensions()

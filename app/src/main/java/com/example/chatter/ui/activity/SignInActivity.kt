@@ -31,6 +31,7 @@ import com.example.chatter.ui.fragment.SignUpOptionsFragment.Companion.SIGN_UP_I
 import com.example.chatter.ui.fragment.SignUpOptionsFragment.Companion.SIGN_UP_STUDENT
 import com.example.chatter.data.User
 import com.example.chatter.ui.fragment.*
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
@@ -81,7 +82,7 @@ class SignInActivity : BaseChatActivity() {
 
     private var constraintSet = ConstraintSet()
 
-    private lateinit var auth: FirebaseAuth
+    lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
 
     val signInUserMessagesFragments =
@@ -165,7 +166,9 @@ class SignInActivity : BaseChatActivity() {
         top_bar_messaging_image_container.visibility = View.VISIBLE
         top_bar_title_desc.text = "Helper Monkey"
         top_bar_mic.visibility = View.INVISIBLE
-        home.setOnClickListener {
+        home.visibility = View.GONE
+        home_refresh.visibility = View.VISIBLE
+        home_refresh.setOnClickListener {
             refreshSignInFlow()
         }
     }
@@ -197,7 +200,11 @@ class SignInActivity : BaseChatActivity() {
             .commit()
     }
 
-    private fun loadAnimatedLoadingFragment(fragment: Fragment) {
+    fun loadLoadingFragment() {
+        loadAnimatedLoadingFragment(loadingAnimatedFragment)
+    }
+
+    fun loadAnimatedLoadingFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
             .replace(root_container.id, fragment)
@@ -522,26 +529,58 @@ class SignInActivity : BaseChatActivity() {
     }
 
     private fun signInExistingUser() {
-        retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Logging In")
-        loadRetrievingOptionsFragment()
-        auth.signInWithEmailAndPassword(username as String, password as String)
-            .addOnSuccessListener {
-                signIn()
-            }.addOnFailureListener {
-                removeRetrievingOptionsFragment()
-                loadSignInErrorFragment(it.localizedMessage)
-            }
-    }
-
-    fun signIn() {
-        setTimerTask("signIn", 2000, {
-            removeRetrievingOptionsFragment()
-            toggleRestartFlag(false)
-            startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+        //retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Logging In")
+        //loadRetrievingOptionsFragment()
+        setTimerTask("signingIn", 1000, {
+            loadAnimatedLoadingFragment(loadingAnimatedFragment)
+            setTimerTask("signingInInnerTask", 1000, {
+                auth.signInWithEmailAndPassword(username as String, password as String)
+                    .addOnSuccessListener {
+                        removeLoadingAnimatedFragment()
+                        signIn(it)
+                    }.addOnFailureListener {
+                        removeLoadingAnimatedFragment()
+                        loadSignInErrorFragment(it.localizedMessage)
+                    }
+            })
         })
     }
 
-    private fun removeLoadingAnimatedFragment() {
+    fun loginAutomatically() {
+        loadLoadingFragment()
+        setTimerTask("signingYouInAgain", 2000, {
+            removeLoadingAnimatedFragment()
+            val intent = Intent(this, HomeNavigationActivity::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        })
+    }
+
+    private fun signIn(authResult: AuthResult) {
+        authResult.user?.uid?.let {
+            val uid = it
+            val langListener = baseValueEventListener { dataSnapshot ->
+                val langName = dataSnapshot.child("languageName").value
+                val flagString = dataSnapshot.child("flagImg").value
+                var intent: Intent? = null
+                if (langName != null && flagString != null) {
+                    //Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
+                    intent = Intent(this@SignInActivity, HomeNavigationActivity::class.java)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                } else {
+                    //Toast.makeText(this, "failure", Toast.LENGTH_SHORT).show()
+                    intent =
+                        Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                startActivity(intent)
+            }
+            databaseReference.child("Users/${uid}/nativeLanguage")
+                .addListenerForSingleValueEvent(langListener)
+        }
+    }
+
+    fun removeLoadingAnimatedFragment() {
         supportFragmentManager.popBackStack()
         loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading ...")
     }
@@ -557,8 +596,15 @@ class SignInActivity : BaseChatActivity() {
         setTimerTask("signInAsGuest", 2000, {
             removeLoadingAnimatedFragment()
             toggleRestartFlag(false)
-            val intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
-            intent.putExtra("GUEST_MODE", true)
+            var intent: Intent? = null
+            if (preferences.getCurrentTargetLanguage()
+                    .isNotEmpty() && preferences.getCurrentTargetLanguageFlag().isNotEmpty()
+            ) {
+                intent = Intent(this@SignInActivity, HomeNavigationActivity::class.java)
+            } else {
+                intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
+            }
+            //intent.putExtra("GUEST_MODE", true)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         })

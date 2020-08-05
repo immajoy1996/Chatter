@@ -11,6 +11,7 @@
         android:layout_width="160dp"
         android:layout_height="160dp"
         android:background="@drawable/profile_item_disabled"
+        android:elevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

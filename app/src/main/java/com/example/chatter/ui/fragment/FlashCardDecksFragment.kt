@@ -90,8 +90,7 @@ class FlashCardDecksFragment : BaseFragment() {
                 botTitles,
                 botImages,
                 null,
-                botDescriptions,
-                null
+                botDescriptions
             )
         }
     }

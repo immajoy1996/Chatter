@@ -27,11 +27,7 @@ class GetStartedActivity : BaseActivity() {
 
     private fun setUpButtons() {
         get_started_button.setOnDebouncedClickListener {
-            if (auth.currentUser != null) {
-                startActivity(Intent(this, DashboardActivity::class.java))
-            } else {
-                startActivity(Intent(this, SignInActivity::class.java))
-            }
+            startActivity(Intent(this, SignInActivity::class.java))
         }
     }
 

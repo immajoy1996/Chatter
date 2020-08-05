@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.chatter.adapters.LanguageAdapter
 import com.example.chatter.extra.Preferences
 import com.example.chatter.R
+import com.example.chatter.data.NativeLanguage
 import com.example.chatter.interfaces.LanguageSelectedInterface
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -25,6 +26,7 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
         arrayListOf<String>()
 
     var selectedLang: String? = null
+    var selectedFlagImg: String? = null
 
     private val languageMap = HashMap<String, String>()
     private lateinit var auth: FirebaseAuth
@@ -63,24 +65,33 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
             this.finish()
         }
         button_next.setOnClickListener {
-            if (selectedLang != null && languageMap.containsKey(selectedLang as String)) {
+            if (selectedLang != null && selectedFlagImg != null && languageMap.containsKey(
+                    selectedLang as String
+                )
+            ) {
+                val langObject = NativeLanguage(
+                    languageMap[selectedLang as String] as String,
+                    selectedFlagImg as String
+                )
                 if (auth.currentUser != null) {
                     auth.currentUser?.uid?.let {
                         val uid = it
                         database.child("Users/${uid}").child("nativeLanguage")
-                            .setValue(languageMap[selectedLang as String]).addOnSuccessListener {
-                                Toast.makeText(this, "Selection Saved", Toast.LENGTH_LONG)
-                                val intent = Intent(this, DashboardActivity::class.java)
+                            .setValue(langObject).addOnSuccessListener {
+                                Toast.makeText(this, "Selection Saved", Toast.LENGTH_LONG).show()
+                                val intent = Intent(this, HomeNavigationActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 startActivity(intent)
                             }.addOnFailureListener {
                                 Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
                                     .show()
                             }
+
                     }
                 } else {
                     languageMap[selectedLang as String]?.let {
                         preferences.storeNativeLanguageSelection(it)
+                        preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
                         val intent = Intent(this, HomeNavigationActivity::class.java)
                         intent.putExtra("GUEST_MODE", true)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -122,28 +133,38 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
             //User signed in
             auth.currentUser?.let {
                 val uid = it.uid
-                if (selectedLang != null && languageMap.containsKey(selectedLang as String)) {
-                    languageMap[selectedLang as String]?.let {
-                        database.child("Users/${uid}").child("nativeLanguage").setValue(it)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "Changes Saved", Toast.LENGTH_LONG).show()
-                                finish()
-                            }.addOnFailureListener {
-                                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
-                                    .show()
-                            }
-                    }
+                if (selectedLang != null && selectedFlagImg != null && languageMap.containsKey(
+                        selectedLang as String
+                    )
+                ) {
+                    val langObject = NativeLanguage(
+                        languageMap[selectedLang as String] as String,
+                        selectedFlagImg as String
+                    )
+                    database.child("Users/${uid}").child("nativeLanguage").setValue(langObject)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Changes Saved", Toast.LENGTH_LONG).show()
+                            finish()
+                        }.addOnFailureListener {
+                            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                                .show()
+                        }
+                } else if (selectedLang == null || selectedFlagImg == null) {
+                    Toast.makeText(this, "Select a language", Toast.LENGTH_LONG).show()
+                } else {/*do nothing*/
                 }
             }
         } else {
             //Guest Mode
-            if (selectedLang != null && languageMap.containsKey(selectedLang as String)) {
-                languageMap[selectedLang as String]?.let {
-                    preferences.storeNativeLanguageSelection(it)
+            if (selectedLang != null && selectedFlagImg != null && languageMap.containsKey(
+                    selectedLang as String
+                )
+            ) {
+                    preferences.storeNativeLanguageSelection(languageMap[selectedLang as String] as String)
+                    preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
                     Toast.makeText(this, "Changes Saved", Toast.LENGTH_LONG).show()
                     finish()
-                }
-            } else if (selectedLang == null) {
+            } else if (selectedLang == null || selectedFlagImg == null) {
                 Toast.makeText(this, "Select a language", Toast.LENGTH_LONG).show()
             }
         }
@@ -210,8 +231,9 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
         }
     }
 
-    override fun onLanguageSelected(language: String) {
+    override fun onLanguageSelected(language: String, flagImg: String) {
         selectedLang = language
+        selectedFlagImg = flagImg
     }
 
     private fun placeLanguageAlphabetically(lang: String, flagImg: String) {

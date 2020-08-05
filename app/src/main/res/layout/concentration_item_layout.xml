@@ -4,6 +4,7 @@
     android:id="@+id/concentration_item_layout"
     android:layout_width="100dp"
     android:layout_height="85dp"
+    android:background="#ffffff"
     android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout

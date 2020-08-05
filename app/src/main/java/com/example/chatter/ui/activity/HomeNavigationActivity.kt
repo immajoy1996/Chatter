@@ -3,30 +3,107 @@ package com.example.chatter.ui.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.UserHandle
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.chatter.R
+import com.example.chatter.data.NativeLanguage
 import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.ui.fragment.FlashCardCategoriesFragment
 import com.example.chatter.ui.fragment.NavigationDrawerFragment
 import com.example.chatter.ui.fragment.QuizDescriptionFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_dashboard.*
 import kotlinx.android.synthetic.main.activity_home_navigation.*
 import kotlinx.android.synthetic.main.home_navigation_toolbar.*
 
 class HomeNavigationActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
     private var jokesFragment = QuizDescriptionFragment.newInstance(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_navigation)
         auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
         setUpButtons()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (auth.currentUser != null) {
+            //User signed in
+            auth.currentUser?.let {
+                val uid = it.uid
+                val homeNavListener = baseValueEventListener { dataSnapshot ->
+                    val level = dataSnapshot.child("level").value
+                    val userHandle = dataSnapshot.child("email").value
+                    val points = dataSnapshot.child("points").value
+                    val profileImg = dataSnapshot.child("profileImage").value
+                    val flagImg = dataSnapshot.child("nativeLanguage").child("flagImg").value
+
+                    level?.let {
+                        setUpLevel(it.toString())
+                    }
+                    userHandle?.let {
+                        setUpUserHandle(it.toString())
+                    }
+                    points?.let {
+                        setUpPoints(it.toString())
+                    }
+                    profileImg?.let {
+                        setUpProfileImage(it.toString())
+                    }
+                    flagImg?.let {
+                        setUpFlagImage(it.toString())
+                    }
+                }
+                database.child("Users/${uid}").addListenerForSingleValueEvent(homeNavListener)
+            }
+        } else {
+            if (preferences.getCurrentTargetLanguageFlag().isNotEmpty()) {
+                setUpFlagImage(preferences.getCurrentTargetLanguageFlag())
+            }
+            if(preferences.getProfileImage().isNotEmpty()){
+                setUpProfileImage(preferences.getProfileImage())
+            }
+        }
+    }
+
+    private fun setUpLevel(level: String) {
+        home_activity_level.text = level
+    }
+
+    private fun setUpUserHandle(userHandle: String) {
+        top_bar_title_desc.text = userHandle.substringBefore("@gmail.com")
+    }
+
+    private fun setUpPoints(points: String) {
+        home_bar_coin_total.text = points
+    }
+
+    private fun setUpProfileImage(profileImage: String) {
+        top_bar_bot_image?.let {
+            Glide.with(this)
+                .load(profileImage)
+                .into(it)
+        }
+    }
+
+    private fun setUpFlagImage(langImage: String) {
+        home_bar_flag?.let {
+            Glide.with(this)
+                .load(langImage)
+                .into(it)
+        }
     }
 
     fun loadFragment(fragment: Fragment) {

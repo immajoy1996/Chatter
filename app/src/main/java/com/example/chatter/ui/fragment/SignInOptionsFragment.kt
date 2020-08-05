@@ -1,5 +1,6 @@
 package com.example.chatter.ui.fragment
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.example.chatter.R
+import com.example.chatter.ui.activity.HomeNavigationActivity
 import com.example.chatter.ui.activity.SignInActivity
 import kotlinx.android.synthetic.main.fragment_sign_in_options.*
 
@@ -39,9 +41,14 @@ class SignInOptionsFragment : Fragment() {
     private fun setUpButtons() {
         sign_in.setOnClickListener {
             (activity as? SignInActivity)?.let {
-                it.setScenario(SIGN_IN)
-                it.setUserAndBotResponseArrays()
-                it.runMessageFlow(sign_in.text.toString())
+                if (it.auth.currentUser != null) {
+                    //already signed in
+                    it.loginAutomatically()
+                } else {
+                    it.setScenario(SIGN_IN)
+                    it.setUserAndBotResponseArrays()
+                    it.runMessageFlow(sign_in.text.toString())
+                }
             }
         }
         sign_up.setOnClickListener {

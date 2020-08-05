@@ -83,6 +83,10 @@ class Preferences(val context: Context) {
         sharedPreferences.edit().putString("native_language", lang).apply()
     }
 
+    fun storeNativeLanguageFlagSelection(flag: String) {
+        sharedPreferences.edit().putString("native_language_flag", flag).apply()
+    }
+
     fun storeProfileImageSelection(imagePath: String) {
         sharedPreferences.edit().putString("profile_image", imagePath).apply()
     }
@@ -93,6 +97,10 @@ class Preferences(val context: Context) {
 
     fun getCurrentTargetLanguage(): String {
         return sharedPreferences.getString("native_language", "") ?: ""
+    }
+
+    fun getCurrentTargetLanguageFlag(): String {
+        return sharedPreferences.getString("native_language_flag", "") ?: ""
     }
 
     fun getCurrentScore(): Int {

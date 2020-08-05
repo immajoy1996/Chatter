@@ -43,7 +43,7 @@ class LanguageAdapter(
 
     private fun selectLanguageItem(position: Int) {
         selectedPos = position
-        languageSelectedInterface?.onLanguageSelected(nations[selectedPos])
+        languageSelectedInterface?.onLanguageSelected(nations[selectedPos], flags[selectedPos])
         categorySelectionInterface?.onCategorySelected(nations[selectedPos])
         notifyDataSetChanged()
     }

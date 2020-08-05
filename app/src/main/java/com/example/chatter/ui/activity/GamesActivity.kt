@@ -3,21 +3,30 @@ package com.example.chatter.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.FlashCardDecksAdapter
+import com.example.chatter.data.MultipleChoiceQuestion
+import com.example.chatter.data.QuestionList
 import com.example.chatter.interfaces.ConcentrationGameClickedInterface
+import com.example.chatter.interfaces.MultipleChoiceClickedInterface
+import com.example.chatter.ui.fragment.LoadingAnimatedFragment
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.sun.mail.imap.protocol.FLAGS
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_games.*
 import kotlinx.android.synthetic.main.top_bar.*
 
-class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface {
+
+class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
+    MultipleChoiceClickedInterface {
     private var botTitles = arrayListOf<String>()
     private var botImages = arrayListOf<String>()
     private var gamesImages = arrayListOf<Int>()
     private var botDescriptions = arrayListOf<String>()
+    private var loadingAnimatedFragment = LoadingAnimatedFragment()
+    private var multipleChoiceQuestions = arrayListOf<MultipleChoiceQuestion>()
 
     private lateinit var database: DatabaseReference
 
@@ -38,6 +47,14 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface {
         home.visibility = View.GONE
         top_bar_title.text = "Games!"
         top_bar_title.visibility = View.VISIBLE
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(games_root_layout.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
     }
 
     private fun setUpGamesRecycler() {
@@ -74,6 +91,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface {
             gamesImages,
             botDescriptions,
             true,
+            this,
             this
         )
     }
@@ -101,7 +119,80 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface {
         })
     }
 
+    private fun loadMultipleChoiceQuestions() {
+        if (multipleChoiceQuestions.size < MAX_QUESTIONS) {
+            database.child(MULTIPLE_CHOICE_PATH).addChildEventListener(baseChildEventListener {
+                val questionTitle = it.child("questionTitle").value.toString()
+                val question = it.child("question").value
+                val answer1 = it.child("answer1").value.toString()
+                val answer2 = it.child("answer2").value.toString()
+                val answer3 = it.child("answer3").value.toString()
+                val correctAnswer = it.child("correctAnswer").value.toString().toInt()
+                val questionType = it.child("questionType").value.toString()
+                val image = it.child("image").value
+                if (questionType == "imageQuestion") {
+                    image?.let {
+                        multipleChoiceQuestions.add(
+                            MultipleChoiceQuestion(
+                                questionTitle,
+                                null,
+                                answer1,
+                                answer2,
+                                answer3,
+                                correctAnswer,
+                                questionType,
+                                it.toString()
+                            )
+                        )
+                    }
+                } else {
+                    question?.let {
+                        multipleChoiceQuestions.add(
+                            MultipleChoiceQuestion(
+                                questionTitle,
+                                it.toString(),
+                                answer1,
+                                answer2,
+                                answer3,
+                                correctAnswer,
+                                questionType,
+                                null
+                            )
+                        )
+                    }
+                }
+                if (multipleChoiceQuestions.size >= MAX_QUESTIONS) {
+                    removeLoadingFragment()
+                    val intent = Intent(this, MultipleChoiceActivity::class.java)
+                    intent.putExtra(
+                        "quizQuestions",
+                        Gson().toJson(QuestionList(multipleChoiceQuestions))
+                    )
+                    startActivity(intent)
+                }
+            })
+        } else {
+            removeLoadingFragment()
+            val intent = Intent(this, MultipleChoiceActivity::class.java)
+            intent.putExtra("quizQuestions", Gson().toJson(QuestionList(multipleChoiceQuestions)))
+            startActivity(intent)
+        }
+    }
+
+    private fun removeLoadingFragment() {
+        supportFragmentManager.popBackStack()
+    }
+
+    override fun onMultipleChoiceClicked() {
+        loadFragment(loadingAnimatedFragment)
+        setTimerTask("loadingMultipleChoice", 500L, {
+            loadMultipleChoiceQuestions()
+        })
+    }
+
     companion object {
         private const val NUM_BOTS = 9
+        private const val MULTIPLE_CHOICE_PATH = "Games/MultipleChoice/Easy/"
+        private const val MAX_QUESTIONS = 2
     }
 }

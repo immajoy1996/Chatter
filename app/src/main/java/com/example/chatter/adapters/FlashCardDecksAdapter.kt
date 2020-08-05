@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.interfaces.ConcentrationGameClickedInterface
+import com.example.chatter.interfaces.MultipleChoiceClickedInterface
 import kotlinx.android.synthetic.main.flashcard_decks_layout.view.*
 
 class FlashCardDecksAdapter(
@@ -22,7 +23,8 @@ class FlashCardDecksAdapter(
     var gameImages: ArrayList<Int>? = null,
     var botDescriptions: ArrayList<String>,
     var isGameFragment: Boolean? = null,
-    var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null
+    var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null,
+    var multipleChoiceClickedInterface: MultipleChoiceClickedInterface? = null
 ) :
     RecyclerView.Adapter<FlashCardDecksAdapter.FlashCardLevelsViewHolder>() {
 
@@ -114,6 +116,9 @@ class FlashCardDecksAdapter(
             when (gameTitle) {
                 "Concentration" -> {
                     concentrationGameClickedInterface?.onConcentrationGameClicked()
+                }
+                "Multiple Choice" -> {
+                    multipleChoiceClickedInterface?.onMultipleChoiceClicked()
                 }
             }
         }
