@@ -7,15 +7,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.ui.activity.ChatterActivity
 import com.example.chatter.ui.activity.DashboardActivity
+import com.example.chatter.ui.activity.DashboardActivity.Companion.BOT_TITLE
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_bot_story.*
 import kotlinx.android.synthetic.main.top_bar.*
 
-class BotStoryFragment : Fragment() {
+class BotStoryFragment : BaseFragment() {
+
+    private lateinit var database: DatabaseReference
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,10 +32,57 @@ class BotStoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
         setUpBottomNavBar()
         setUpViews()
+        setUpBotImageAnimation()
     }
+
+    private fun setUpViews() {
+        val botTitle = activity?.intent?.getStringExtra(BOT_TITLE)
+        botTitle?.let {
+            setUpBotTitle(it)
+        }
+        botTitle?.let {
+            val botListener = baseValueEventListener { dataSnapshot ->
+                val level = dataSnapshot.child("level").value
+                val desc = dataSnapshot.child("botDescription").value
+                val image = dataSnapshot.child("botImage").value
+                level?.let {
+                    setUpLevel(it.toString())
+                }
+                desc?.let {
+                    setUpBotDescription(it.toString())
+                }
+                image?.let {
+                    setUpBotImage(it.toString())
+                }
+            }
+            database.child("BotCatalog").child(it).addListenerForSingleValueEvent(botListener)
+        }
+    }
+
+    private fun setUpLevel(level: String) {
+        bot_story_bot_level.text = level
+    }
+
+    private fun setUpBotDescription(botDesc: String) {
+        bot_story_bot_desc.text = botDesc
+    }
+
+    private fun setUpBotImage(image: String) {
+        context?.let {
+            Glide.with(it)
+                .load(image)
+                .into(bot_story_bot_image)
+        }
+    }
+
+    private fun setUpBotTitle(title: String) {
+        bot_story_bot_name.text = title
+    }
+
 
     private fun setUpTopBar() {
         home.visibility = View.GONE
@@ -54,7 +107,7 @@ class BotStoryFragment : Fragment() {
         }
     }
 
-    private fun setUpViews() {
+    private fun setUpBotImageAnimation() {
         val wobbleX =
             AnimationUtils.loadAnimation(context, R.anim.wobble_forever_xaxis)
         val wobbleY =

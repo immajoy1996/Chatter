@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.VocabAdapter
 import com.example.chatter.data.Expression
+import com.example.chatter.data.Vocab
 import com.example.chatter.interfaces.SubmitExpressionInterface
 import com.example.chatter.ui.activity.BaseActivity
 import com.example.chatter.ui.activity.BaseChatActivity
@@ -24,16 +25,11 @@ import kotlin.math.exp
 class VocabFragment : BaseFragment(), SubmitExpressionInterface {
     private val expressions = arrayListOf<String>()
     private val definitions = arrayListOf<String>()
+    private var vocabArray = arrayListOf<Vocab>()
     private lateinit var vocabAdapter: VocabAdapter
     private lateinit var database: DatabaseReference
 
-    private var searchSpanishWords = arrayListOf<String>()
-    private var searchTranslations = arrayListOf<String>()
-    private var searchTransliterations = arrayListOf<String>()
-    private var searchAudioSrc = arrayListOf<String>()
-
     private var chatterActivity: BaseChatActivity? = null
-    private var isMicActive = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,14 +52,22 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
     }
 
     private fun setUpTopBar() {
-        vocabl_search_title.text = "Expressions"
-        vocab_screen_home.setOnLongClickListener {
+        vocabl_search_title.text = "Vocab"
+        top_bar.setOnLongClickListener {
             if (vocab_top_bar_plus_button.visibility == View.VISIBLE) {
                 vocab_top_bar_plus_button.visibility = View.INVISIBLE
-            }else{
+            } else {
                 vocab_top_bar_plus_button.visibility = View.VISIBLE
             }
             true
+        }
+        vocab_screen_back.setOnClickListener {
+            fragmentManager?.popBackStack()
+            if (activity is ChatterActivity) {
+                (activity as? ChatterActivity)?.loadOptionsMenu()
+            } else if (activity is CreateChatActivity) {
+                (activity as? CreateChatActivity)?.loadOptionsMenu()
+            }
         }
         if (activity is CreateChatActivity) {
             vocab_top_bar_plus_button.visibility = View.VISIBLE
@@ -74,13 +78,11 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
     }
 
     private fun addEditableExpressionToRecycler() {
-        expressions.add(0, "")
-        definitions.add(0, "")
+        vocabArray.add(0, Vocab("", "", null, null))
         context?.let {
             vocab_recycler.adapter = VocabAdapter(
                 it,
-                expressions,
-                definitions,
+                vocabArray,
                 if (activity is ChatterActivity) activity as ChatterActivity else activity as CreateChatActivity,
                 this
             )
@@ -88,24 +90,17 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
     }
 
     private fun setUpNavButtons() {
-        button_back.setOnClickListener {
-            fragmentManager?.popBackStack()
-            if (activity is ChatterActivity) {
-                (activity as? ChatterActivity)?.loadOptionsMenu()
-            } else if (activity is CreateChatActivity) {
-                (activity as? CreateChatActivity)?.loadOptionsMenu()
-            }
-        }
-        button_next.text = "Finish"
-        button_next.setOnClickListener {
-            chatterActivity?.toggleRestartFlag(false)
+        button_back.visibility = View.GONE
+        button_next.visibility = View.GONE
+        button_start.visibility = View.VISIBLE
+        button_start.text = "Finish"
+        button_start.setOnClickListener {
             activity?.finish()
         }
     }
 
     private fun resetArrays() {
-        expressions.clear()
-        definitions.clear()
+        vocabArray.clear()
     }
 
     private fun setUpVocabRecycler() {
@@ -119,13 +114,29 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
         val vocabListener = baseChildEventListener { dataSnapshot ->
             val newExpression = dataSnapshot.child(EXPRESSION).value.toString()
             val newDefinition = dataSnapshot.child(DEFINITION).value.toString()
-            placeExpressionAlphabetically(newExpression, newDefinition)
+            val newImage = dataSnapshot.child(IMAGE).value
+            val newFlashcardType = dataSnapshot.child(FLASHCARD_TYPE).value
 
+            var vocabImage: String? = null
+            var flashcardType: String? = null
+            newImage?.let {
+                vocabImage = it.toString()
+            }
+            newFlashcardType?.let {
+                flashcardType = it.toString()
+            }
+            placeExpressionAlphabetically(
+                Vocab(
+                    newExpression,
+                    newDefinition,
+                    vocabImage,
+                    flashcardType
+                )
+            )
             context?.let {
                 vocabAdapter = VocabAdapter(
                     it,
-                    expressions,
-                    definitions,
+                    vocabArray,
                     if (activity is ChatterActivity) activity as ChatterActivity else activity as CreateChatActivity,
                     this
                 )
@@ -135,18 +146,16 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
         pathReference.addChildEventListener(vocabListener)
     }
 
-    private fun placeExpressionAlphabetically(expression: String, definition: String) {
+    private fun placeExpressionAlphabetically(vocabItem: Vocab) {
         var index = 0
-        for (item in expressions) {
-            if (expression.compareTo(item) < 0) {
-                expressions.add(index, expression)
-                definitions.add(index, definition)
+        for (item in vocabArray) {
+            if (vocabItem.expression.toLowerCase().compareTo(item.expression.toLowerCase()) < 0) {
+                vocabArray.add(index, vocabItem)
                 return
             }
             index++
         }
-        expressions.add(expression)
-        definitions.add(definition)
+        vocabArray.add(vocabItem)
     }
 
     override fun onSubmitExpressionClicked(expression: String, definition: String) {
@@ -178,6 +187,8 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
     companion object {
         private const val EXPRESSION = "expression"
         private const val DEFINITION = "definition"
+        private const val FLASHCARD_TYPE = "flashcardType"
+        private const val IMAGE = "image"
         private const val TRANSLITERATION = "transliteration"
         private const val AUDIO = "audio"
         private const val VOCAB = "Vocab/"

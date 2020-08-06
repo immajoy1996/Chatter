@@ -6,15 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.chatter.R
+import com.example.chatter.data.Vocab
 import com.example.chatter.interfaces.ExpressionClickInterface
 import com.example.chatter.interfaces.SubmitExpressionInterface
 import kotlinx.android.synthetic.main.vocab_item_view.view.*
 
 class VocabAdapter(
     val context: Context,
-    var expressions: ArrayList<String>,
-    var definitions: ArrayList<String>,
+    var vocabArray: ArrayList<Vocab>,
     var expressionClickInterface: ExpressionClickInterface,
     var submitExpressionInterface: SubmitExpressionInterface
 ) :
@@ -31,17 +32,16 @@ class VocabAdapter(
     }
 
     override fun onBindViewHolder(holder: VocabViewHolder, position: Int) {
-        val expression = expressions[position]
-        val definition = definitions[position]
-        holder.bind(expression, definition)
+        val vocabItem = vocabArray[position]
+        holder.bind(vocabItem)
     }
 
-    override fun getItemCount(): Int = expressions.size
+    override fun getItemCount(): Int = vocabArray.size
 
     inner class VocabViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        fun bind(expression: String, definition: String) {
-            if (expression.isEmpty() && definition.isEmpty()) {
+        fun bind(vocabItem: Vocab) {
+            if (vocabItem.expression.isEmpty() && vocabItem.definition.isEmpty()) {
                 itemView.vocab_real_layout.visibility = View.GONE
                 itemView.vocab_editable_layout.visibility = View.VISIBLE
                 itemView.editable_close_button.setOnClickListener {
@@ -64,17 +64,21 @@ class VocabAdapter(
             } else {
                 itemView.vocab_real_layout.visibility = View.VISIBLE
                 itemView.vocab_editable_layout.visibility = View.GONE
-                itemView.spanish_word.text = expression
-                itemView.translation.text = definition
+                itemView.spanish_word.text = vocabItem.expression
+                itemView.translation.text = vocabItem.definition
+                vocabItem.image?.let {
+                    Glide.with(context)
+                        .load(it)
+                        .into(itemView.vocab_image)
+                }
                 itemView.setOnClickListener {
-                    expressionClickInterface.onExpressionClicked(expression)
+                    expressionClickInterface.onExpressionClicked(vocabItem.expression)
                 }
             }
         }
 
         private fun closeEditableSection() {
-            expressions.removeAt(0)
-            definitions.removeAt(0)
+            vocabArray.removeAt(0)
             notifyDataSetChanged()
         }
     }

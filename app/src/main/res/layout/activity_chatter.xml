@@ -17,14 +17,14 @@
         android:id="@+id/messagingScrollView"
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        app:layout_constraintTop_toBottomOf="@id/top_bar">
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/messagesInnerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:clickable="true"
             android:padding="10dp">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -36,9 +36,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/three_buttons_background"
+        android:fontFamily="@font/avenir_next"
         android:gravity="center"
         android:padding="5dp"
-        android:fontFamily="@font/avenir_next"
         android:text="Hold down chat bubble for options"
         android:textColor="#696969"
         app:layout_constraintEnd_toEndOf="parent"

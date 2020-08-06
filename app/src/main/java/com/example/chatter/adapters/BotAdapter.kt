@@ -22,7 +22,8 @@ class BotAdapter(
     val context: Context,
     var imageList: ArrayList<String>,
     var botTitles: ArrayList<String>,
-    var isGuestModeEnabled: ArrayList<Boolean>
+    var isGuestModeEnabled: ArrayList<Boolean>,
+    var levelList: ArrayList<String>
 ) :
     RecyclerView.Adapter<BotAdapter.BotViewHolder>() {
 
@@ -39,8 +40,9 @@ class BotAdapter(
     override fun onBindViewHolder(holder: BotViewHolder, position: Int) {
         val imagePath = imageList[position]
         val title = botTitles[position]
-        var isAllowedInGuestMode = isGuestModeEnabled[position]
-        holder.bind(imagePath, title, isAllowedInGuestMode)
+        val isAllowedInGuestMode = isGuestModeEnabled[position]
+        val botLevel = levelList[position]
+        holder.bind(imagePath, title, isAllowedInGuestMode, botLevel)
     }
 
     override fun getItemCount(): Int = botTitles.size
@@ -60,7 +62,7 @@ class BotAdapter(
             botLockedImage = view.bot_locked_image
         }
 
-        fun bind(imagePath: String, title: String, isEnabled: Boolean) {
+        fun bind(imagePath: String, title: String, isEnabled: Boolean, botLevel: String) {
             val aniShakeForever = AnimationUtils.loadAnimation(
                 context,
                 R.anim.shake_forever
@@ -73,6 +75,7 @@ class BotAdapter(
             if (Math.random() > .5) {
                 animPicked = aniWobbleForever
             }
+            itemView.bot_level.text = botLevel
             botImage?.startAnimation(animPicked)
             botImage?.let {
                 Glide.with(context)

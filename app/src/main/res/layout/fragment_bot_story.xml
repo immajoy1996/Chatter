@@ -15,7 +15,6 @@
         android:layout_height="160dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
-        android:src="@drawable/business_profile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_bar" />
 
@@ -23,12 +22,12 @@
         android:id="@+id/bot_story_bot_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
         android:layout_marginStart="5dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="5dp"
         android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:text="Helper Monkey"
         android:textColor="#000000"
         android:textSize="40sp"
         android:textStyle="bold"
@@ -43,31 +42,29 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:text="Level 9"
-        android:textColor="#696969"
+        android:textColor="#000000"
         android:textSize="20sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@id/bot_story_bot_image"
         app:layout_constraintStart_toStartOf="@id/bot_story_bot_image"
         app:layout_constraintTop_toBottomOf="@id/bot_story_bot_image" />
+
 
     <TextView
         android:id="@+id/bot_story_bot_desc"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="10dp"
         android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:text="Helper Monkey is the friendliest bot you'll ever meet. He started out in a zoo but soon grew bored of that and wanted something new. Now he assists English learners on the Chatter app."
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="normal"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bot_story_bot_level" />
-
 
     <include
         android:id="@+id/story_board_bottom_nav"

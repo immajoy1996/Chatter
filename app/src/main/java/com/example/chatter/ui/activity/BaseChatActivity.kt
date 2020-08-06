@@ -100,7 +100,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
                 }
             }
             ).start()
-            Toast.makeText(this, "Translate api success", Toast.LENGTH_SHORT).show()
         }.addOnFailureListener {
             Toast.makeText(this, "Translate api failed", Toast.LENGTH_SHORT).show()
         }

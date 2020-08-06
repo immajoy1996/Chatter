@@ -121,10 +121,13 @@ class ChatterActivity : BaseChatActivity(),
         setUpNavButtons()
         setUpWordByWordRecycler()
         loadBotStoryFragment()
+        setUpDismissTranslatePopup()
     }
 
-    override fun onUserInteraction() {
-        dismissThreeImagesViewIfVisible()
+    private fun setUpDismissTranslatePopup(){
+        messagesInnerLayout.setOnClickListener {
+            dismissThreeImagesViewIfVisible()
+        }
     }
 
     private fun setUpDimensions() {
@@ -175,7 +178,7 @@ class ChatterActivity : BaseChatActivity(),
     override fun showFirstBotMessage() {
         currentPath = "$BOT_CONVERSATIONS/$botTitle/"
         val pathReference = database.child(currentPath.plus("botMessage"))
-        disableNextButton()
+        //disableNextButton()
         val messageListener = baseValueEventListener { dataSnapshot ->
             val botMessage = dataSnapshot.value.toString()
             handleNewMessageLogic(botMessage)
@@ -268,7 +271,7 @@ class ChatterActivity : BaseChatActivity(),
 
     private fun getBotResponse(path: String) {
         val pathReference = database.child(path.plus("/botMessage"))
-        disableNextButton()
+        //disableNextButton()
         val messageListener = baseValueEventListener { dataSnapshot ->
             val botMessage = dataSnapshot.value.toString()
             setTimerTask("showBotIsTyping", 700, {
@@ -315,9 +318,11 @@ class ChatterActivity : BaseChatActivity(),
             finish()
         }
         button_next.setOnClickListener {
-            disposeListeners()
-            supportFragmentManager.popBackStack()
-            loadVocabFragment()
+            if (!retrievingOptionsFragment.isVisible) {
+                disposeListeners()
+                supportFragmentManager.popBackStack()
+                loadVocabFragment()
+            }
         }
     }
 
@@ -410,7 +415,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     fun loadOptionsMenu() {
-        disableNextButton()
+        //disableNextButton()
         loadRetrievingOptionsFragment()
         setTimerTask("loadMessageOptionsFragment", 2000, {
             removeRetrievingOptionsFragment()
@@ -638,12 +643,9 @@ class ChatterActivity : BaseChatActivity(),
             val messageText = textView.text.toString()
             readMessageBubble(messageText)*/
             //Toast.makeText(this, "" + textView.id, Toast.LENGTH_SHORT).show()
+            dismissThreeImagesViewIfVisible()
             val msgCount = textView.id / 10
             arrayOpenBubbleMsgCounts.add(msgCount)
-            //val threeImagesView = findViewById<ConstraintLayout>(1000 * msgCount + 7)
-            //if (threeImagesView.visibility == View.GONE) {
-            //showThreeButtonsView(threeImagesView.id)
-            //}
             setUpThreeButtonsView(msgCount)
             setUpWordByWordImageInThreeButtonsView(msgCount)
             setUpAudioImageInThreeButtonsView(msgCount)
@@ -781,6 +783,15 @@ class ChatterActivity : BaseChatActivity(),
             setImageResource(R.drawable.translate_circular)
         }
         addViewToLayout(translateImageView)
+        translateImageView.setOnClickListener {
+            val msgId = 10 * msgCount
+            val textView = findViewById<TextView>(msgId)
+            val otherView = findViewById<TextView>(msgId + 9)
+            val str1 = textView.text.toString()
+            textView.text = otherView.text.toString()
+            otherView.text = str1
+            dismissThreeImagesViewIfVisible()
+        }
         val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView(msgCount))
         val wordByWordImage = findViewById<ImageView>(getIdWordByWordImage(msgCount))
         val aniWobble = AnimationUtils.loadAnimation(this@ChatterActivity, R.anim.shake_forever)
@@ -824,6 +835,12 @@ class ChatterActivity : BaseChatActivity(),
             setImageResource(R.drawable.audio_circular)
         }
         addViewToLayout(translateImageView)
+        translateImageView.setOnClickListener {
+            val msgId = 10 * msgCount
+            val textView = findViewById<TextView>(msgId)
+            letBearSpeak(textView.text.toString())
+            dismissThreeImagesViewIfVisible()
+        }
         val aniWobble = AnimationUtils.loadAnimation(this, R.anim.shake_forever)
         translateImageView.startAnimation(aniWobble)
         val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView(msgCount))

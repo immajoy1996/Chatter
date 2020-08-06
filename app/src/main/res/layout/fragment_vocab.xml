@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#dcdcdc"
+    android:background="#ffffff"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragment.VocabFragment">
 
@@ -11,11 +11,27 @@
         android:id="@+id/top_bar"
         layout="@layout/vocab_search_bar" />
 
+    <TextView
+        android:id="@+id/vocab_instructions_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/three_buttons_background"
+        android:gravity="center"
+        android:padding="5dp"
+        android:fontFamily="@font/avenir_next"
+        android:text="Tap for audio"
+        android:textColor="#696969"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar">
+
+    </TextView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/vocab_recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintTop_toBottomOf="@id/vocab_instructions_text"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
         />
 

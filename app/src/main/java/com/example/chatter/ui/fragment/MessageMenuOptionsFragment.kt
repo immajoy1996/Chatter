@@ -51,7 +51,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
     }
 
     private fun makeLayoutVisible() {
-        options_menu_layout.visibility = View.VISIBLE
+        options_menu_layout?.visibility = View.VISIBLE
         conversation_end_message.visibility = View.GONE
     }
 

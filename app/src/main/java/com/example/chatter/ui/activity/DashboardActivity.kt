@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_dashboard.*
 import kotlinx.android.synthetic.main.activity_quiz.*
 import kotlinx.android.synthetic.main.activity_sign_in.*
+import kotlinx.android.synthetic.main.bot_layout.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 class DashboardActivity : BaseActivity(),
@@ -66,6 +67,9 @@ class DashboardActivity : BaseActivity(),
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
+        setUpTargetLanguage()
+        setUpBotGridView()
+        loadBots()
     }
 
     override fun setUpTopBar() {
@@ -211,7 +215,8 @@ class DashboardActivity : BaseActivity(),
             this,
             imageList,
             titleList,
-            isEnabledInGuestMode
+            isEnabledInGuestMode,
+            levelList
         )
         dashboard_recycler.adapter = botAdapter
         /*botItemSpacing?.let {
@@ -285,37 +290,32 @@ class DashboardActivity : BaseActivity(),
             val botTitle = it.child("botTitle").value.toString()
             val botCategory = it.child("category").value.toString()
             val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
-            /*if (retrievingOptionsFragment.isVisible) {
-                removeLoadingProgress()
-            }*/
             if (loadingAnimatedFragment.isVisible) {
                 removeLoadingAnimatedFragment()
             }
+            var botLevel = it.child("level").value
+            if (botLevel == null) {
+                botLevel = "Hard"
+            } else {
+                botLevel = it.child("level").value.toString()
+            }
             if (auth.currentUser != null) {
-                val pointsNeeded = it.child("pointsNeeded").value as Long?
                 auth.currentUser?.uid?.let {
-                    val pointsRef = database.child(USERS.plus(it)).child("points")
-                    val pointsListener = baseValueEventListener { dataSnapshot ->
-                        val userPoints = dataSnapshot.value as Long
+                    val levelRef = database.child(USERS.plus(it)).child("level")
+                    val levelListener = baseValueEventListener { dataSnapshot ->
+                        val userLevel = dataSnapshot.value.toString()
                         var botEnabled = true
-                        pointsNeeded?.let {
-                            if (it > userPoints) {
-                                botEnabled = false
-                            }
+                        if (botLevel.compareTo(userLevel) > 0) {
+                            botEnabled = false
                         }
-                        handleNewBot(botImage, botTitle, botCategory, botEnabled)
+                        handleNewBot(botImage, botTitle, botCategory, botEnabled, botLevel)
                         setBotAdapter()
-                        if (countEnabled > totalEnabled && totalEnabled != -1 && !newBotsAcquiredMessageShown) {
-                            loadNewBotsAquiredFragment()
-                            newBotsAcquiredMessageShown = true
-                        }
-                        preferences.storeCountEnabledBots(countEnabled)
                     }
-                    pointsRef.addListenerForSingleValueEvent(pointsListener)
+                    levelRef.addListenerForSingleValueEvent(levelListener)
                 }
             } else {
                 val botEnabled = isEnabledGuest
-                handleNewBot(botImage, botTitle, botCategory, botEnabled)
+                handleNewBot(botImage, botTitle, botCategory, botEnabled, botLevel)
                 setBotAdapter()
                 removeLoadingAnimatedFragment()
             }
@@ -327,7 +327,8 @@ class DashboardActivity : BaseActivity(),
             this,
             imageList,
             titleList,
-            isEnabledInGuestMode
+            isEnabledInGuestMode,
+            levelList
         )
         dashboard_recycler.adapter = botAdapter
     }
@@ -336,20 +337,21 @@ class DashboardActivity : BaseActivity(),
         botImage: String,
         botTitle: String,
         botCategory: String,
-        botEnabled: Boolean
+        botEnabled: Boolean,
+        botLevel: String
     ) {
         if (botEnabled) {
-            if (countEnabled == -1) countEnabled = 0
-            countEnabled++
             imageList.add(0, botImage)
             titleList.add(0, botTitle)
             categoryList.add(0, botCategory)
             isEnabledInGuestMode.add(0, botEnabled)
+            levelList.add(0, botLevel)
         } else {
             imageList.add(botImage)
             titleList.add(botTitle)
             categoryList.add(botCategory)
             isEnabledInGuestMode.add(botEnabled)
+            levelList.add(botLevel)
         }
     }
 
@@ -370,51 +372,29 @@ class DashboardActivity : BaseActivity(),
         mediaPlayer.start()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (enableMusic) {
-            playMedia("dfd")
-        }
-        countEnabled = 0
-        totalEnabled = preferences.getEnabledBotCount()
-        newBotsAcquiredMessageShown = false
-        if (!navigationDrawerFragment.isVisible && targetBotCategory == "All Bots") {
-            setUpBotGridView()
-            loadBots()
-        }
-        if (top_bar_plus_button.visibility == View.VISIBLE) {
-            top_bar_plus_button.visibility = View.GONE
-        }
+    private fun setUpTargetLanguage() {
         if (auth.currentUser != null) {
             auth.currentUser?.uid?.let {
                 val uid = it
-                val languagePathRef = database.child("Users/${uid}").child("nativeLanguage")
+                val languagePathRef =
+                    database.child("Users/${uid}").child("nativeLanguage").child("languageName")
                 val langListener = baseValueEventListener { dataSnapshot ->
                     targetLanguage = dataSnapshot.value.toString()
-                    if (navigationDrawerFragment.isVisible) {
-                        navigationDrawerFragment.setUpLanguageTextField(targetLanguage)
-                    }
                 }
                 languagePathRef.addListenerForSingleValueEvent(langListener)
-
-                val profilePathRef = database.child("Users/${uid}").child("profileImage")
-                val profileListener = baseValueEventListener { dataSnapshot ->
-                    val targetProfile = dataSnapshot.value.toString()
-                    if (navigationDrawerFragment.isVisible) {
-                        navigationDrawerFragment.setUpProfileImage(targetProfile)
-                    }
-                }
-                profilePathRef.addListenerForSingleValueEvent(profileListener)
             }
         } else {
             targetLanguage = preferences.getCurrentTargetLanguage()
-            val targetProfileImage = preferences.getProfileImage()
-            if (navigationDrawerFragment.isVisible) {
-                navigationDrawerFragment.setUpLanguageTextField(targetLanguage)
-                navigationDrawerFragment.setUpProfileImage(targetProfileImage)
-            }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (top_bar_plus_button.visibility == View.VISIBLE) {
+            top_bar_plus_button.visibility = View.GONE
+        }
+    }
+
 
     override fun onBackPressed() {
         //not implemented
@@ -428,9 +408,6 @@ class DashboardActivity : BaseActivity(),
                 selectedCategory?.let {
                     showBotsBasedOnCategory(it)
                     targetBotCategory = it
-                    /*if (navigationDrawerFragment.isVisible) {
-                        navigationDrawerFragment.setUpBotCategoryTextField(it)
-                    }*/
                 }
             }
         }
@@ -440,11 +417,13 @@ class DashboardActivity : BaseActivity(),
         val newTitleList = arrayListOf<String>()
         val newImageList = arrayListOf<String>()
         val newIsEnabledGuestList = arrayListOf<Boolean>()
+        val newLevelList = arrayListOf<String>()
         for (index in 0 until categoryList.size) {
             if (categoryList[index] == category || category == "All Bots") {
                 newTitleList.add(titleList[index])
                 newImageList.add(imageList[index])
                 newIsEnabledGuestList.add(isEnabledInGuestMode[index])
+                newLevelList.add(levelList[index])
             }
         }
         val botAdapter =
@@ -452,9 +431,14 @@ class DashboardActivity : BaseActivity(),
                 this,
                 newImageList,
                 newTitleList,
-                newIsEnabledGuestList
+                newIsEnabledGuestList,
+                newLevelList
             )
-        dashboard_recycler.adapter = botAdapter
+        loadAnimatedLoadingFragment(loadingAnimatedFragment)
+        setTimerTask("newCategory", 2000, {
+            removeLoadingAnimatedFragment()
+            dashboard_recycler.adapter = botAdapter
+        })
     }
 
     override fun onPause() {
@@ -477,8 +461,8 @@ class DashboardActivity : BaseActivity(),
         private const val NUM_COLUMNS = 2
         private const val TOTAL_BOTS = 4
         private const val BOT_ITEM_SPACING = 40
-        private const val BOT_TITLE = "BOT_TITLE"
-        private const val IMAGE_PATH = "IMAGE_PATH"
+        const val BOT_TITLE = "BOT_TITLE"
+        const val IMAGE_PATH = "IMAGE_PATH"
         const val TARGET_LANGUAGE = "Target_Language"
         const val CHANGING_DEFAULT_LANG = -1
         const val CATEGORY_REQUEST_CODE = 10
