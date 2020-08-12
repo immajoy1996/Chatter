@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentManager
 import com.example.chatter.R
+import com.example.chatter.data.Joke
 import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.ui.activity.*
 import com.google.firebase.database.*
@@ -55,6 +56,8 @@ class StoryBoardOneFragment : BaseFragment() {
 
     private var sadToastShow = false
     private var happyToastShown = false
+
+    var currentJokeItem: Joke? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -202,10 +205,16 @@ class StoryBoardOneFragment : BaseFragment() {
         bear_profile.startAnimation(aniShake)
     }
 
-    fun showNextJoke() {
-        val joke =
-            (activity as? JokesActivity)?.getNextJoke() ?: ""
-        showTypingAnimation(joke_textview, 50, joke)
+    private fun showNextJoke() {
+        show_answer_button.visibility = View.VISIBLE
+        answer_textview.visibility = View.GONE
+        currentJokeItem =
+            (activity as? JokesActivity)?.fetchNextJoke()
+        currentJokeItem?.let {
+            if(it.joke.isNotEmpty()) {
+                showTypingAnimation(joke_textview, 50, it.joke)
+            }
+        }
     }
 
     private fun setUpBearClick() {
@@ -332,7 +341,7 @@ class StoryBoardOneFragment : BaseFragment() {
         show_answer_button.setOnDebouncedClickListener {
             show_answer_button.visibility = View.GONE
             var jokeAnswer: String? = null
-            jokeAnswer = (activity as? JokesActivity)?.getCurrentJokeAnswer()
+            jokeAnswer = currentJokeItem?.answer
             answer_textview.text = jokeAnswer ?: "Oops, something went wrong"
             val fadeInAni =
                 AnimationUtils.loadAnimation(context, R.anim.fade_in)
@@ -343,43 +352,11 @@ class StoryBoardOneFragment : BaseFragment() {
                 override fun onAnimationRepeat(arg0: Animation) {}
                 override fun onAnimationEnd(arg0: Animation) {
                     answer_textview.visibility = View.VISIBLE
+                    (activity as? JokesActivity)?.loadJokesExplanationFragment(
+                        currentJokeItem?.explanation ?: ""
+                    )
                 }
             })
-        }
-        happy_button.setOnDebouncedClickListener {
-            if (!happyToastShown) {
-                /*Toast.makeText(
-                    context,
-                    "Thanks! Your feedback lets us choose jokes at your level",
-                    Toast.LENGTH_LONG
-                ).show()*/
-                happyToastShown = true
-            }
-            val shakeAni =
-                AnimationUtils.loadAnimation(context, R.anim.shake)
-            happy_button.startAnimation(shakeAni)
-            show_answer_button.visibility = View.VISIBLE
-            show_answer_button.text = "Show Answer"
-            answer_textview.visibility = View.GONE
-            showNextJoke()
-        }
-        sad_button.setOnDebouncedClickListener {
-            if (!sadToastShow) {
-                /*Toast.makeText(
-                    context,
-                    "Thanks! Your feedback lets us choose jokes at your level",
-                    Toast.LENGTH_LONG
-                ).show()*/
-                sadToastShow = true
-            }
-            val shakeAni =
-                AnimationUtils.loadAnimation(context, R.anim.shake)
-            sad_button.startAnimation(shakeAni)
-            (activity as? JokesActivity)?.loadJokesExplanationFragment()
-            show_answer_button.visibility = View.VISIBLE
-            show_answer_button.text = "Show Answer"
-            answer_textview.visibility = View.GONE
-            hideSmilesButtonsLayout()
         }
     }
 

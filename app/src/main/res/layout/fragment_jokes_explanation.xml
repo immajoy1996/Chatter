@@ -32,7 +32,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:fontFamily="@font/avenir_next"
-            android:text="Wrecks sounds like Rex as in T-Rex!"
             android:textColor="#0084FF"
             android:textSize="20sp"
             android:textStyle="normal"

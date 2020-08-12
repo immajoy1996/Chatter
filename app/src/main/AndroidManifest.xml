@@ -14,8 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.MultipleChoiceActivity"
+            android:name=".ui.SpeechGameActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <activity
+            android:name=".ui.activity.MultipleChoiceActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".ui.activity.GamesActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

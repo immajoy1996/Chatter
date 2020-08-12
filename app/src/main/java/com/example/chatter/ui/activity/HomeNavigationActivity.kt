@@ -72,7 +72,7 @@ class HomeNavigationActivity : BaseActivity() {
             if (preferences.getCurrentTargetLanguageFlag().isNotEmpty()) {
                 setUpFlagImage(preferences.getCurrentTargetLanguageFlag())
             }
-            if(preferences.getProfileImage().isNotEmpty()){
+            if (preferences.getProfileImage().isNotEmpty()) {
                 setUpProfileImage(preferences.getProfileImage())
             }
         }
@@ -137,6 +137,7 @@ class HomeNavigationActivity : BaseActivity() {
         nav_image4.setOnDebouncedClickListener {
             nav_image4.startBounceAnimation {
                 val intent = Intent(this, JokesActivity::class.java)
+                intent.putExtra("userLevel", home_activity_level.text.toString())
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 startActivity(intent)
             }

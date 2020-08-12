@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.interfaces.ConcentrationGameClickedInterface
 import com.example.chatter.interfaces.MultipleChoiceClickedInterface
+import com.example.chatter.interfaces.SpeechGameClickedInterface
 import kotlinx.android.synthetic.main.flashcard_decks_layout.view.*
 
 class FlashCardDecksAdapter(
@@ -24,7 +25,8 @@ class FlashCardDecksAdapter(
     var botDescriptions: ArrayList<String>,
     var isGameFragment: Boolean? = null,
     var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null,
-    var multipleChoiceClickedInterface: MultipleChoiceClickedInterface? = null
+    var multipleChoiceClickedInterface: MultipleChoiceClickedInterface? = null,
+    var speechGameClickedInterface: SpeechGameClickedInterface? = null
 ) :
     RecyclerView.Adapter<FlashCardDecksAdapter.FlashCardLevelsViewHolder>() {
 
@@ -119,6 +121,9 @@ class FlashCardDecksAdapter(
                 }
                 "Multiple Choice" -> {
                     multipleChoiceClickedInterface?.onMultipleChoiceClicked()
+                }
+                "Listen to me!" -> {
+                    speechGameClickedInterface?.onSpeechGameClicked()
                 }
             }
         }

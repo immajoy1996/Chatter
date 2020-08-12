@@ -11,6 +11,8 @@ import com.example.chatter.data.MultipleChoiceQuestion
 import com.example.chatter.data.QuestionList
 import com.example.chatter.interfaces.ConcentrationGameClickedInterface
 import com.example.chatter.interfaces.MultipleChoiceClickedInterface
+import com.example.chatter.interfaces.SpeechGameClickedInterface
+import com.example.chatter.ui.SpeechGameActivity
 import com.example.chatter.ui.fragment.LoadingAnimatedFragment
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -20,7 +22,7 @@ import kotlinx.android.synthetic.main.top_bar.*
 
 
 class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
-    MultipleChoiceClickedInterface {
+    MultipleChoiceClickedInterface, SpeechGameClickedInterface {
     private var botTitles = arrayListOf<String>()
     private var botImages = arrayListOf<String>()
     private var gamesImages = arrayListOf<Int>()
@@ -91,6 +93,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
             gamesImages,
             botDescriptions,
             true,
+            this,
             this,
             this
         )
@@ -185,14 +188,36 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
 
     override fun onMultipleChoiceClicked() {
         loadFragment(loadingAnimatedFragment)
-        setTimerTask("loadingMultipleChoice", 500L, {
+        setTimerTask("loadingMultipleChoice", 1000L, {
             loadMultipleChoiceQuestions()
         })
+    }
+
+    private var speechGameSentenceArray = arrayListOf<String>()
+
+    override fun onSpeechGameClicked() {
+        loadFragment(loadingAnimatedFragment)
+        database.child(SPEECH_GAME_PATH).addChildEventListener(baseChildEventListener { dataSnapshot ->
+                val sentence = dataSnapshot.child("sentence").value.toString()
+                speechGameSentenceArray.add(sentence)
+            })
+        setTimerTask("loadingSpeechGame", 1000L, {
+            supportFragmentManager.popBackStack()
+            loadSpeechGameActivity(speechGameSentenceArray)
+        })
+    }
+
+    private fun loadSpeechGameActivity(sentenceArray: ArrayList<String>) {
+        val intent = Intent(this, SpeechGameActivity::class.java)
+        intent.putExtra("SentenceArray", sentenceArray)
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     companion object {
         private const val NUM_BOTS = 9
         private const val MULTIPLE_CHOICE_PATH = "Games/MultipleChoice/Easy/"
+        private const val SPEECH_GAME_PATH = "Games/SpeechGame/Easy"
         private const val MAX_QUESTIONS = 2
     }
 }
