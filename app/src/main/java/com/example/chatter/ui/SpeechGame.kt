@@ -3,6 +3,7 @@ package com.example.chatter.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.widget.EditText
 import android.widget.Toast
 import com.example.chatter.R
 import com.example.chatter.ui.activity.BaseActivity
@@ -16,6 +17,9 @@ import java.util.*
 class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
     private var sentenceArray = arrayListOf<String>()
     private var currentIndex = 0
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +45,7 @@ class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
     private fun setUpBotClick() {
         speech_game_speaker_bot.setOnDebouncedClickListener {
             sayCurrentSentence()
+
         }
     }
 
