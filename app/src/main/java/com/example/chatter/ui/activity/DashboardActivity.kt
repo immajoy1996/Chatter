@@ -89,7 +89,7 @@ class DashboardActivity : BaseActivity(),
         top_bar_quiz.visibility = View.GONE
         top_bar_title.visibility = View.VISIBLE
         top_bar_messaging_image_container.visibility = View.GONE
-        home.setOnLongClickListener {
+        top_bar_title.setOnLongClickListener {
             if (top_bar_plus_button.visibility == View.VISIBLE) {
                 top_bar_plus_button.visibility = View.GONE
             } else {

@@ -31,6 +31,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     private var multipleChoiceQuestions = arrayListOf<MultipleChoiceQuestion>()
 
     private lateinit var database: DatabaseReference
+    private var launched = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,8 +104,6 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
         super.onResume()
         launched = false
     }
-
-    private var launched = false
 
     override fun onConcentrationGameClicked() {
         val imageArray = arrayListOf<String>()

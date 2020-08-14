@@ -45,6 +45,7 @@
         android:textColor="#696969"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/multiple_choice_progress_bar" />
@@ -119,7 +120,7 @@
         android:elevation="10dp"
         android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:padding="10dp"
+        android:padding="12dp"
         android:text="in the British museum"
         android:textColor="#0084FF"
         android:textSize="20sp"
@@ -139,7 +140,7 @@
         android:elevation="10dp"
         android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:padding="10dp"
+        android:padding="12dp"
         android:text="in school"
         android:textColor="#0084FF"
         android:textSize="20sp"
@@ -159,7 +160,7 @@
         android:elevation="10dp"
         android:fontFamily="@font/avenir_next"
         android:gravity="center"
-        android:padding="10dp"
+        android:padding="12dp"
         android:text="from his parents"
         android:textColor="#0084FF"
         android:textSize="20sp"
@@ -173,5 +174,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".575" />
+        app:layout_constraintGuide_percent=".5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

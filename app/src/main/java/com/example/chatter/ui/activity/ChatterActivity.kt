@@ -1370,7 +1370,7 @@ class ChatterActivity : BaseChatActivity(),
         letBearSpeak("Please say an option at the tone")
         setTimerTask("voicePrompt", 3000) {
             isMicActive = true
-            toggleIsChatterActivity(true)
+            //toggleIsChatterActivity(true)
             top_bar_mic.setImageResource(R.drawable.microphone_listening)
             (top_bar_mic.drawable as AnimationDrawable).start()
             startListening()

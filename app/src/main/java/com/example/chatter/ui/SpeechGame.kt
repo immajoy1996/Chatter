@@ -1,41 +1,260 @@
 package com.example.chatter.ui
 
+import android.content.Context
+import android.graphics.drawable.AnimationDrawable
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.provider.MediaStore
 import android.speech.tts.TextToSpeech
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.example.chatter.R
 import com.example.chatter.ui.activity.BaseChatActivity
+import com.example.chatter.ui.fragment.SpeechGameCorrectFragment
+import com.example.chatter.ui.fragment.SpeechGameIncorrectFragment
 import kotlinx.android.synthetic.main.activity_speech_game.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
     private var sentenceArray = arrayListOf<String>()
     private var currentIndex = 0
+    private val correctAnswerFragment = SpeechGameCorrectFragment()
+    private var wrongAnswerFragment = SpeechGameIncorrectFragment()
+    private var mediaPlayer = MediaPlayer()
+    private lateinit var audioManager: AudioManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_speech_game)
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         setUpTopBar()
         fetchSentenceArray()
-        speech_game_speaker_user_input.performClick()
-        setUpBotClick()
+        setUpMicClick()
+        setUpUserInput()
+        setUpCheckButton()
+        sayItForFirstTime()
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(speech_game_correct_answer_root_container.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
+    }
+
+    private fun sayItForFirstTime() {
+        startMicAnimation()
+        setTimerTask("initializeMic", 1000, {
+            sayCurrentSentence()
+        })
+    }
+
+    private fun sayIt() {
+        startMicAnimation()
+        sayCurrentSentence()
+    }
+
+    private fun makeProgressBarVisible() {
+        if (speech_game_user_input_progress_bar.visibility == View.GONE) {
+            speech_game_user_input_progress_bar.visibility = View.VISIBLE
+        }
+    }
+
+    private var isStart = true
+
+    private fun setUpUserInput() {
+        speech_game_speaker_user_input.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (!isStart) {
+                    makeProgressBarVisible()
+                } else {
+                    isStart = false
+                }
+                val text = speech_game_speaker_user_input.text.toString()
+                if (text.isEmpty()) {
+                    speech_game_user_input_progress_bar.setProgress(0)
+                } else {
+                    val progress = calculateMatchPercentage(
+                        text,
+                        sentenceArray[currentIndex]
+                    )
+                    speech_game_user_input_progress_bar.setProgress(
+                        (100 * progress).toInt()
+                    )
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //TODO("Not yet implemented")
+            }
+        })
+    }
+
+    fun startNextSentence() {
+        isStart = true
+        speech_game_user_input_progress_bar.visibility = View.GONE
+        speech_game_speaker_user_input.setText("")
+        showCheckButton()
+        currentIndex = (currentIndex + 1) % sentenceArray.size
+        sayIt()
     }
 
     private fun sayCurrentSentence() {
+        if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+            Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
+        }
         val size = sentenceArray.size
         if (size > 0) {
             letBearSpeak(sentenceArray[currentIndex])
         }
     }
 
+    private fun calculateMatchPercentage(userInput: String, correctAnswer: String): Double {
+        if (userInput.isEmpty()) return 0.0
+        val list1 = userInput.split(" ", ".", ",", ":", ";", "!", "?", "\'")
+        val list2 = correctAnswer.split(" ", ".", ",", ":", ";", "!", "?", "\'")
+        val wordArray = arrayListOf<String>()
+        val answerWordArray = arrayListOf<String>()
+        for (word in list1) {
+            if (word.isNotEmpty()) {
+                wordArray.add(word)
+            }
+        }
+        for (word in list2) {
+            if (word.isNotEmpty()) {
+                answerWordArray.add(word)
+            }
+        }
+        return calculateCorrectnessFromWordArrays(wordArray, answerWordArray)
+    }
+
     private fun setUpCheckButton() {
-        speech_game_check_button.setOnClickListener {
+        speech_game_check_button.setOnDebouncedClickListener {
+            val userInput = speech_game_speaker_user_input.text.toString()
+            if (userInput.isEmpty()) {
+                Toast.makeText(
+                    this@SpeechGameActivity,
+                    "Type something!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnDebouncedClickListener
+            }
+            val correctAnswer = sentenceArray[currentIndex]
+            if (calculateMatchPercentage(userInput, correctAnswer) > SENTENCE_MATCH_PERCENTAGE) {
+                playCorrectAnswerSound()
+                hideCheckButton()
+                loadFragment(correctAnswerFragment)
+            } else {
+                playWrongAnswerSound()
+                hideCheckButton()
+                wrongAnswerFragment =
+                    SpeechGameIncorrectFragment.newInstance(sentenceArray[currentIndex])
+                loadFragment(wrongAnswerFragment)
+            }
         }
     }
 
-    private fun setUpBotClick() {
-        speech_game_speaker_bot.setOnDebouncedClickListener {
-            sayCurrentSentence()
+    private fun showCheckButton() {
+        speech_game_check_button.visibility = View.VISIBLE
+    }
 
+    private fun hideCheckButton() {
+        speech_game_check_button.visibility = View.GONE
+    }
+
+    private fun playCorrectAnswerSound() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.correct_answer)
+        mediaPlayer.start()
+    }
+
+    private fun playWrongAnswerSound() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.wrong_answer)
+        mediaPlayer.start()
+    }
+
+    private fun calculateCorrectnessFromWordArrays(
+        userWordsArray: ArrayList<String>,
+        correctWordsArray: ArrayList<String>
+    ): Double {
+        var pos = 0
+        var nmatches = 0
+        for (word in correctWordsArray) {
+            var found = false
+            val start = pos
+            while (pos < userWordsArray.size) {
+                Log.d("Match", word.toLowerCase() + " " + userWordsArray[pos].toLowerCase())
+                Log.d(
+                    "MatchPercentage",
+                    "" + isWordMatch(userWordsArray[pos].toLowerCase(), word.toLowerCase())
+                )
+                if (isWordMatch(userWordsArray[pos].toLowerCase(), word.toLowerCase())) {
+                    nmatches++
+                    pos++
+                    found = true
+                    break
+                }
+                pos++
+            }
+            if (!found) {
+                pos = start
+            }
+        }
+        return 1.0 * nmatches / correctWordsArray.size
+    }
+
+    private fun isWordMatch(str: String, target: String): Boolean {
+        val total = target.length
+        val used = arrayListOf<Char>()
+        for (c in str) {
+            used.add(c)
+        }
+        var count = 0
+        for (c in target) {
+            if (used.contains(c)) {
+                used.remove(c)
+                count++
+            }
+        }
+        return 1.0 * count / total > WORD_MATCH_PERCENTAGE
+    }
+
+    private fun startMicAnimation() {
+        speech_game_speaker_bot.setImageResource(R.drawable.microphone_listening)
+        (speech_game_speaker_bot.drawable as AnimationDrawable).start()
+        setTimerTask("SpeechGame", 3000, {
+            stopMicAnimation()
+        })
+    }
+
+    private fun stopMicAnimation() {
+        speech_game_speaker_bot.setImageResource(R.drawable.microphone_listening)
+    }
+
+    private fun setUpMicClick() {
+        speech_game_speaker_bot.setOnDebouncedClickListener {
+            startMicAnimation()
+            sayCurrentSentence()
         }
     }
 
@@ -61,6 +280,11 @@ class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
 
     override fun initializeMessagesContainer() {
         //TODO("Not yet implemented")
+    }
+
+    companion object {
+        private const val WORD_MATCH_PERCENTAGE = .8
+        private const val SENTENCE_MATCH_PERCENTAGE = .9
     }
 
 }
