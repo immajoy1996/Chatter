@@ -8,6 +8,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -22,7 +25,33 @@ class GetStartedActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         auth = FirebaseAuth.getInstance()
+        showBlinkingDots()
+        typeWelcomeMesssage()
+        typeSecondWelcomeMessage()
         setUpButtons()
+    }
+
+    private fun showBlinkingDots() {
+        three_blinking_dots.visibility = View.VISIBLE
+        showThreeBlinkingDotsAnimation(three_blinking_dots, 250, "...")
+    }
+
+    private fun hideBlinkingDots() {
+        three_blinking_dots.visibility = View.GONE
+    }
+
+    private fun typeWelcomeMesssage() {
+        setTimerTask("appNameTimer", 3000, {
+            hideBlinkingDots()
+            showTypingAnimation(app_name, 200, "Chatter")
+        })
+
+    }
+
+    private fun typeSecondWelcomeMessage() {
+        setTimerTask("appDescriptionTimer", 5000, {
+            showTypingAnimation(textView, 100, "Speak like an American!")
+        })
     }
 
     private fun setUpButtons() {
@@ -90,6 +119,69 @@ class GetStartedActivity : BaseActivity() {
             .setNegativeButton("Cancel", null)
             .create()
             .show()
+    }
+
+    private fun showTypingAnimation(textView: TextView, delay: Long, message: String) {
+        val handler = Handler()
+        var pos = 0
+        var numDots = 0
+        val characterAdder: Runnable = object : Runnable {
+            override fun run() {
+                val setStr = message.subSequence(0, pos + 1)
+                var dotString = ""
+                for (i in 1..numDots) {
+                    dotString = "${dotString}"
+                }
+
+                if (pos < message.length - 1) {
+                    numDots = (numDots + 1) % 3
+                    textView.setText("${setStr}${dotString}")
+                } else {
+                    textView.setText(setStr)
+                }
+                pos++
+                if (pos == message.length) {
+                    handler.removeCallbacksAndMessages(null)
+                } else {
+                    handler.postDelayed(this, delay)
+                }
+            }
+        }
+
+        handler.removeCallbacks(characterAdder);
+        handler.postDelayed(characterAdder, delay)
+    }
+
+    private fun showThreeBlinkingDotsAnimation(textView: TextView, delay: Long, message: String) {
+        val handler = Handler()
+        var pos = 0
+        var numDots = 0
+        val characterAdder: Runnable = object : Runnable {
+            override fun run() {
+                val setStr = message.subSequence(0, pos + 1)
+                var dotString = ""
+                for (i in 1..numDots) {
+                    dotString = "${dotString}"
+                }
+
+                if (pos < message.length - 1) {
+                    numDots = (numDots + 1) % 3
+                    textView.setText("${setStr}${dotString}")
+                } else {
+                    textView.setText(setStr)
+                }
+                pos++
+                if (pos == message.length) {
+                    //handler.removeCallbacksAndMessages(null)
+                    pos = 0
+                }
+                handler.postDelayed(this, delay)
+
+            }
+        }
+
+        handler.removeCallbacks(characterAdder);
+        handler.postDelayed(characterAdder, delay)
     }
 
     override fun setUpTopBar() {
