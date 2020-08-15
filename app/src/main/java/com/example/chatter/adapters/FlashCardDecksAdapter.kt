@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.interfaces.ConcentrationGameClickedInterface
+import com.example.chatter.interfaces.DeckSelectedInterface
 import com.example.chatter.interfaces.MultipleChoiceClickedInterface
 import com.example.chatter.interfaces.SpeechGameClickedInterface
 import kotlinx.android.synthetic.main.flashcard_decks_layout.view.*
@@ -24,6 +25,7 @@ class FlashCardDecksAdapter(
     var gameImages: ArrayList<Int>? = null,
     var botDescriptions: ArrayList<String>,
     var isGameFragment: Boolean? = null,
+    var onDecksSelectedInterface: DeckSelectedInterface? = null,
     var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null,
     var multipleChoiceClickedInterface: MultipleChoiceClickedInterface? = null,
     var speechGameClickedInterface: SpeechGameClickedInterface? = null
@@ -81,7 +83,7 @@ class FlashCardDecksAdapter(
                 botTitle?.text = title
                 botDesc?.text = desc
             }
-            onDeckSelected()
+            toggleSelectedDeck(title)
         }
 
         fun bind(imagePath: Int, title: String, desc: String) {
@@ -101,15 +103,17 @@ class FlashCardDecksAdapter(
             }
         }
 
-        private fun onDeckSelected() {
+        private fun toggleSelectedDeck(title: String) {
             itemView.setOnClickListener {
                 if ((itemView.decks_item_layout.background as ColorDrawable).color == Color.parseColor(
                         "#ffffff"
                     )
                 ) {
                     itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#e4e5e9"))
+                    onDecksSelectedInterface?.onDeckSelected(title)
                 } else {
                     itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#ffffff"))
+                    onDecksSelectedInterface?.onDeckUnselected(title)
                 }
             }
         }

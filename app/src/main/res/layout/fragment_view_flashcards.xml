@@ -56,13 +56,14 @@
 
         <TextView
             android:id="@+id/flashcard_text"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:fontFamily="@font/avenir_next"
-            android:text="dinosaur"
             android:textColor="#000000"
             android:textSize="40sp"
-            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -103,6 +104,32 @@
         app:layout_constraintEnd_toStartOf="@id/flashcard_favorite"
         app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_flashcards_container">
+
+        <ImageView
+            android:id="@+id/view_flashcards_left_arrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/left_arrow"
+
+            />
+
+        <ImageView
+            android:id="@+id/view_flashcards_right_arrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="80dp"
+            android:src="@drawable/right_arrow"
+            app:layout_constraintStart_toEndOf="@id/view_flashcards_left_arrow" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <Button
         android:id="@+id/flashcards_continue_button"
         android:layout_width="0dp"
@@ -120,6 +147,7 @@
         android:textSize="25sp"
         android:textStyle="bold"
         android:translationZ="10dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

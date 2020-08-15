@@ -1,22 +1,18 @@
-package com.example.chatter.ui
+package com.example.chatter.ui.activity
 
 import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.provider.MediaStore
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
-import com.example.chatter.ui.activity.BaseChatActivity
 import com.example.chatter.ui.fragment.SpeechGameCorrectFragment
 import com.example.chatter.ui.fragment.SpeechGameIncorrectFragment
 import kotlinx.android.synthetic.main.activity_speech_game.*

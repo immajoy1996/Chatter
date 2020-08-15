@@ -123,6 +123,7 @@ class HomeNavigationActivity : BaseActivity() {
         nav_image2.setOnDebouncedClickListener {
             nav_image2.startBounceAnimation {
                 val intent = Intent(this, FlashCardActivity::class.java)
+                intent.putExtra("userLevel", home_activity_level.text.toString())
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 startActivity(intent)
             }

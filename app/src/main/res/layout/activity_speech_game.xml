@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    tools:context=".ui.SpeechGameActivity">
+    tools:context=".ui.activity.SpeechGameActivity">
 
     <ImageView
         android:id="@+id/speech_game_back_button"

@@ -185,10 +185,10 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
     }
 
     companion object {
-        private const val EXPRESSION = "expression"
-        private const val DEFINITION = "definition"
-        private const val FLASHCARD_TYPE = "flashcardType"
-        private const val IMAGE = "image"
+        const val EXPRESSION = "expression"
+        const val DEFINITION = "definition"
+        const val FLASHCARD_TYPE = "flashcardType"
+        const val IMAGE = "image"
         private const val TRANSLITERATION = "transliteration"
         private const val AUDIO = "audio"
         private const val VOCAB = "Vocab/"

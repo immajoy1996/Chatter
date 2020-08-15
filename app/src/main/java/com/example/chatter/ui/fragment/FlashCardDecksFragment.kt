@@ -1,12 +1,15 @@
 package com.example.chatter.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.FlashCardDecksAdapter
+import com.example.chatter.interfaces.DeckSelectedInterface
 import com.example.chatter.ui.activity.FlashCardActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -15,12 +18,14 @@ import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_levels.*
 import kotlinx.android.synthetic.main.top_bar.*
 
-class FlashCardDecksFragment : BaseFragment() {
+class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private var botTitles = arrayListOf<String>()
     private var botImages = arrayListOf<String>()
     private var botDescriptions = arrayListOf<String>()
+    private var myLevel: String = "Easy"
+    private var selectedDecksArray = arrayListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,8 +59,12 @@ class FlashCardDecksFragment : BaseFragment() {
         button_back.visibility = View.GONE
         button_start.visibility = View.VISIBLE
         button_start.setOnDebouncedClickListener {
-            fragmentManager?.popBackStack()
-            (activity as? FlashCardActivity)?.loadViewFlashCardsFragment()
+            if (selectedDecksArray.isEmpty()) {
+                Toast.makeText(context, "Select a deck!", Toast.LENGTH_SHORT).show()
+            } else {
+                fragmentManager?.popBackStack()
+                (activity as? FlashCardActivity)?.loadViewFlashCardsFragment(selectedDecksArray)
+            }
         }
         button_next.visibility = View.GONE
     }
@@ -66,32 +75,57 @@ class FlashCardDecksFragment : BaseFragment() {
         }
     }
 
-    private fun fetchDecks() {
+    private fun resetDecks() {
+        selectedDecksArray.clear()
         botTitles.clear()
         botImages.clear()
         botDescriptions.clear()
+    }
 
-        botTitles.add("")
-        botTitles.add("The Mummy")
-        botTitles.add("The Alien")
-        botTitles.add("The Jester")
-        botImages.add("")
-        botImages.add("https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Fmummy.png?alt=media&token=f3171b96-cf77-41a3-a87e-57f7b2976b45")
-        botImages.add("https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Falien.png?alt=media&token=ded95afb-3256-4e8d-9aa3-65759929d03e")
-        botImages.add("https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Fjester.png?alt=media&token=785fbfb4-1e5f-4f19-9cd9-21552992f40e")
-        botDescriptions.add("")
-        botDescriptions.add("Learn words that teach you a secret and dangerous magic")
-        botDescriptions.add("If you ever meet an alien, you'll know what to do")
-        botDescriptions.add("Pass away your time with frivolous jokes")
+    private fun fetchDecks() {
+        resetDecks()
+        val decksListener = baseChildEventListener { it ->
+            val botImage = it.child("botImage").value.toString()
+            val botTitle = it.child("botTitle").value.toString()
+            val deckDescription = it.child("deckDescription").value
+            val level = it.child("level").value
+            var botLevel = "Easy"
+            level?.let {
+                botLevel = it.toString()
+            }
+            if (deckDescription != null && myLevel.isNotEmpty() && botLevel.compareTo(myLevel) <= 0) {
+                botImages.add(botImage)
+                botTitles.add(botTitle)
+                botDescriptions.add(deckDescription.toString())
+            }
+            context?.let {
+                flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
+                    it,
+                    botTitles,
+                    botImages,
+                    null,
+                    botDescriptions,
+                    null,
+                    this
+                )
+            }
+        }
+        database.child("BotCatalog").addChildEventListener(decksListener)
+    }
 
-        context?.let {
-            flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
-                it,
-                botTitles,
-                botImages,
-                null,
-                botDescriptions
-            )
+    override fun onDeckSelected(botTitle: String) {
+        selectedDecksArray.add(botTitle)
+    }
+
+    override fun onDeckUnselected(botTitle: String) {
+        selectedDecksArray.remove(botTitle)
+    }
+
+    companion object {
+        fun newInstance(myLevel: String): FlashCardDecksFragment {
+            val fragment = FlashCardDecksFragment()
+            fragment.myLevel = myLevel
+            return fragment
         }
     }
 }

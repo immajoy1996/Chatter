@@ -12,7 +12,6 @@ import com.example.chatter.data.QuestionList
 import com.example.chatter.interfaces.ConcentrationGameClickedInterface
 import com.example.chatter.interfaces.MultipleChoiceClickedInterface
 import com.example.chatter.interfaces.SpeechGameClickedInterface
-import com.example.chatter.ui.SpeechGameActivity
 import com.example.chatter.ui.fragment.LoadingAnimatedFragment
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -94,6 +93,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
             gamesImages,
             botDescriptions,
             true,
+            null,
             this,
             this,
             this
@@ -196,7 +196,8 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
 
     override fun onSpeechGameClicked() {
         loadFragment(loadingAnimatedFragment)
-        database.child(SPEECH_GAME_PATH).addChildEventListener(baseChildEventListener { dataSnapshot ->
+        database.child(SPEECH_GAME_PATH)
+            .addChildEventListener(baseChildEventListener { dataSnapshot ->
                 val sentence = dataSnapshot.child("sentence").value.toString()
                 speechGameSentenceArray.add(sentence)
             })

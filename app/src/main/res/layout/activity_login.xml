@@ -107,6 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:fontFamily="@font/avenir_next"
+            android:textColor="#ffffff"
             android:gravity="center"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
