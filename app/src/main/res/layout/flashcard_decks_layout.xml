@@ -109,6 +109,7 @@
             android:indeterminate="false"
             android:indeterminateTint="#0084FF"
             android:progress="30"
+            android:visibility="visible"
             android:progressDrawable="@drawable/progress_bar_states"
             app:layout_constraintEnd_toEndOf="@id/flashcard_bot_image_container"
             app:layout_constraintStart_toStartOf="@id/flashcard_bot_image_container"
@@ -136,11 +137,11 @@
         android:id="@+id/create_deck_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:padding="15dp"
-        android:elevation="5dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/navigation_option"
+        android:elevation="5dp"
+        android:padding="15dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -173,18 +174,18 @@
         android:id="@+id/normal_decks_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:visibility="visible"
         android:layout_marginTop="10dp"
         android:background="#e4e5e9"
+        android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/normal_decks_layout" />
 
     <TextView
         android:id="@+id/create_decks_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:visibility="gone"
         android:layout_marginTop="20dp"
         android:background="#e4e5e9"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/create_deck_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
