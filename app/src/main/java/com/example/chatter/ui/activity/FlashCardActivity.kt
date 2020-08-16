@@ -14,6 +14,7 @@ class FlashCardActivity : BaseChatActivity() {
 
     private var flashCardCategoriesFragment = FlashCardCategoriesFragment()
     private lateinit var decksFragment: FlashCardDecksFragment
+    private lateinit var myFavsFragment: FlashCardDecksFragment
     private lateinit var viewFlashcardsFragment: ViewFlashcardsFragment
     private var loadingAnimatedFragment = LoadingAnimatedFragment()
     private lateinit var database: DatabaseReference
@@ -31,9 +32,10 @@ class FlashCardActivity : BaseChatActivity() {
     private fun initializeDecksFragment() {
         val myLevel = intent?.getStringExtra("userLevel") ?: "Easy"
         decksFragment = FlashCardDecksFragment.newInstance(myLevel)
+        myFavsFragment = FlashCardDecksFragment.Companion.newInstance(true)
     }
 
-    fun readFlashcard(text:String){
+    fun readFlashcard(text: String) {
         letBearSpeak(text)
     }
 
@@ -49,12 +51,13 @@ class FlashCardActivity : BaseChatActivity() {
         flashcardsArray.clear()
     }
 
-    fun loadViewFlashCardsFragment(decksList: ArrayList<String>) {
+    fun loadViewFlashCardsFragment(decksList: ArrayList<String>, isFavoriteFragment: Boolean) {
         resetFlashCardsArray()
         loadFragment(loadingAnimatedFragment)
         prepareFlashcards(decksList)
         setTimerTask("loadFlashcards", 2000, {
-            viewFlashcardsFragment = ViewFlashcardsFragment.newInstance(flashcardsArray)
+            viewFlashcardsFragment =
+                ViewFlashcardsFragment.newInstance(flashcardsArray, isFavoriteFragment)
             loadFragment(viewFlashcardsFragment)
         })
     }
@@ -86,6 +89,10 @@ class FlashCardActivity : BaseChatActivity() {
 
     fun loadDecksFragment() {
         loadFragment(decksFragment)
+    }
+
+    fun loadMyFavoritesFragment() {
+        loadFragment(myFavsFragment)
     }
 
     override fun setUpTopBar() {

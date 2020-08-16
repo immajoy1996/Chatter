@@ -25,6 +25,7 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
     private var botImages = arrayListOf<String>()
     private var botDescriptions = arrayListOf<String>()
     private var myLevel: String = "Easy"
+    private var isFavoritesFragment = false
     private var selectedDecksArray = arrayListOf<String>()
 
     override fun onCreateView(
@@ -41,7 +42,11 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         setUpTopBar()
         setUpBottomBar()
         setUpDecksRecycler()
-        fetchDecks()
+        if (isFavoritesFragment) {
+            fetchMyFavoriteDecks()
+        } else {
+            fetchDecks()
+        }
     }
 
     private fun setUpTopBar() {
@@ -52,7 +57,11 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
             (activity as? FlashCardActivity)?.loadFlashCardsCategoriesFragment()
         }
         top_bar_title.visibility = View.VISIBLE
-        top_bar_title.text = "Decks"
+        if (isFavoritesFragment) {
+            top_bar_title.text = "My Favorites"
+        } else {
+            top_bar_title.text = "Decks"
+        }
     }
 
     private fun setUpBottomBar() {
@@ -63,7 +72,10 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
                 Toast.makeText(context, "Select a deck!", Toast.LENGTH_SHORT).show()
             } else {
                 fragmentManager?.popBackStack()
-                (activity as? FlashCardActivity)?.loadViewFlashCardsFragment(selectedDecksArray)
+                (activity as? FlashCardActivity)?.loadViewFlashCardsFragment(
+                    selectedDecksArray,
+                    isFavoritesFragment
+                )
             }
         }
         button_next.visibility = View.GONE
@@ -80,6 +92,34 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         botTitles.clear()
         botImages.clear()
         botDescriptions.clear()
+    }
+
+    private fun fetchMyFavoriteDecks() {
+        resetDecks()
+        botImages.add("")
+        botTitles.add("")
+        botDescriptions.add("")
+
+        val decksListener = baseChildEventListener { it ->
+            val botImage = it.child("deckImage").value.toString()
+            val botTitle = it.child("deckTitle").value.toString()
+            val deckDescription = it.child("deckDescription").value
+            botImages.add(botImage)
+            botTitles.add(botTitle)
+            botDescriptions.add(deckDescription.toString())
+            context?.let {
+                flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
+                    it,
+                    botTitles,
+                    botImages,
+                    null,
+                    botDescriptions,
+                    null,
+                    this
+                )
+            }
+        }
+        database.child(FLASHCARD_PATH).addChildEventListener(decksListener)
     }
 
     private fun fetchDecks() {
@@ -127,5 +167,13 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
             fragment.myLevel = myLevel
             return fragment
         }
+
+        fun newInstance(isFavoritesFragment: Boolean): FlashCardDecksFragment {
+            val fragment = FlashCardDecksFragment()
+            fragment.isFavoritesFragment = isFavoritesFragment
+            return fragment
+        }
+
+        const val FLASHCARD_PATH = "Flashcards/MyFavorites"
     }
 }

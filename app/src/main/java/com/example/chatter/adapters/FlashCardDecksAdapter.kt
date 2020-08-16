@@ -72,9 +72,13 @@ class FlashCardDecksAdapter(
         }
 
         fun bind(image: String, title: String, desc: String) {
-            itemView.decks_progress_bar.visibility = View.VISIBLE
-            itemView.flashcard_completion_rate.visibility = View.VISIBLE
             if (title.isNotEmpty()) {
+                itemView.create_deck_layout.visibility = View.GONE
+                itemView.normal_decks_layout.visibility = View.VISIBLE
+                itemView.decks_progress_bar.visibility = View.VISIBLE
+                itemView.flashcard_completion_rate.visibility = View.VISIBLE
+                itemView.create_decks_divider.visibility = View.GONE
+                itemView.normal_decks_divider.visibility = View.VISIBLE
                 botImage?.let {
                     Glide.with(context)
                         .load(image)
@@ -82,8 +86,13 @@ class FlashCardDecksAdapter(
                 }
                 botTitle?.text = title
                 botDesc?.text = desc
+                toggleSelectedDeck(title)
+            } else {
+                itemView.create_deck_layout.visibility = View.VISIBLE
+                itemView.normal_decks_layout.visibility = View.GONE
+                itemView.create_decks_divider.visibility = View.VISIBLE
+                itemView.normal_decks_divider.visibility = View.GONE
             }
-            toggleSelectedDeck(title)
         }
 
         fun bind(imagePath: Int, title: String, desc: String) {

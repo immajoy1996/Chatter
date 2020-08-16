@@ -43,5 +43,9 @@ class FlashCardCategoriesFragment : BaseFragment() {
             fragmentManager?.popBackStack()
             (activity as? FlashCardActivity)?.loadDecksFragment()
         }
+        flashcard_button2_container.setOnClickListener {
+            fragmentManager?.popBackStack()
+            (activity as? FlashCardActivity)?.loadMyFavoritesFragment()
+        }
     }
 }

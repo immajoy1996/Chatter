@@ -58,12 +58,12 @@
             android:id="@+id/flashcard_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:fontFamily="@font/avenir_next"
-            android:textColor="#000000"
-            android:textSize="40sp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
+            android:fontFamily="@font/avenir_next"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:textSize="40sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -73,8 +73,8 @@
 
     <ImageView
         android:id="@+id/flashcard_audio"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:src="@drawable/audio"
@@ -84,10 +84,10 @@
 
     <ImageView
         android:id="@+id/flashcard_favorite"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="20dp"
         android:src="@drawable/star_unclicked"
         android:translationZ="20dp"
         app:layout_constraintEnd_toStartOf="@id/flashcard_audio"
@@ -95,18 +95,20 @@
 
     <ImageView
         android:id="@+id/flashcard_learn_mode"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="20dp"
         android:src="@drawable/settings"
         android:translationZ="20dp"
         app:layout_constraintEnd_toStartOf="@id/flashcard_favorite"
         app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/view_flashcards_arrow_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -117,7 +119,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/left_arrow"
-
             />
 
         <ImageView
@@ -127,6 +128,36 @@
             android:layout_marginStart="80dp"
             android:src="@drawable/right_arrow"
             app:layout_constraintStart_toEndOf="@id/view_flashcards_left_arrow" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/view_flashcards_correct_wrong_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_flashcards_container">
+
+        <ImageView
+            android:id="@+id/view_flashcards_correct_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/green_check"
+
+            />
+
+        <ImageView
+            android:id="@+id/view_flashcards_wrong_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="80dp"
+            android:src="@drawable/x_icon1"
+            app:layout_constraintBottom_toBottomOf="@id/view_flashcards_correct_button"
+            app:layout_constraintStart_toEndOf="@id/view_flashcards_correct_button"
+            app:layout_constraintTop_toTopOf="@id/view_flashcards_correct_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

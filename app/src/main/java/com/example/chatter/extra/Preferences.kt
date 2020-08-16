@@ -273,20 +273,28 @@ class Preferences(val context: Context) {
         sharedPreferences.edit().putLong(buttonId.toString(), time).apply()
     }
 
-    fun storeCountEnabledBots(count: Int) {
-        sharedPreferences.edit().putInt(ENABLED_BOT_COUNT, count).apply()
+    fun getStudyMode(): String {
+        return sharedPreferences.getString(STUDY_MODE, "Learn") ?: "Learn"
     }
 
-    fun getEnabledBotCount(): Int {
-        return sharedPreferences.getInt(ENABLED_BOT_COUNT, -1)
+    fun storeStudyMode(mode: String) {
+        sharedPreferences.edit().putString(STUDY_MODE, mode).apply()
     }
 
-    fun getBestScore(): String {
-        return sharedPreferences.getString(BEST_SCORE, "") ?: ""
+    fun storeCorrectCount(nCorrect: Int) {
+        sharedPreferences.edit().putInt(NUM_CORRECT, nCorrect).apply()
     }
 
-    fun storeNewBestScore(bestScore: String) {
-        sharedPreferences.edit().putString(BEST_SCORE, bestScore)
+    fun storeWrongCount(nWrong: Int) {
+        sharedPreferences.edit().putInt(NUM_WRONG, nWrong).apply()
+    }
+
+    fun getCorrectCount(): Int {
+        return sharedPreferences.getInt(NUM_CORRECT, 0)
+    }
+
+    fun getWrongCount(): Int {
+        return sharedPreferences.getInt(NUM_WRONG, 0)
     }
 
     companion object {
@@ -300,5 +308,8 @@ class Preferences(val context: Context) {
         const val QUOTE_INDEX = "QuoteIndex"
         const val ENABLED_BOT_COUNT = "Enabled_Bot_Count"
         const val BEST_SCORE = "Best_Score"
+        const val STUDY_MODE = "Study_Mode"
+        const val NUM_CORRECT = "NUM_CORRECT"
+        const val NUM_WRONG = "NUM_WRONG"
     }
 }
