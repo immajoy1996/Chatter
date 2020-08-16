@@ -10,7 +10,7 @@
         android:id="@+id/normal_decks_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/flashcard_bot_image_container"
@@ -136,7 +136,7 @@
         android:id="@+id/create_deck_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:visibility="gone"
         android:padding="15dp"
         android:elevation="5dp"
         android:layout_marginTop="10dp"
@@ -173,7 +173,7 @@
         android:id="@+id/normal_decks_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginTop="10dp"
         android:background="#e4e5e9"
         app:layout_constraintTop_toBottomOf="@id/normal_decks_layout" />
@@ -182,6 +182,7 @@
         android:id="@+id/create_decks_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:visibility="gone"
         android:layout_marginTop="20dp"
         android:background="#e4e5e9"
         app:layout_constraintTop_toBottomOf="@id/create_deck_layout" />

@@ -88,6 +88,7 @@ class FlashCardDecksAdapter(
                 botDesc?.text = desc
                 toggleSelectedDeck(title)
             } else {
+                itemView.decks_progress_bar.visibility = View.INVISIBLE
                 itemView.create_deck_layout.visibility = View.VISIBLE
                 itemView.normal_decks_layout.visibility = View.GONE
                 itemView.create_decks_divider.visibility = View.VISIBLE
