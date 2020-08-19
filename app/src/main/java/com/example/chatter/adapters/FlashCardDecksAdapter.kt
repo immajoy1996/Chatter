@@ -104,7 +104,7 @@ class FlashCardDecksAdapter(
             }
             itemView.decks_progress_bar.visibility = View.INVISIBLE
             itemView.flashcard_completion_rate.visibility = View.GONE
-            
+
             onGameSelected(title)
         }
 

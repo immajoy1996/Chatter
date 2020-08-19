@@ -45,7 +45,7 @@ class FlashCardCategoriesFragment : BaseFragment() {
         }
         flashcard_button2_container.setOnClickListener {
             fragmentManager?.popBackStack()
-            (activity as? FlashCardActivity)?.loadMyFavoritesFragment()
+            (activity as? FlashCardActivity)?.loadViewFlashCardsFragment(arrayListOf("My Favorites"),true)
         }
     }
 }

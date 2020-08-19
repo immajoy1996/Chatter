@@ -3,6 +3,10 @@ package com.example.chatter.extra
 import android.content.Context
 import android.util.Log
 import com.example.chatter.R
+import com.example.chatter.data.MyFavoritesList
+import com.example.chatter.data.QuestionList
+import com.example.chatter.data.Vocab
+import com.google.gson.Gson
 
 class Preferences(val context: Context) {
     private val sharedPreferences =
@@ -273,28 +277,25 @@ class Preferences(val context: Context) {
         sharedPreferences.edit().putLong(buttonId.toString(), time).apply()
     }
 
-    fun getStudyMode(): String {
-        return sharedPreferences.getString(STUDY_MODE, "Learn") ?: "Learn"
+    fun getMyFavoritesArray(): ArrayList<Vocab>? {
+        val jsonStringObject = getMyFavoritesArrayAsJson()
+        var favsList = arrayListOf<Vocab>()
+        jsonStringObject.let {
+            val vocabObject = Gson().fromJson(it, MyFavoritesList::class.java)
+            vocabObject?.let {
+                favsList = it.favsList
+            }
+        }
+        return favsList
     }
 
-    fun storeStudyMode(mode: String) {
-        sharedPreferences.edit().putString(STUDY_MODE, mode).apply()
+    fun storeMyFavoritesJsonString(myFavs: ArrayList<Vocab>) {
+        sharedPreferences.edit().putString(MY_FAVORITES, Gson().toJson(MyFavoritesList(myFavs)))
+            .apply()
     }
 
-    fun storeCorrectCount(nCorrect: Int) {
-        sharedPreferences.edit().putInt(NUM_CORRECT, nCorrect).apply()
-    }
-
-    fun storeWrongCount(nWrong: Int) {
-        sharedPreferences.edit().putInt(NUM_WRONG, nWrong).apply()
-    }
-
-    fun getCorrectCount(): Int {
-        return sharedPreferences.getInt(NUM_CORRECT, 0)
-    }
-
-    fun getWrongCount(): Int {
-        return sharedPreferences.getInt(NUM_WRONG, 0)
+    private fun getMyFavoritesArrayAsJson(): String {
+        return sharedPreferences.getString(MY_FAVORITES, "") ?: ""
     }
 
     companion object {
@@ -306,10 +307,6 @@ class Preferences(val context: Context) {
         const val TRANSLATIONS_ES_TO_EN = "TranslationsEsToEn"
         const val AUDIOS = "Audios/"
         const val QUOTE_INDEX = "QuoteIndex"
-        const val ENABLED_BOT_COUNT = "Enabled_Bot_Count"
-        const val BEST_SCORE = "Best_Score"
-        const val STUDY_MODE = "Study_Mode"
-        const val NUM_CORRECT = "NUM_CORRECT"
-        const val NUM_WRONG = "NUM_WRONG"
+        const val MY_FAVORITES = "My favorites"
     }
 }

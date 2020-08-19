@@ -17,170 +17,189 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ProgressBar
-        android:id="@+id/flashcards_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="15dp"
-        android:layout_marginTop="50dp"
-        android:indeterminate="false"
-        android:indeterminateTint="#0084FF"
-        android:progress="30"
-        android:progressDrawable="@drawable/progress_bar_states"
-        app:layout_constraintEnd_toEndOf="@id/view_flashcards_container"
-        app:layout_constraintStart_toStartOf="@id/view_flashcards_container"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/view_flashcards_container"
-        android:layout_width="300dp"
-        android:layout_height="350dp"
-        android:layout_marginStart="10dp"
-        android:background="@drawable/flashcard_deck_item_view"
-        android:elevation="5dp"
+    <TextView
+        android:id="@+id/no_favorites_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/avenir_next"
+        android:text="You have no favorites yet"
+        android:textColor="#696969"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/view_flashcards_root_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/flashcards_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="15dp"
+            android:layout_marginTop="50dp"
+            android:indeterminate="false"
+            android:indeterminateTint="#0084FF"
+            android:progress="30"
+            android:progressDrawable="@drawable/progress_bar_states"
+            app:layout_constraintEnd_toEndOf="@id/view_flashcards_container"
+            app:layout_constraintStart_toStartOf="@id/view_flashcards_container"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/view_flashcards_container"
+            android:layout_width="300dp"
+            android:layout_height="350dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/flashcard_deck_item_view"
+            android:elevation="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/flashcard_image"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:src="@drawable/dinosaur"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/flashcard_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/avenir_next"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:textSize="40sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
-            android:id="@+id/flashcard_image"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:src="@drawable/dinosaur"
+            android:id="@+id/flashcard_audio"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/audio"
+            android:translationZ="20dp"
+            app:layout_constraintEnd_toEndOf="@id/view_flashcards_container"
+            app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
+
+        <ImageView
+            android:id="@+id/flashcard_favorite"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/star_unclicked"
+            android:translationZ="20dp"
+            app:layout_constraintEnd_toStartOf="@id/flashcard_audio"
+            app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
+
+        <ImageView
+            android:id="@+id/flashcard_learn_mode"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/settings"
+            android:translationZ="20dp"
+            app:layout_constraintEnd_toStartOf="@id/flashcard_favorite"
+            app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/view_flashcards_arrow_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_flashcards_container">
+
+            <ImageView
+                android:id="@+id/view_flashcards_left_arrow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/left_arrow" />
+
+            <ImageView
+                android:id="@+id/view_flashcards_right_arrow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="80dp"
+                android:src="@drawable/right_arrow"
+                app:layout_constraintStart_toEndOf="@id/view_flashcards_left_arrow" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/view_flashcards_correct_wrong_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/view_flashcards_container">
 
-        <TextView
-            android:id="@+id/flashcard_text"
+            <ImageView
+                android:id="@+id/view_flashcards_correct_button"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/green_check"
+
+                />
+
+            <ImageView
+                android:id="@+id/view_flashcards_wrong_button"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="80dp"
+                android:src="@drawable/x_icon1"
+                app:layout_constraintBottom_toBottomOf="@id/view_flashcards_correct_button"
+                app:layout_constraintStart_toEndOf="@id/view_flashcards_correct_button"
+                app:layout_constraintTop_toTopOf="@id/view_flashcards_correct_button" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/flashcards_continue_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/continue_button_background"
+            android:elevation="10dp"
             android:fontFamily="@font/avenir_next"
-            android:gravity="center"
-            android:textColor="#000000"
-            android:textSize="40sp"
+            android:stateListAnimator="@null"
+            android:text="Continue"
+            android:textAllCaps="false"
+            android:textColor="#ffffff"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:translationZ="10dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/flashcard_audio"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:src="@drawable/audio"
-        android:translationZ="20dp"
-        app:layout_constraintEnd_toEndOf="@id/view_flashcards_container"
-        app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
-
-    <ImageView
-        android:id="@+id/flashcard_favorite"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:src="@drawable/star_unclicked"
-        android:translationZ="20dp"
-        app:layout_constraintEnd_toStartOf="@id/flashcard_audio"
-        app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
-
-    <ImageView
-        android:id="@+id/flashcard_learn_mode"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:src="@drawable/settings"
-        android:translationZ="20dp"
-        app:layout_constraintEnd_toStartOf="@id/flashcard_favorite"
-        app:layout_constraintTop_toTopOf="@id/view_flashcards_container" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/view_flashcards_arrow_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_flashcards_container">
-
-        <ImageView
-            android:id="@+id/view_flashcards_left_arrow"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/left_arrow"
-            />
-
-        <ImageView
-            android:id="@+id/view_flashcards_right_arrow"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="80dp"
-            android:src="@drawable/right_arrow"
-            app:layout_constraintStart_toEndOf="@id/view_flashcards_left_arrow" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/view_flashcards_correct_wrong_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_flashcards_container">
-
-        <ImageView
-            android:id="@+id/view_flashcards_correct_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/green_check"
-
-            />
-
-        <ImageView
-            android:id="@+id/view_flashcards_wrong_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginStart="80dp"
-            android:src="@drawable/x_icon1"
-            app:layout_constraintBottom_toBottomOf="@id/view_flashcards_correct_button"
-            app:layout_constraintStart_toEndOf="@id/view_flashcards_correct_button"
-            app:layout_constraintTop_toTopOf="@id/view_flashcards_correct_button" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <Button
-        android:id="@+id/flashcards_continue_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/continue_button_background"
-        android:elevation="10dp"
-        android:fontFamily="@font/avenir_next"
-        android:stateListAnimator="@null"
-        android:text="Continue"
-        android:textAllCaps="false"
-        android:textColor="#ffffff"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:translationZ="10dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

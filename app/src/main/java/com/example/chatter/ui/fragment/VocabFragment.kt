@@ -189,6 +189,7 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
         const val DEFINITION = "definition"
         const val FLASHCARD_TYPE = "flashcardType"
         const val IMAGE = "image"
+        const val IS_FAVORITE = "is_favorite"
         private const val TRANSLITERATION = "transliteration"
         private const val AUDIO = "audio"
         private const val VOCAB = "Vocab/"

@@ -3,13 +3,18 @@ package com.example.chatter.ui.fragment
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
+import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.data.Vocab
 import com.example.chatter.ui.activity.FlashCardActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.fragment_view_flashcards.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -21,6 +26,8 @@ class ViewFlashcardsFragment : BaseFragment() {
     private var cardIndex = 0
     var studyMode = "Learn"
     var isFavoriteFragment = false
+    private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,12 +38,46 @@ class ViewFlashcardsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        shuffleDeck()
-        setUpOriginalFlashcardArray()
-        setUpButtons()
-        setUpNextFlashcard()
-        setUpFlashCardClick()
-        setUpFlashcardArrowClick()
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
+        setUpBackButton()
+        if (flashCardArray.size > 0) {
+            showFlashcardsLayout()
+            shuffleDeck()
+            setUpOriginalFlashcardArray()
+            setUpButtons()
+            setUpNextFlashcard()
+            setUpFlashCardClick()
+            setUpFlashcardArrowClick()
+            if (flashCardArray.size == 1) {
+                hideFlashcardArrowsLayout()
+            } else {
+                showFlashcardArrowsLayout()
+            }
+        } else {
+            showNoFlashcardsMessage()
+        }
+    }
+
+    private fun showFlashcardsLayout() {
+        view_flashcards_root_container.visibility = View.VISIBLE
+        no_favorites_textview.visibility = View.GONE
+    }
+
+    private fun showNoFlashcardsMessage() {
+        view_flashcards_root_container.visibility = View.GONE
+        no_favorites_textview.visibility = View.VISIBLE
+    }
+
+    private fun setUpBackButton() {
+        view_flashcards_back_button.setOnClickListener {
+            fragmentManager?.popBackStack()
+            if (isFavoriteFragment) {
+                (activity as? FlashCardActivity)?.loadFlashCardsCategoriesFragment()
+            } else {
+                (activity as? FlashCardActivity)?.loadDecksFragment()
+            }
+        }
     }
 
     private fun setUpOriginalFlashcardArray() {
@@ -54,7 +95,7 @@ class ViewFlashcardsFragment : BaseFragment() {
         val size = flashCardArray.size
         view_flashcards_right_arrow.setOnClickListener {
             var index = (cardIndex + 1) % size
-            while (flashCardArray[index].expression == flashCardArray[cardIndex].expression) {
+            while (index != cardIndex && flashCardArray[index].expression == flashCardArray[cardIndex].expression) {
                 index = (index + 1) % size
             }
             cardIndex = index
@@ -62,11 +103,19 @@ class ViewFlashcardsFragment : BaseFragment() {
         }
         view_flashcards_left_arrow.setOnClickListener {
             var index = (cardIndex - 1 + size) % size
-            while (flashCardArray[index].expression == flashCardArray[cardIndex].expression) {
+            while (index != cardIndex && flashCardArray[index].expression == flashCardArray[cardIndex].expression) {
                 index = (index - 1 + size) % size
             }
             cardIndex = index
             setUpNextFlashcard()
+        }
+    }
+
+    private fun setUpFavoriteStar() {
+        if (flashCardArray[cardIndex].isFavorite) {
+            toggleFavoriteStartToYellow()
+        } else {
+            toggleFavoriteStartToBlack()
         }
     }
 
@@ -77,6 +126,7 @@ class ViewFlashcardsFragment : BaseFragment() {
             flashcard_image.visibility = View.GONE
             flashcard_text.visibility = View.VISIBLE
             showFlashcardButtons()
+            setUpFavoriteStar()
         } else {
             flashcard_text.text = card.expression
             flashcard_image.visibility = View.GONE
@@ -87,24 +137,122 @@ class ViewFlashcardsFragment : BaseFragment() {
                     .load(card.image)
                     .into(flashcard_image)
             }
+            setUpFavoriteStar()
+        }
+    }
+
+    private fun selectRandomNumber(max: Int): Int {
+        return (Math.random() * max).toInt()
+    }
+
+    private fun toggleFavoriteStartToYellow() {
+        flashcard_favorite.setColorFilter(Color.parseColor("#FFDF00"), PorterDuff.Mode.SRC_ATOP)
+    }
+
+    private fun toggleFavoriteStartToBlack() {
+        flashcard_favorite.setColorFilter(Color.parseColor("#000000"), PorterDuff.Mode.SRC_ATOP)
+    }
+
+    private fun addCardToFavorites(card: Vocab) {
+        val suffix = selectRandomNumber(1000000).toString()
+        if (auth.currentUser != null) {
+            auth.currentUser?.let {
+                val uid = it.uid
+                database.child("Users").child(uid).child("My Favorites").child("Word $suffix")
+                    .setValue(card)
+                    .addOnSuccessListener {
+                        flashCardArray[cardIndex].isFavorite = true
+                        Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show()
+                        toggleFavoriteStartToYellow()
+                    }.addOnFailureListener {
+                        flashCardArray[cardIndex].isFavorite = false
+                        Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
+                        toggleFavoriteStartToBlack()
+                    }
+            }
+        } else {
+            flashCardArray[cardIndex].isFavorite = true
+            val favsArray = preferences.getMyFavoritesArray()
+            if (favsArray?.contains(flashCardArray[cardIndex]) == false) {
+                favsArray?.add(flashCardArray[cardIndex])
+            }
+            favsArray?.let {
+                preferences.storeMyFavoritesJsonString(it)
+            }
+            toggleFavoriteStartToYellow()
+            Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun removeCardFromFavorites(card: Vocab) {
+        if (auth.currentUser != null) {
+            auth.currentUser?.let {
+                val uid = it.uid
+                database.child("Users").child(uid).child("My Favorites")
+                    .addChildEventListener(baseChildEventListener {
+                        val expression = it.child("expression").value.toString()
+                        if (expression == card.expression) {
+                            it.key?.let {
+                                database.child("Vocab/My Favorites").child(it).removeValue()
+                                    .addOnSuccessListener {
+                                        flashCardArray[cardIndex].isFavorite = false
+                                        toggleFavoriteStartToBlack()
+                                        Toast.makeText(
+                                            context,
+                                            "Removed from favorites",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                    }.addOnFailureListener {
+                                        flashCardArray[cardIndex].isFavorite = true
+                                        toggleFavoriteStartToYellow()
+                                        Toast.makeText(
+                                            context,
+                                            "Something went wrong",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                    }
+                            }
+                        }
+                    })
+            }
+        } else {
+            val favsArray = preferences.getMyFavoritesArray()
+            while (favsArray?.contains(flashCardArray[cardIndex]) == true) {
+                favsArray?.remove(flashCardArray[cardIndex])
+            }
+            flashCardArray[cardIndex].isFavorite = false
+            favsArray?.let {
+                preferences.storeMyFavoritesJsonString(it)
+            }
+            toggleFavoriteStartToBlack()
+            Toast.makeText(
+                context,
+                "Removed from favorites",
+                Toast.LENGTH_SHORT
+            )
+                .show()
         }
     }
 
     private fun setUpButtons() {
-        view_flashcards_back_button.setOnClickListener {
-            fragmentManager?.popBackStack()
-            if (isFavoriteFragment) {
-                (activity as? FlashCardActivity)?.loadMyFavoritesFragment()
-            } else {
-                (activity as? FlashCardActivity)?.loadDecksFragment()
-            }
-        }
         flashcard_learn_mode.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP)
         flashcard_favorite.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP)
         flashcard_audio.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP)
         flashcard_learn_mode.setOnClickListener {
             context?.let {
                 showStudyModeDialog(it)
+            }
+        }
+        flashcard_favorite.setOnClickListener {
+            val card = flashCardArray[cardIndex]
+            if (card.isFavorite) {
+                toggleFavoriteStartToBlack()
+                removeCardFromFavorites(card)
+            } else {
+                toggleFavoriteStartToYellow()
+                addCardToFavorites(card)
             }
         }
         flashcard_audio.setOnClickListener {
@@ -199,14 +347,24 @@ class ViewFlashcardsFragment : BaseFragment() {
         shuffleDeck()
     }
 
+    private fun hideFavoritesButton() {
+        flashcard_favorite.visibility = View.GONE
+    }
+
+    private fun showFavoritesButton() {
+        flashcard_favorite.visibility = View.VISIBLE
+    }
+
     private fun setUpNewStudyMode() {
         if (studyMode == "Study") {
             resetDeck()
+            hideFavoritesButton()
             view_flashcards_arrow_layout.visibility = View.VISIBLE
             view_flashcards_correct_wrong_layout.visibility = View.GONE
             flashcards_progress_bar.visibility = View.GONE
         } else {
             resetDeck()
+            showFavoritesButton()
             view_flashcards_arrow_layout.visibility = View.VISIBLE
             view_flashcards_correct_wrong_layout.visibility = View.GONE
             flashcards_progress_bar.visibility = View.VISIBLE
