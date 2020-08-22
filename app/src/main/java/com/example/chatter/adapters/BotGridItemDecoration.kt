@@ -22,10 +22,8 @@ class BotGridItemDecoration(horizontalSpace: Int, verticalSpace: Int) :
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        pos?.let {
-            if (horizontalSpacing != null && verticalSpacing != null) {
-                outRect.set(0, verticalSpacing as Int, 0, 0)
-            }
+        if (horizontalSpacing != null && verticalSpacing != null) {
+            outRect.set(0, verticalSpacing as Int, horizontalSpacing as Int, 0)
         }
     }
 }

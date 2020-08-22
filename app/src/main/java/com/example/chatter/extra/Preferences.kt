@@ -298,6 +298,24 @@ class Preferences(val context: Context) {
         return sharedPreferences.getString(MY_FAVORITES, "") ?: ""
     }
 
+    fun storeMessage(id: Int, msg: String) {
+        sharedPreferences.edit().putString(id.toString(), msg)
+            .apply()
+    }
+
+    fun getMessage(id: Int): String {
+        return sharedPreferences.getString(id.toString(), "") ?: ""
+    }
+
+    fun storeMessageTranslation(id: Int, msg: String) {
+        sharedPreferences.edit().putString("Translate ${id}", msg)
+            .apply()
+    }
+
+    fun getMessageTranslation(id: Int): String {
+        return sharedPreferences.getString("Translate ${id}", "") ?: ""
+    }
+
     companion object {
         const val SHARED_PREFERENCES_KEY = "Shared Preferences"
         const val USER_LEVEL = "User Level"

@@ -358,13 +358,13 @@ class ViewFlashcardsFragment : BaseFragment() {
     private fun setUpNewStudyMode() {
         if (studyMode == "Study") {
             resetDeck()
-            hideFavoritesButton()
+            //hideFavoritesButton()
             view_flashcards_arrow_layout.visibility = View.VISIBLE
             view_flashcards_correct_wrong_layout.visibility = View.GONE
             flashcards_progress_bar.visibility = View.GONE
         } else {
             resetDeck()
-            showFavoritesButton()
+            //showFavoritesButton()
             view_flashcards_arrow_layout.visibility = View.VISIBLE
             view_flashcards_correct_wrong_layout.visibility = View.GONE
             flashcards_progress_bar.visibility = View.VISIBLE

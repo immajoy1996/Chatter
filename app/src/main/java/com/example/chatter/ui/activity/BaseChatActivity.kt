@@ -55,7 +55,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     private lateinit var firebaseStorage: FirebaseStorage
 
-    private var translateService: Translate? = null
+    var translateService: Translate? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,12 +103,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         }.addOnFailureListener {
             Toast.makeText(this, "Translate api failed", Toast.LENGTH_SHORT).show()
         }
-        /*resources.openRawResource(R.raw.translate_api).use {
-            val myCredentials = GoogleCredentials.fromStream(it)
-            val translateOptions =
-                TranslateOptions.newBuilder().setCredentials(myCredentials).build()
-            translateService = translateOptions.service
-        }*/
     }
 
     fun translate(text: String, targetLanguage: String): String? {
@@ -436,7 +430,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     companion object {
         private const val MIN_TIME_BETWEEN_CLICKS = 700L
-        private const val TRANSLATE_API_URL =
+        const val TRANSLATE_API_URL =
             "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/TranslateApi%2Ftranslate_api.json?alt=media&token=e6a7cd6a-15af-45e3-98a7-654ed48257fb"
     }
 }

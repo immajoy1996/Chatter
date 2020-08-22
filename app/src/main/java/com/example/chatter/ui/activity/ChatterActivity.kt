@@ -71,6 +71,7 @@ class ChatterActivity : BaseChatActivity(),
     private lateinit var easterEggFragment: EasterEggFragment
     private val navigationDrawerFragment =
         NavigationDrawerFragment()
+    private var wordByWordTranslateFragment = WordByWordTranslateFragment()
 
     var currentPath = ""
 
@@ -104,7 +105,7 @@ class ChatterActivity : BaseChatActivity(),
 
     var executorService: ExecutorService? = null
     private var isRefreshed = false
-    private var targetLanguage = ""
+    var targetLanguage = ""
     private lateinit var audioManager: AudioManager
     private var arrayOpenBubbleMsgCounts = arrayListOf<Int>()
 
@@ -118,13 +119,23 @@ class ChatterActivity : BaseChatActivity(),
         setUpDimensions()
         setUpTopBar()
         setUpStoryBoardFragments()
+        setUpBotImageOnTopBar()
         setUpNavButtons()
         setUpWordByWordRecycler()
         loadBotStoryFragment()
         setUpDismissTranslatePopup()
     }
 
-    private fun setUpDismissTranslatePopup(){
+    private fun setUpBotImageOnTopBar() {
+        top_bar_bot_image?.let {
+            Glide.with(this)
+                .load(botImagePath)
+                .into(it)
+        }
+        top_bar_title_desc.text = botTitle
+    }
+
+    private fun setUpDismissTranslatePopup() {
         messagesInnerLayout.setOnClickListener {
             dismissThreeImagesViewIfVisible()
         }
@@ -165,14 +176,6 @@ class ChatterActivity : BaseChatActivity(),
         home.setOnClickListener {
             refreshChatMessages()
         }
-    }
-
-    private fun loadNavigationDrawer() {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(chatter_activity_root_container.id, navigationDrawerFragment)
-            .addToBackStack(navigationDrawerFragment.javaClass.name)
-            .commit()
     }
 
     override fun showFirstBotMessage() {
@@ -424,6 +427,10 @@ class ChatterActivity : BaseChatActivity(),
         })
     }
 
+    fun showOptionsMenuWithoutLoading() {
+        loadFragment(messageOptionsFragment)
+    }
+
     fun removeOptionsMenu() {
         supportFragmentManager.popBackStack()
     }
@@ -629,20 +636,7 @@ class ChatterActivity : BaseChatActivity(),
 
     private fun setUpMessageBubbleClickListener() {
         val textView = messageTextView
-        /*textView?.setOnClickListener {
-            val otherView = findViewById<TextView>(textView.id + 9)
-            val str1 = textView.text.toString()
-            textView.text = otherView.text.toString()
-            otherView.text = str1
-            //toggleBookImage(textView.id)
-        }*/
         textView?.setOnLongClickListener {
-            /*if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
-                Toast.makeText(this, "Turn up your volume", Toast.LENGTH_LONG).show()
-            }
-            val messageText = textView.text.toString()
-            readMessageBubble(messageText)*/
-            //Toast.makeText(this, "" + textView.id, Toast.LENGTH_SHORT).show()
             dismissThreeImagesViewIfVisible()
             val msgCount = textView.id / 10
             arrayOpenBubbleMsgCounts.add(msgCount)
@@ -731,37 +725,6 @@ class ChatterActivity : BaseChatActivity(),
             Glide.with(this)
                 .load(botImagePath)
                 .into(it)
-        }
-    }
-
-    private fun setupBookImgView() {
-        bookImgView = ImageView(this)
-        bookImgView?.apply {
-            id = getIdBookImageView()
-            setImageDrawable(ContextCompat.getDrawable(context, R.drawable.translation))
-        }
-        setupBookImgClickListener()
-    }
-
-    private fun setupBookImgClickListener() {
-        val bookView = bookImgView
-        bookView?.setOnDebouncedClickListener {
-            if (wordByWordContainer.visibility == View.VISIBLE) {
-                wordByWordContainer.visibility = View.GONE
-            } else {
-                wordByWordContainer.visibility = View.VISIBLE
-                val bookId = bookView.id
-                val msgCount = (bookId - 1) / 1000
-                val msgId = 10 * msgCount
-                val msgTextView = findViewById<TextView>(msgId)
-                val wordString = msgTextView.text.toString()
-                val words = wordString.split(" ", ",", ".", "?", "!") as ArrayList<String>
-                val translations = arrayListOf<String>()
-                for (word in words) {
-                    translations.add("mommia")
-                }
-                wordByWordRecycler.adapter = WordByWordAdapter(this, words, translations)
-            }
         }
     }
 
@@ -884,6 +847,16 @@ class ChatterActivity : BaseChatActivity(),
             setImageResource(R.drawable.word_by_word_circular)
         }
         addViewToLayout(translateImageView)
+        translateImageView.setOnClickListener {
+            if (messageOptionsFragment.isVisible) {
+                supportFragmentManager.popBackStack()
+            }
+            val msgId = 10 * msgCount
+            wordByWordTranslateFragment =
+                WordByWordTranslateFragment.newInstance(preferences.getMessage(msgId))
+            loadFragment(wordByWordTranslateFragment)
+            dismissThreeImagesViewIfVisible()
+        }
         val aniWobble = AnimationUtils.loadAnimation(this, R.anim.shake_forever)
         translateImageView.startAnimation(aniWobble)
         val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView(msgCount))
@@ -1011,6 +984,7 @@ class ChatterActivity : BaseChatActivity(),
 
             text = msg
             textSize = TEXT_SIZE_MESSAGE
+            preferences.storeMessage(id, msg)
         }
     }
 
@@ -1140,6 +1114,7 @@ class ChatterActivity : BaseChatActivity(),
     fun replaceBotIsTyping(msg: String) {
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
+        preferences.storeMessage(getMessageTextBubbleId(), msg)
         setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
     }
 
