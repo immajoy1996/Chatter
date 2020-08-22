@@ -131,6 +131,7 @@ class HomeNavigationActivity : BaseActivity() {
         nav_image3.setOnDebouncedClickListener {
             nav_image3.startBounceAnimation {
                 val intent = Intent(this, GamesActivity::class.java)
+                intent.putExtra("userLevel", home_activity_level.text.toString())
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 startActivity(intent)
             }

@@ -28,17 +28,24 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     private var botDescriptions = arrayListOf<String>()
     private var loadingAnimatedFragment = LoadingAnimatedFragment()
     private var multipleChoiceQuestions = arrayListOf<MultipleChoiceQuestion>()
+    private var levelsArray = arrayListOf("Easy", "Medium", "Hard")
 
     private lateinit var database: DatabaseReference
     private var launched = false
+    private var userLevel = "Easy"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_games)
         database = FirebaseDatabase.getInstance().reference
         setUpTopBar()
+        setUpUserLevel()
         setUpGamesRecycler()
         fetchGames()
+    }
+
+    private fun setUpUserLevel() {
+        userLevel = intent?.getStringExtra("userLevel") ?: "Easy"
     }
 
     override fun setUpTopBar() {
@@ -123,56 +130,61 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
 
     private fun loadMultipleChoiceQuestions() {
         if (multipleChoiceQuestions.size < MAX_QUESTIONS) {
-            database.child(MULTIPLE_CHOICE_PATH).addChildEventListener(baseChildEventListener {
-                val questionTitle = it.child("questionTitle").value.toString()
-                val question = it.child("question").value
-                val answer1 = it.child("answer1").value.toString()
-                val answer2 = it.child("answer2").value.toString()
-                val answer3 = it.child("answer3").value.toString()
-                val correctAnswer = it.child("correctAnswer").value.toString().toInt()
-                val questionType = it.child("questionType").value.toString()
-                val image = it.child("image").value
-                if (questionType == "imageQuestion") {
-                    image?.let {
-                        multipleChoiceQuestions.add(
-                            MultipleChoiceQuestion(
-                                questionTitle,
-                                null,
-                                answer1,
-                                answer2,
-                                answer3,
-                                correctAnswer,
-                                questionType,
-                                it.toString()
-                            )
-                        )
-                    }
-                } else {
-                    question?.let {
-                        multipleChoiceQuestions.add(
-                            MultipleChoiceQuestion(
-                                questionTitle,
-                                it.toString(),
-                                answer1,
-                                answer2,
-                                answer3,
-                                correctAnswer,
-                                questionType,
-                                null
-                            )
-                        )
-                    }
+            for (item in levelsArray) {
+                if (userLevel.compareTo(item) >= 0) {
+                    database.child(MULTIPLE_CHOICE_PATH).child(item)
+                        .addChildEventListener(baseChildEventListener {
+                            val questionTitle = it.child("questionTitle").value.toString()
+                            val question = it.child("question").value
+                            val answer1 = it.child("answer1").value.toString()
+                            val answer2 = it.child("answer2").value.toString()
+                            val answer3 = it.child("answer3").value.toString()
+                            val correctAnswer = it.child("correctAnswer").value.toString().toInt()
+                            val questionType = it.child("questionType").value.toString()
+                            val image = it.child("image").value
+                            if (questionType == "imageQuestion") {
+                                image?.let {
+                                    multipleChoiceQuestions.add(
+                                        MultipleChoiceQuestion(
+                                            questionTitle,
+                                            null,
+                                            answer1,
+                                            answer2,
+                                            answer3,
+                                            correctAnswer,
+                                            questionType,
+                                            it.toString()
+                                        )
+                                    )
+                                }
+                            } else {
+                                question?.let {
+                                    multipleChoiceQuestions.add(
+                                        MultipleChoiceQuestion(
+                                            questionTitle,
+                                            it.toString(),
+                                            answer1,
+                                            answer2,
+                                            answer3,
+                                            correctAnswer,
+                                            questionType,
+                                            null
+                                        )
+                                    )
+                                }
+                            }
+                            if (multipleChoiceQuestions.size >= MAX_QUESTIONS) {
+                                removeLoadingFragment()
+                                val intent = Intent(this, MultipleChoiceActivity::class.java)
+                                intent.putExtra(
+                                    "quizQuestions",
+                                    Gson().toJson(QuestionList(multipleChoiceQuestions))
+                                )
+                                startActivity(intent)
+                            }
+                        })
                 }
-                if (multipleChoiceQuestions.size >= MAX_QUESTIONS) {
-                    removeLoadingFragment()
-                    val intent = Intent(this, MultipleChoiceActivity::class.java)
-                    intent.putExtra(
-                        "quizQuestions",
-                        Gson().toJson(QuestionList(multipleChoiceQuestions))
-                    )
-                    startActivity(intent)
-                }
-            })
+            }
         } else {
             removeLoadingFragment()
             val intent = Intent(this, MultipleChoiceActivity::class.java)
@@ -196,11 +208,15 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
 
     override fun onSpeechGameClicked() {
         loadFragment(loadingAnimatedFragment)
-        database.child(SPEECH_GAME_PATH)
-            .addChildEventListener(baseChildEventListener { dataSnapshot ->
-                val sentence = dataSnapshot.child("sentence").value.toString()
-                speechGameSentenceArray.add(sentence)
-            })
+        for (item in levelsArray) {
+            if (userLevel.compareTo(item) >= 0) {
+                database.child(SPEECH_GAME_PATH).child(item)
+                    .addChildEventListener(baseChildEventListener { dataSnapshot ->
+                        val sentence = dataSnapshot.child("sentence").value.toString()
+                        speechGameSentenceArray.add(sentence)
+                    })
+            }
+        }
         setTimerTask("loadingSpeechGame", 1000L, {
             supportFragmentManager.popBackStack()
             loadSpeechGameActivity(speechGameSentenceArray)
@@ -216,8 +232,8 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
 
     companion object {
         private const val NUM_BOTS = 9
-        private const val MULTIPLE_CHOICE_PATH = "Games/MultipleChoice/Easy/"
-        private const val SPEECH_GAME_PATH = "Games/SpeechGame/Easy"
+        private const val MULTIPLE_CHOICE_PATH = "Games/MultipleChoice/"
+        private const val SPEECH_GAME_PATH = "Games/SpeechGame/"
         private const val MAX_QUESTIONS = 2
     }
 }
