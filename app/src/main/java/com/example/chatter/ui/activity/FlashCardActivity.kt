@@ -38,7 +38,7 @@ class FlashCardActivity : BaseChatActivity() {
     private fun initializeDecksFragment() {
         val myLevel = intent?.getStringExtra("userLevel") ?: "Easy"
         decksFragment = FlashCardDecksFragment.newInstance(myLevel)
-        myFavsFragment = FlashCardDecksFragment.Companion.newInstance(true)
+        myFavsFragment = FlashCardDecksFragment.newInstance(true)
     }
 
     fun loadFragment(fragment: Fragment) {

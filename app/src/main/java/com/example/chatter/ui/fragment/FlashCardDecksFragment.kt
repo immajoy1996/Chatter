@@ -9,8 +9,10 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.FlashCardDecksAdapter
+import com.example.chatter.data.QuestionList
 import com.example.chatter.interfaces.DeckSelectedInterface
 import com.example.chatter.ui.activity.FlashCardActivity
+import com.example.chatter.ui.activity.GamesActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -27,6 +29,7 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
     private var myLevel: String = "Easy"
     private var isFavoritesFragment = false
     private var selectedDecksArray = arrayListOf<String>()
+    private var isMultipleChoiceFragment = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,7 +62,9 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         top_bar_title.visibility = View.VISIBLE
         if (isFavoritesFragment) {
             top_bar_title.text = "My Favorites"
-        } else {
+        } else if (isMultipleChoiceFragment) {
+            top_bar_title.text = "Chats"
+        }else {
             top_bar_title.text = "Decks"
         }
     }
@@ -69,13 +74,21 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         button_start.visibility = View.VISIBLE
         button_start.setOnDebouncedClickListener {
             if (selectedDecksArray.isEmpty()) {
-                Toast.makeText(context, "Select a deck!", Toast.LENGTH_SHORT).show()
+                if (isMultipleChoiceFragment) {
+                    Toast.makeText(context, "Select a bot to test!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Select a deck!", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 fragmentManager?.popBackStack()
-                (activity as? FlashCardActivity)?.loadViewFlashCardsFragment(
-                    selectedDecksArray,
-                    isFavoritesFragment
-                )
+                if (isMultipleChoiceFragment) {
+                    (activity as? GamesActivity)?.loadMultipleChoiceQuestions(selectedDecksArray)
+                } else {
+                    (activity as? FlashCardActivity)?.loadViewFlashCardsFragment(
+                        selectedDecksArray,
+                        isFavoritesFragment
+                    )
+                }
             }
         }
         button_next.visibility = View.GONE
@@ -128,17 +141,32 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
             val botImage = it.child("botImage").value.toString()
             val botTitle = it.child("botTitle").value.toString()
             val deckDescription = it.child("deckDescription").value
+            val botDescription = it.child("botDescription").value
             val level = it.child("level").value
-            var botLevel = "Easy"
+            var botLevel = "Hard"
             level?.let {
                 botLevel = it.toString()
             }
-            if (deckDescription != null && myLevel.isNotEmpty() && botLevel.compareTo(myLevel) <= 0) {
+            if (myLevel.isNotEmpty() && botLevel.compareTo(myLevel) <= 0) {
                 botImages.add(botImage)
                 botTitles.add(botTitle)
-                botDescriptions.add(deckDescription.toString())
+                if (isMultipleChoiceFragment) {
+                    if (botDescription == null) {
+                        botDescriptions.add("");
+                    } else {
+                        botDescriptions.add(botDescription.toString())
+                    }
+                } else {
+                    if (deckDescription == null) {
+                        botDescriptions.add("");
+                    } else {
+                        botDescriptions.add(deckDescription.toString())
+                    }
+                }
             }
             context?.let {
+                Log.d("BotTitles", botTitles.toString())
+                Log.d("BotDesc", botDescriptions.toString())
                 flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
                     it,
                     botTitles,
@@ -171,6 +199,16 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         fun newInstance(isFavoritesFragment: Boolean): FlashCardDecksFragment {
             val fragment = FlashCardDecksFragment()
             fragment.isFavoritesFragment = isFavoritesFragment
+            return fragment
+        }
+
+        fun newInstance(
+            isMultipleChoiceFragment: Boolean,
+            userLevel: String
+        ): FlashCardDecksFragment {
+            val fragment = FlashCardDecksFragment()
+            fragment.myLevel = userLevel
+            fragment.isMultipleChoiceFragment = isMultipleChoiceFragment
             return fragment
         }
 
