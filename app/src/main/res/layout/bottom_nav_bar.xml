@@ -4,6 +4,7 @@
     android:layout_height="55dp"
     android:background="#000000"
     android:padding="5dp"
+    android:clickable="false"
     app:layout_constraintBottom_toBottomOf="parent">
 
     <Button

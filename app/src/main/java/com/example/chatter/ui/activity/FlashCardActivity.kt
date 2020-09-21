@@ -11,6 +11,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_flash_card.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class FlashCardActivity : BaseChatActivity() {
 
@@ -21,6 +23,7 @@ class FlashCardActivity : BaseChatActivity() {
     private var loadingAnimatedFragment = LoadingAnimatedFragment()
     private var flashcardsArray = arrayListOf<Vocab>()
     private var favoriteDeckPickerFragment = FavoriteDeckPickerFragment()
+    private var executorService: ExecutorService? = null
 
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
@@ -31,6 +34,7 @@ class FlashCardActivity : BaseChatActivity() {
         setUpTopBar()
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        executorService = Executors.newFixedThreadPool(5)
         initializeDecksFragment()
         loadFlashCardsCategoriesFragment()
     }
@@ -76,7 +80,7 @@ class FlashCardActivity : BaseChatActivity() {
     private fun prepareFlashcards(decksList: ArrayList<String>, isFavoriteFragment: Boolean) {
         val vocabListener = baseChildEventListener {
             val newExpression = it.child(VocabFragment.EXPRESSION).value.toString()
-            val newDefinition = it.child(VocabFragment.DEFINITION).value.toString()
+            val newDefinitionValue = it.child(VocabFragment.DEFINITION).value
             val newImage = it.child(VocabFragment.IMAGE).value
             val newFlashcardType = it.child(VocabFragment.FLASHCARD_TYPE).value
             val isFavorite = it.child(VocabFragment.IS_FAVORITE).value
@@ -92,15 +96,43 @@ class FlashCardActivity : BaseChatActivity() {
             if (isFavorite == true) {
                 newIsFavorite = true
             }
-            flashcardsArray.add(
-                Vocab(
-                    newExpression,
-                    newDefinition,
-                    image,
-                    flashcardType,
-                    newIsFavorite
-                )
+            var newDefinition = ""
+            newDefinitionValue?.let {
+                newDefinition = it.toString()
+            }
+            val vocab = Vocab(
+                newExpression,
+                newDefinition,
+                image,
+                flashcardType,
+                newIsFavorite
             )
+            if (newDefinition.isEmpty()) {
+                val savedDefinition =
+                    preferences.getDefinition(newExpression, preferences.getCurrentTargetLanguage())
+                if (savedDefinition.isEmpty()) {
+                    executorService?.submit {
+                        val result =
+                            translate(newExpression, preferences.getCurrentTargetLanguage())
+                        result?.let {
+                            vocab.definition = it
+                            preferences.storeWordAndDefinition(
+                                newExpression,
+                                it,
+                                preferences.getCurrentTargetLanguage()
+                            )
+                        }
+                        runOnUiThread {
+                            flashcardsArray.add(vocab)
+                        }
+                    }
+                } else {
+                    vocab.definition = savedDefinition
+                    flashcardsArray.add(vocab)
+                }
+            } else {
+                flashcardsArray.add(vocab)
+            }
         }
         if (isFavoriteFragment) {
             if (auth.currentUser != null) {

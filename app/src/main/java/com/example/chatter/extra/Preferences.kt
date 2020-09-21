@@ -131,6 +131,18 @@ class Preferences(val context: Context) {
         return sharedPreferences.getString("profile_image", "") ?: ""
     }
 
+    private fun getTranslationKey(word:String,targetLanguage: String):String{
+        return "${targetLanguage}/${word}"
+    }
+
+    fun storeWordAndDefinition(word: String, definition: String,targetLanguage: String) {
+        sharedPreferences.edit().putString(getTranslationKey(word,targetLanguage), definition).apply()
+    }
+
+    fun getDefinition(word: String, targetLanguage: String): String {
+        return sharedPreferences.getString(getTranslationKey(word,targetLanguage), "") ?: ""
+    }
+
     fun getCurrentTargetLanguage(): String {
         return sharedPreferences.getString("native_language", "") ?: ""
     }

@@ -1,6 +1,7 @@
 package com.example.chatter.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.example.chatter.ui.activity.BaseActivity
 import com.example.chatter.ui.activity.BaseChatActivity
 import com.example.chatter.ui.activity.ChatterActivity
 import com.example.chatter.ui.activity.CreateChatActivity
+import com.google.cloud.translate.testing.RemoteTranslateHelper.TranslateHelperException.translate
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_vocab.*
@@ -113,7 +115,7 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
 
         val vocabListener = baseChildEventListener { dataSnapshot ->
             val newExpression = dataSnapshot.child(EXPRESSION).value.toString()
-            val newDefinition = dataSnapshot.child(DEFINITION).value.toString()
+            val newDefinitionValue = dataSnapshot.child(DEFINITION).value
             val newImage = dataSnapshot.child(IMAGE).value
             val newFlashcardType = dataSnapshot.child(FLASHCARD_TYPE).value
 
@@ -125,25 +127,64 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
             newFlashcardType?.let {
                 flashcardType = it.toString()
             }
-            placeExpressionAlphabetically(
-                Vocab(
-                    newExpression,
-                    newDefinition,
-                    vocabImage,
-                    flashcardType
-                )
+            var newDefinition = ""
+            newDefinitionValue?.let {
+                newDefinition = it.toString()
+            }
+            val vocab = Vocab(
+                newExpression,
+                newDefinition,
+                vocabImage,
+                flashcardType
             )
-            context?.let {
-                vocabAdapter = VocabAdapter(
-                    it,
-                    vocabArray,
-                    if (activity is ChatterActivity) activity as ChatterActivity else activity as CreateChatActivity,
-                    this
-                )
-                vocab_recycler.adapter = vocabAdapter
+            if (newDefinition.isEmpty()) {
+                if (activity is ChatterActivity) {
+                    (activity as? ChatterActivity)?.apply {
+                        val savedDefinition = preferences.getDefinition(
+                            newExpression,
+                            preferences.getCurrentTargetLanguage()
+                        )
+                        if (savedDefinition.isEmpty()) {
+                            executorService?.submit {
+                                val result = translate(newExpression, targetLanguage)
+                                result?.let {
+                                    vocab.definition = it
+                                    preferences.storeWordAndDefinition(
+                                        newExpression,
+                                        it,
+                                        preferences.getCurrentTargetLanguage()
+                                    )
+                                }
+                                runOnUiThread {
+                                    addVocabItemToRecyler(vocab)
+                                }
+                            }
+                        } else {
+                            vocab.definition = savedDefinition
+                            addVocabItemToRecyler(vocab)
+                        }
+                    }
+                }
+            } else {
+                addVocabItemToRecyler(vocab)
             }
         }
         pathReference.addChildEventListener(vocabListener)
+    }
+
+    private fun addVocabItemToRecyler(vocab: Vocab) {
+        placeExpressionAlphabetically(
+            vocab
+        )
+        context?.let {
+            vocabAdapter = VocabAdapter(
+                it,
+                vocabArray,
+                if (activity is ChatterActivity) activity as ChatterActivity else activity as CreateChatActivity,
+                this
+            )
+            vocab_recycler.adapter = vocabAdapter
+        }
     }
 
     private fun placeExpressionAlphabetically(vocabItem: Vocab) {

@@ -161,6 +161,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         chatterActivity.currentPath.let {
             val pathReference = database.child(it)
             val easterEggListener = chatterActivity.baseChildEventListener { dataSnapshot ->
+                //chatterActivity.enableNextButton()
                 if (dataSnapshot.hasChild("title") && dataSnapshot.hasChild("points") && dataSnapshot.hasChild(
                         "id"
                     )
@@ -170,10 +171,9 @@ class MessageMenuOptionsFragment : BaseFragment() {
                     val image = dataSnapshot.child("image").value.toString()
                     chatterActivity.loadEasterEggFragment(title, points, image)
                 }
-                chatterActivity.enableNextButton()
             }
             pathReference.addChildEventListener(easterEggListener)
-            chatterActivity.disableNextButton()
+            //chatterActivity.disableNextButton()
 
         }
     }
