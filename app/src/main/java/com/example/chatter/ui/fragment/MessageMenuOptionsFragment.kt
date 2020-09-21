@@ -52,7 +52,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     private fun makeLayoutVisible() {
         options_menu_layout?.visibility = View.VISIBLE
-        conversation_end_message.visibility = View.GONE
+        conversation_end_message?.visibility = View.GONE
     }
 
     private fun checkIfConversationEnd() {
@@ -169,11 +169,12 @@ class MessageMenuOptionsFragment : BaseFragment() {
                     val points = dataSnapshot.child("points").value as Long
                     val image = dataSnapshot.child("image").value.toString()
                     chatterActivity.loadEasterEggFragment(title, points, image)
-                    chatterActivity.enableNextButton()
                 }
+                chatterActivity.enableNextButton()
             }
             pathReference.addChildEventListener(easterEggListener)
             chatterActivity.disableNextButton()
+
         }
     }
 
@@ -236,17 +237,25 @@ class MessageMenuOptionsFragment : BaseFragment() {
     }
 
     fun selectOptionsWithVoice(text: String) {
-        if (isTextMatch(text, optionA.text.toString())) {
+        if (optionA.text.toString().isNotEmpty() && isTextMatch(text, optionA.text.toString())) {
             optionA.performClick()
             //performDebouncedOptionClick("optionA", optionA.text.toString())
             showScoreBoostAnimation(false)
             chatterActivity.updateTotalScore(25)
-        } else if (isTextMatch(text, optionB.text.toString())) {
+        } else if (optionB.text.toString().isNotEmpty() && isTextMatch(
+                text,
+                optionB.text.toString()
+            )
+        ) {
             optionB.performClick()
             //performDebouncedOptionClick("optionB", optionB.text.toString())
             showScoreBoostAnimation(false)
             chatterActivity.updateTotalScore(25)
-        } else if (isTextMatch(text, optionC.text.toString())) {
+        } else if (optionC.text.toString().isNotEmpty() && isTextMatch(
+                text,
+                optionC.text.toString()
+            )
+        ) {
             optionC.performClick()
             //performDebouncedOptionClick("optionC", optionC.text.toString())
             showScoreBoostAnimation(false)

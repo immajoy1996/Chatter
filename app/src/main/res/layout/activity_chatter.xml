@@ -101,7 +101,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
-            android:src="@drawable/coin"
+            android:src="@drawable/double_trouble"
             app:layout_constraintBottom_toBottomOf="@id/score_boost"
             app:layout_constraintStart_toEndOf="@id/score_boost"
             app:layout_constraintTop_toTopOf="@id/score_boost" />

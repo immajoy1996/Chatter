@@ -195,26 +195,27 @@ class ChatterActivity : BaseChatActivity(),
         constraintSet.clone(messagesInnerLayout)
     }
 
-    private fun setUpTranslationForMessage(
-        msgId: Int,
-        originalMsg: String,
-        targetLanguage: String
-    ) {
-        setUpTranslationTextView("getting translation ...")
-        if (originalMsg.contains("bot is typing")) return
+    private fun getTranslation(msgId: Int, originalMsg: String, targetLanguage: String) {
         executorService?.submit {
             val result = translate(originalMsg, targetLanguage)
+            Log.d("ExecutorService",result)
             runOnUiThread {
-                val translationId = msgId + 9
+                val translationId = msgId
                 val translationView = findViewById<TextView>(translationId)
                 translationView.text = result
             }
         }
     }
 
+    private fun setUpTranslationForMessage(
+        originalMsg: String
+    ) {
+        setUpTranslationTextView("getting translation ...")
+    }
+
     override fun addMessage(msg: String) {
         setUpMessageTextView(msg)
-        setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
+        setUpTranslationForMessage(msg)
         setupProfileImgView()
         addConstraintToProfileImageView()
         addConstraintsForMessageTextView()
@@ -237,39 +238,8 @@ class ChatterActivity : BaseChatActivity(),
         startChatting()
     }
 
-    fun getBotStories(botTitle: String): ArrayList<String> {
-        return getMyPreferences()?.getBotStories(botTitle) ?: arrayListOf(
-            "I don't know ".plus(
-                botTitle
-            )
-        )
-    }
-
     private fun startChatting() {
         showFirstBotMessage()
-    }
-
-    private fun restoreMessages() {
-        var bm = 0
-        var um = 0
-        var isBotsTurn = true
-        while (bm < botMessages.size && um < userMessages.size) {
-            Log.d("Whose turn ", "" + isBotsTurn)
-            if (isBotsTurn) {
-                handleNewMessageLogic(botMessages[bm++])
-            } else {
-                handleNewMessageLogic(userMessages[um++])
-            }
-            isBotsTurn = !isBotsTurn
-        }
-
-        messagesInnerLayout.findViewById<TextView>(newMsgId).isFocusableInTouchMode
-        messagesInnerLayout.findViewById<TextView>(newMsgId).requestFocus()
-        if ((bm + um) % 2 == 0) {
-            getBotResponse(currentPath)
-        } else {
-            loadOptionsMenu()
-        }
     }
 
     private fun getBotResponse(path: String) {
@@ -321,7 +291,9 @@ class ChatterActivity : BaseChatActivity(),
             finish()
         }
         button_next.setOnClickListener {
+            Log.d("BtnNext","next clicked")
             if (!retrievingOptionsFragment.isVisible) {
+                Log.d("BtnNext","got in")
                 disposeListeners()
                 supportFragmentManager.popBackStack()
                 loadVocabFragment()
@@ -751,7 +723,17 @@ class ChatterActivity : BaseChatActivity(),
             val textView = findViewById<TextView>(msgId)
             val otherView = findViewById<TextView>(msgId + 9)
             val str1 = textView.text.toString()
-            textView.text = otherView.text.toString()
+            val str2 = otherView.text.toString()
+            Log.d("Translate",str1+" "+str2)
+            if (str1.contains("bot is typing") || str2.contains("bot is typing")) return@setOnClickListener
+            if (str1.contains("getting translation") || str2.contains("getting translation")) {
+                var englishString = str1
+                if (englishString.contains("getting translation")) {
+                    englishString = str2
+                }
+                getTranslation(msgId, englishString, targetLanguage)
+            }
+            textView.text = str2
             otherView.text = str1
             dismissThreeImagesViewIfVisible()
         }
@@ -1011,7 +993,7 @@ class ChatterActivity : BaseChatActivity(),
         translationTextView?.id?.let {
             constraintSet.setVisibility(it, View.GONE)
         }
-        setUpTranslationBubbleClickListener()
+        //setUpTranslationBubbleClickListener()
     }
 
     private fun addConstraintToProfileImageView() {
@@ -1115,7 +1097,7 @@ class ChatterActivity : BaseChatActivity(),
         val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
         textView.text = msg
         preferences.storeMessage(getMessageTextBubbleId(), msg)
-        setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
+        //setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
     }
 
     fun addSpaceText() {

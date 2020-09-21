@@ -33,17 +33,10 @@ class DashboardActivity : BaseActivity(),
     private var categoryList = ArrayList<String>()
     private var levelList = ArrayList<String>()
     private var isEnabledInGuestMode = ArrayList<Boolean>()
-    private var totalEnabled = -1
-    private var countEnabled = -1
-    private var newBotsAcquiredMessageShown = false
-    private var changedProfile: Boolean? = null
 
     private lateinit var auth: FirebaseAuth
-    private var botItemSpacing: Int? = 20
-
     private var retrievingOptionsFragment =
         RetrievingOptionsFragment.newInstance("Loading Bots ...")
-
     private var targetLanguage = ""
     private var targetBotCategory = "All Bots"
 
@@ -57,7 +50,6 @@ class DashboardActivity : BaseActivity(),
         EasterEggFragment.newInstance("You've acquired new chat bots!")
     private var loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading ...")
     private var mediaPlayer = MediaPlayer()
-    private var enableMusic = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

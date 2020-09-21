@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -20,15 +21,45 @@ import kotlinx.android.synthetic.main.activity_login.*
 
 class GetStartedActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
+    private var mediaPlayer = MediaPlayer()
+    private var landingSequenceStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         auth = FirebaseAuth.getInstance()
+        setUpButtons()
         showBlinkingDots()
+    }
+
+    private fun showLandingPageSequence() {
         typeWelcomeMesssage()
         typeSecondWelcomeMessage()
-        setUpButtons()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        playTypewriterSound()
+        if (!landingSequenceStarted) {
+            landingSequenceStarted = true
+            showLandingPageSequence()
+        }
+    }
+
+    private fun playTypewriterSound() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.typewriter_sound)
+        mediaPlayer.isLooping = true
+        mediaPlayer.start()
+    }
+
+    private fun stopTypewriterSound() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
     }
 
     private fun showBlinkingDots() {
@@ -58,67 +89,6 @@ class GetStartedActivity : BaseActivity() {
         get_started_button.setOnDebouncedClickListener {
             startActivity(Intent(this, SignInActivity::class.java))
         }
-    }
-
-    private fun requestRecordAudioPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.RECORD_AUDIO),
-            PERMISSION_REQUEST_CODE
-        )
-    }
-
-    private fun recordAudioPermissionGranted(): Boolean {
-        return if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            false
-        } else true
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        //super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSION_REQUEST_CODE -> {
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(
-                        this,
-                        "Permission Granted",
-                        Toast.LENGTH_SHORT
-                    ).show();
-                    // main logic
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                            != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            showMessageOKCancel("You need to allow access permissions",
-                                DialogInterface.OnClickListener { dialog, which ->
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestRecordAudioPermission()
-                                    }
-                                })
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun showMessageOKCancel(
-        message: String,
-        okListener: DialogInterface.OnClickListener
-    ) {
-        AlertDialog.Builder(this)
-            .setMessage(message)
-            .setPositiveButton("OK", okListener)
-            .setNegativeButton("Cancel", null)
-            .create()
-            .show()
     }
 
     private fun showTypingAnimation(textView: TextView, delay: Long, message: String) {
@@ -182,6 +152,20 @@ class GetStartedActivity : BaseActivity() {
 
         handler.removeCallbacks(characterAdder);
         handler.postDelayed(characterAdder, delay)
+    }
+
+    private fun showFinalTextFields() {
+        hideBlinkingDots()
+        app_name.text = "Chatter"
+        textView.text = "Speak like an American!"
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopTypewriterSound()
+        if (landingSequenceStarted) {
+            showFinalTextFields()
+        }
     }
 
     override fun setUpTopBar() {

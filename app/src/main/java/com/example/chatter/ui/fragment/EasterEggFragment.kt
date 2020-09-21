@@ -64,10 +64,10 @@ class EasterEggFragment : Fragment() {
             if (activity is DashboardActivity) {
                 (activity as? DashboardActivity)?.removeNewBotsAquiredFragment()
             } else if (activity is ConcentrationActivity) {
-                if (points == null) {
+                if (message?.contains("Resume") == true) {
                     (activity as? ConcentrationActivity)?.let {
                         it.removeStartGameFragment()
-                        it.startGame()
+                        it.resumeGame()
                     }
                 } else {
                     (activity as? ConcentrationActivity)?.let {

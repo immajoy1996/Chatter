@@ -14,6 +14,7 @@ class Preferences(val context: Context) {
     private val levelHashMap = HashMap<String, Int>()
     private val levelNames = arrayListOf<String>("Pawn", "Knight", "Bishop", "Rook")
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
+    private val pointsForLevel = arrayListOf<Int>(2000, 5000, 9000)
 
     private val quotesArray = arrayListOf<String>(
         "What do you call a dinosaur who gets into an accident?",
@@ -22,6 +23,37 @@ class Preferences(val context: Context) {
         "How did the rocket lose his job?",
         "What do you call a ship that sits at the bottom of the ocean and twitches?"
     )
+
+
+    fun getMyCurrentLevel(myPoints: Int): String {
+        if (myPoints < pointsForLevel[0]) {
+            return "Easy"
+        } else if (myPoints < pointsForLevel[1]) {
+            return "Medium"
+        } else {
+            return "Hard"
+        }
+    }
+
+    fun getTotalPointsForMyLevel(myPoints: Int): Int {
+        if (myPoints < pointsForLevel[0]) {
+            return pointsForLevel[0]
+        } else if (myPoints < pointsForLevel[1]) {
+            return pointsForLevel[1]
+        } else {
+            return pointsForLevel[2]
+        }
+    }
+
+    fun getLevelCompletionPercentage(myPoints: Int): Int {
+        if (myPoints < pointsForLevel[0]) {
+            return 100 * myPoints / pointsForLevel[0]
+        } else if (myPoints < pointsForLevel[1]) {
+            return 100 * (myPoints - pointsForLevel[0]) / (pointsForLevel[1] - pointsForLevel[0])
+        } else {
+            return 100 * (myPoints - pointsForLevel[1]) / (pointsForLevel[2] - pointsForLevel[1])
+        }
+    }
 
     private var answersArray = arrayListOf<String>(
         "A Tyrannosaurus Wrecks",

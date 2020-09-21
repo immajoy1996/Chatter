@@ -42,6 +42,7 @@ class ConcentrationActivity : BaseActivity(),
         setUpTopBar()
         setUpProfileGridView()
         fetchBotItemImages()
+        initializeCurrentTime()
         loadStartGameFragment()
     }
 
@@ -91,10 +92,27 @@ class ConcentrationActivity : BaseActivity(),
         mediaPlayer.start()
     }
 
+    private fun initializeCurrentTime(){
+        currentTime = ConcentrationTime(0, 0)
+    }
+
+    fun resumeGame(){
+        gameStarted = true
+        timer = Timer()
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                currentTime.addOneSecond()
+                runOnUiThread {
+                    concentration_game_timer.text = currentTime.getFormattedTime()
+                }
+            }
+        }, 0, 1000)
+    }
+
     fun startGame() {
         gameStarted = true
         timer = Timer()
-        currentTime = ConcentrationTime(0, 0)
+        initializeCurrentTime()
         fetchBotItemImages()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {

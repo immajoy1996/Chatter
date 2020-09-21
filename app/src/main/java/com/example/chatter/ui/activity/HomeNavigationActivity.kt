@@ -75,6 +75,20 @@ class HomeNavigationActivity : BaseActivity() {
             if (preferences.getProfileImage().isNotEmpty()) {
                 setUpProfileImage(preferences.getProfileImage())
             }
+            preferences.getCurrentScore()?.let {
+                setUpPoints(it.toString())
+                setUpPointsProgressBar(it)
+            }
+        }
+    }
+
+    private fun setUpPointsProgressBar(totalPoints: Int) {
+        val totalPointsForThisLevel = preferences.getTotalPointsForMyLevel(totalPoints)
+        if (totalPoints >= totalPointsForThisLevel) {
+            //You've leveled up!
+        } else {
+            home_activity_progress_bar.setProgress(preferences.getLevelCompletionPercentage(totalPoints))
+            home_activity_level.text = preferences.getMyCurrentLevel(totalPoints)
         }
     }
 
