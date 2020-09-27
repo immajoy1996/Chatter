@@ -1,5 +1,6 @@
 package com.example.chatter.adapters
 
+import ProgressBarAnimation
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +19,7 @@ import com.example.chatter.interfaces.DeckSelectedInterface
 import com.example.chatter.interfaces.MultipleChoiceClickedInterface
 import com.example.chatter.interfaces.SpeechGameClickedInterface
 import kotlinx.android.synthetic.main.flashcard_decks_layout.view.*
+import kotlinx.android.synthetic.main.fragment_bot_description.*
 import kotlinx.android.synthetic.main.fragment_view_flashcards.view.*
 
 class FlashCardDecksAdapter(
@@ -77,6 +80,12 @@ class FlashCardDecksAdapter(
             botDesc = view.flashcard_deck_desc
         }
 
+        fun showProgressAnimation(from: Int, to: Int, progressBar: ProgressBar) {
+            val anim = ProgressBarAnimation(progressBar, from.toFloat(), to.toFloat())
+            anim.duration = 1000
+            progressBar.startAnimation(anim)
+        }
+
         fun bind(image: String, title: String, desc: String, completionRate: Int?) {
             if (title.isNotEmpty()) {
                 itemView.create_deck_layout.visibility = View.GONE
@@ -89,6 +98,7 @@ class FlashCardDecksAdapter(
                     itemView.flashcard_completion_rate.visibility = View.VISIBLE
                     itemView.decks_progress_bar.visibility = View.VISIBLE
                     itemView.flashcard_completion_rate.text = "${completionRate} %"
+                    //showProgressAnimation(0, completionRate, itemView.decks_progress_bar)
                     itemView.decks_progress_bar.setProgress(completionRate)
                 } else {
                     itemView.flashcard_completion_rate.visibility = View.GONE

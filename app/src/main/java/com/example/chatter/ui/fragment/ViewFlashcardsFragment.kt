@@ -1,5 +1,6 @@
 package com.example.chatter.ui.fragment
 
+import ProgressBarAnimation
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
@@ -9,6 +10,7 @@ import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import com.bumptech.glide.Glide
@@ -129,21 +131,34 @@ class ViewFlashcardsFragment : BaseFragment() {
                 totalSeen++
             }
         }
-        Log.d("SeenFlashcards",totalSeen.toString().plus(" ").plus(totalFlashcards.toString()))
+        Log.d("SeenFlashcards", totalSeen.toString().plus(" ").plus(totalFlashcards.toString()))
         view_flashcards_progress_bar.setProgress((100.0 * totalSeen / totalFlashcards).toInt())
     }
 
     private fun updateProgressBar() {
         val card = flashCardArray[cardIndex]
+        val oldProgress = (100.0 * totalSeen / totalFlashcards).toFloat()
         card.whichBot?.let {
-            Log.d("SeenFlashcard", (card.whichBot ?: "null").plus(preferences.flashcardAlreadySeen(card).toString()))
+            Log.d(
+                "SeenFlashcard",
+                (card.whichBot ?: "null").plus(preferences.flashcardAlreadySeen(card).toString())
+            )
             if (!preferences.flashcardAlreadySeen(card)) {
                 preferences.storeNewFlashcard(card)
                 totalSeen++
             }
         }
-        Log.d("Seen Flashcard count",totalSeen.toString())
-        view_flashcards_progress_bar.setProgress((100.0 * totalSeen / totalFlashcards).toInt())
+        val newProgress = (100.0 * totalSeen / totalFlashcards).toFloat()
+        Log.d("Seen Flashcard count", totalSeen.toString())
+        if (oldProgress != newProgress) {
+            showProgressAnimation(oldProgress, newProgress, view_flashcards_progress_bar)
+        }
+    }
+
+    private fun showProgressAnimation(from: Float, to: Float, progressBar: ProgressBar) {
+        val anim = ProgressBarAnimation(progressBar, from, to)
+        anim.duration = 1000
+        progressBar.startAnimation(anim)
     }
 
     private fun setUpFavoriteStar() {
