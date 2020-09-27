@@ -339,6 +339,14 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         button_next.setClickable(true)
     }
 
+    fun hideNextButton() {
+        button_next.visibility = View.GONE
+    }
+
+    fun showNextButton() {
+        button_next.visibility = View.VISIBLE
+    }
+
     fun toggleRestartFlag(flag: Boolean) {
         this.shouldRestart = flag
     }

@@ -7,7 +7,7 @@
     tools:context=".ui.fragment.EnterUsernameFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/option_width"
         android:layout_height="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -17,71 +17,79 @@
             android:id="@+id/restart"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginBottom="10dp"
             android:src="@drawable/refresh"
             android:visibility="gone"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/user_input_title"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/user_input_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/avenir_next"
+            android:gravity="center"
             android:text="Enter your username"
             android:textColor="#000000"
             android:textSize="25sp"
-            android:fontFamily="@font/avenir_next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/user_input"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/user_input_layout"
             android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:maxLines="1"
             android:background="@drawable/enter_username_background"
-            android:cursorVisible="true"
-            android:gravity="center"
-            android:padding="10dp"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:textSize="20sp"
-            android:fontFamily="@font/avenir_next"
+            android:layout_marginTop="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/user_input_title"></EditText>
+            app:layout_constraintTop_toBottomOf="@+id/user_input_title">
 
-        <ImageView
-            android:id="@+id/submit"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginEnd="10dp"
-            android:src="@drawable/right_arrow"
-            app:layout_constraintBottom_toBottomOf="@id/user_input"
-            app:layout_constraintEnd_toEndOf="@id/user_input"
-            app:layout_constraintTop_toTopOf="@id/user_input" />
+            <EditText
+                android:id="@+id/user_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:cursorVisible="true"
+                android:fontFamily="@font/avenir_next"
+                android:gravity="center"
+                android:padding="10dp"
+                android:background="@null"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toStartOf="@id/submit"
+                app:layout_constraintStart_toStartOf="parent"></EditText>
+
+            <ImageView
+                android:id="@+id/submit"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/right_arrow"
+                app:layout_constraintBottom_toBottomOf="@id/user_input"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/user_input" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sorry that username is already taken"
-            android:textSize="15sp"
-            android:textColor="#FF0000"
-            android:visibility="gone"
-            android:gravity="center"
-            android:fontFamily="@font/avenir_next"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/avenir_next"
+            android:gravity="center"
             android:padding="10dp"
+            android:text="Sorry that username is already taken"
+            android:textColor="#FF0000"
+            android:textSize="15sp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/user_input"
-            />
+            app:layout_constraintTop_toBottomOf="@id/user_input_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

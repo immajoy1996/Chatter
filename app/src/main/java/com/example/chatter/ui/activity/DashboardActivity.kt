@@ -300,14 +300,14 @@ class DashboardActivity : BaseActivity(),
                         if (botLevel.compareTo(userLevel) > 0) {
                             botEnabled = false
                         }
-                        handleNewBot(botImage, botTitle, botCategory, botEnabled, botLevel)
+                        placeNewBotByLevel(botImage, botTitle, botCategory, botEnabled, botLevel)
                         setBotAdapter()
                     }
                     levelRef.addListenerForSingleValueEvent(levelListener)
                 }
             } else {
                 val botEnabled = isEnabledGuest
-                handleNewBot(botImage, botTitle, botCategory, botEnabled, botLevel)
+                placeNewBotByLevel(botImage, botTitle, botCategory, botEnabled, botLevel)
                 setBotAdapter()
                 removeLoadingAnimatedFragment()
             }
@@ -323,6 +323,33 @@ class DashboardActivity : BaseActivity(),
             levelList
         )
         dashboard_recycler.adapter = botAdapter
+    }
+
+    private fun placeNewBotByLevel(
+        botImage: String,
+        botTitle: String,
+        botCategory: String,
+        botEnabled: Boolean,
+        botLevel: String
+    ) {
+        var index = 0
+        val n = levelList.size
+        while (index < n && botLevel.compareLevelTo(levelList[index]) >= 0) {
+            index++
+        }
+        if (index == n) {
+            imageList.add(botImage)
+            titleList.add(botTitle)
+            categoryList.add(botCategory)
+            isEnabledInGuestMode.add(botEnabled)
+            levelList.add(botLevel)
+        } else {
+            imageList.add(index, botImage)
+            titleList.add(index, botTitle)
+            categoryList.add(index, botCategory)
+            isEnabledInGuestMode.add(index, botEnabled)
+            levelList.add(index, botLevel)
+        }
     }
 
     private fun handleNewBot(

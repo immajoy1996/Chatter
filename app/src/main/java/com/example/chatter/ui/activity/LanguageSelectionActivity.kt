@@ -144,6 +144,8 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                     database.child("Users/${uid}").child("nativeLanguage").setValue(langObject)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Changes Saved", Toast.LENGTH_LONG).show()
+                            preferences.storeNativeLanguageSelection(languageMap[selectedLang as String] as String)
+                            preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
                             finish()
                         }.addOnFailureListener {
                             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
@@ -160,10 +162,10 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                     selectedLang as String
                 )
             ) {
-                    preferences.storeNativeLanguageSelection(languageMap[selectedLang as String] as String)
-                    preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
-                    Toast.makeText(this, "Changes Saved", Toast.LENGTH_LONG).show()
-                    finish()
+                preferences.storeNativeLanguageSelection(languageMap[selectedLang as String] as String)
+                preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
+                Toast.makeText(this, "Changes Saved", Toast.LENGTH_LONG).show()
+                finish()
             } else if (selectedLang == null || selectedFlagImg == null) {
                 Toast.makeText(this, "Select a language", Toast.LENGTH_LONG).show()
             }

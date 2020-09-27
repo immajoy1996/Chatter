@@ -17,6 +17,7 @@ import com.example.chatter.interfaces.DeckSelectedInterface
 import com.example.chatter.interfaces.MultipleChoiceClickedInterface
 import com.example.chatter.interfaces.SpeechGameClickedInterface
 import kotlinx.android.synthetic.main.flashcard_decks_layout.view.*
+import kotlinx.android.synthetic.main.fragment_view_flashcards.view.*
 
 class FlashCardDecksAdapter(
     val context: Context,
@@ -28,7 +29,8 @@ class FlashCardDecksAdapter(
     var onDecksSelectedInterface: DeckSelectedInterface? = null,
     var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null,
     var multipleChoiceClickedInterface: MultipleChoiceClickedInterface? = null,
-    var speechGameClickedInterface: SpeechGameClickedInterface? = null
+    var speechGameClickedInterface: SpeechGameClickedInterface? = null,
+    var completionPercentage: ArrayList<Int>? = null
 ) :
     RecyclerView.Adapter<FlashCardDecksAdapter.FlashCardLevelsViewHolder>() {
 
@@ -45,13 +47,17 @@ class FlashCardDecksAdapter(
     override fun onBindViewHolder(holder: FlashCardLevelsViewHolder, position: Int) {
         val title = botTitles[position]
         val desc = botDescriptions[position]
+        var rate: Int? = null
+        completionPercentage?.let {
+            rate = it[position]
+        }
         if (isGameFragment == true) {
             gameImages?.let {
                 holder.bind(it[position], title, desc)
             }
         } else {
             botImages?.let {
-                holder.bind(it[position], title, desc)
+                holder.bind(it[position], title, desc, rate)
             }
         }
     }
@@ -71,7 +77,7 @@ class FlashCardDecksAdapter(
             botDesc = view.flashcard_deck_desc
         }
 
-        fun bind(image: String, title: String, desc: String) {
+        fun bind(image: String, title: String, desc: String, completionRate: Int?) {
             if (title.isNotEmpty()) {
                 itemView.create_deck_layout.visibility = View.GONE
                 itemView.normal_decks_layout.visibility = View.VISIBLE
@@ -79,6 +85,15 @@ class FlashCardDecksAdapter(
                 itemView.flashcard_completion_rate.visibility = View.VISIBLE
                 itemView.create_decks_divider.visibility = View.GONE
                 itemView.normal_decks_divider.visibility = View.VISIBLE
+                if (completionRate != null) {
+                    itemView.flashcard_completion_rate.visibility = View.VISIBLE
+                    itemView.decks_progress_bar.visibility = View.VISIBLE
+                    itemView.flashcard_completion_rate.text = "${completionRate} %"
+                    itemView.decks_progress_bar.setProgress(completionRate)
+                } else {
+                    itemView.flashcard_completion_rate.visibility = View.GONE
+                    itemView.decks_progress_bar.visibility = View.GONE
+                }
                 botImage?.let {
                     Glide.with(context)
                         .load(image)

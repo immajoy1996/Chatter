@@ -5,9 +5,12 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PorterDuff
+import android.media.AudioManager
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.data.Vocab
@@ -28,6 +31,9 @@ class ViewFlashcardsFragment : BaseFragment() {
     var isFavoriteFragment = false
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
+    private lateinit var audioManager: AudioManager
+    private var totalSeen: Int = 0
+    private var totalFlashcards = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +46,7 @@ class ViewFlashcardsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         setUpBackButton()
         if (flashCardArray.size > 0) {
             showFlashcardsLayout()
@@ -49,6 +56,7 @@ class ViewFlashcardsFragment : BaseFragment() {
             setUpNextFlashcard()
             setUpFlashCardClick()
             setUpFlashcardArrowClick()
+            initProgressBar()
             if (flashCardArray.size == 1) {
                 hideFlashcardArrowsLayout()
             } else {
@@ -100,6 +108,7 @@ class ViewFlashcardsFragment : BaseFragment() {
             }
             cardIndex = index
             setUpNextFlashcard()
+            updateProgressBar()
         }
         view_flashcards_left_arrow.setOnClickListener {
             var index = (cardIndex - 1 + size) % size
@@ -108,7 +117,33 @@ class ViewFlashcardsFragment : BaseFragment() {
             }
             cardIndex = index
             setUpNextFlashcard()
+            updateProgressBar()
         }
+    }
+
+    private fun initProgressBar() {
+        for (cardItem in flashCardArray) {
+            totalFlashcards++
+            preferences.addNewFlashcardToList(cardItem)
+            if (preferences.flashcardAlreadySeen(cardItem)) {
+                totalSeen++
+            }
+        }
+        Log.d("SeenFlashcards",totalSeen.toString().plus(" ").plus(totalFlashcards.toString()))
+        view_flashcards_progress_bar.setProgress((100.0 * totalSeen / totalFlashcards).toInt())
+    }
+
+    private fun updateProgressBar() {
+        val card = flashCardArray[cardIndex]
+        card.whichBot?.let {
+            Log.d("SeenFlashcard", (card.whichBot ?: "null").plus(preferences.flashcardAlreadySeen(card).toString()))
+            if (!preferences.flashcardAlreadySeen(card)) {
+                preferences.storeNewFlashcard(card)
+                totalSeen++
+            }
+        }
+        Log.d("Seen Flashcard count",totalSeen.toString())
+        view_flashcards_progress_bar.setProgress((100.0 * totalSeen / totalFlashcards).toInt())
     }
 
     private fun setUpFavoriteStar() {
@@ -257,7 +292,11 @@ class ViewFlashcardsFragment : BaseFragment() {
         }
         flashcard_audio.setOnClickListener {
             if (flashcard_text.visibility == View.VISIBLE) {
-                (activity as? FlashCardActivity)?.letBearSpeak(flashcard_text.text.toString())
+                if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+                    Toast.makeText(context, "Turn up your volume", Toast.LENGTH_LONG).show()
+                } else {
+                    (activity as? FlashCardActivity)?.letBearSpeak(flashcard_text.text.toString())
+                }
             }
         }
         view_flashcards_correct_button.setOnClickListener {
@@ -361,13 +400,13 @@ class ViewFlashcardsFragment : BaseFragment() {
             //hideFavoritesButton()
             view_flashcards_arrow_layout.visibility = View.VISIBLE
             view_flashcards_correct_wrong_layout.visibility = View.GONE
-            flashcards_progress_bar.visibility = View.GONE
+            view_flashcards_progress_bar.visibility = View.GONE
         } else {
             resetDeck()
             //showFavoritesButton()
             view_flashcards_arrow_layout.visibility = View.VISIBLE
             view_flashcards_correct_wrong_layout.visibility = View.GONE
-            flashcards_progress_bar.visibility = View.VISIBLE
+            view_flashcards_progress_bar.visibility = View.VISIBLE
         }
     }
 

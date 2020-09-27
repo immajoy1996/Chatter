@@ -27,6 +27,7 @@ class FlashCardActivity : BaseChatActivity() {
 
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
+    private var langChanged = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,7 @@ class FlashCardActivity : BaseChatActivity() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
         executorService = Executors.newFixedThreadPool(5)
+        langChanged = intent?.getBooleanExtra("langChanged", false) ?: false
         initializeDecksFragment()
         loadFlashCardsCategoriesFragment()
     }
@@ -57,6 +59,10 @@ class FlashCardActivity : BaseChatActivity() {
         flashcardsArray.clear()
     }
 
+    private fun resetLangChangedFlag() {
+        langChanged = false
+    }
+
     fun loadViewFlashCardsFragment(decksList: ArrayList<String>, isFavoriteFragment: Boolean) {
         resetFlashCardsArray()
         loadFragment(loadingAnimatedFragment)
@@ -64,7 +70,13 @@ class FlashCardActivity : BaseChatActivity() {
             if (auth.currentUser != null) {
                 prepareFlashcards(decksList, true)
             } else {
-                flashcardsArray = preferences.getMyFavoritesArray() ?: arrayListOf<Vocab>()
+                if (langChanged) {
+                    resetFlashCardsArray()
+                    resetLangChangedFlag()
+                    preferences.storeMyFavoritesJsonString(arrayListOf<Vocab>())
+                } else {
+                    flashcardsArray = preferences.getMyFavoritesArray() ?: arrayListOf<Vocab>()
+                }
             }
         } else {
             prepareFlashcards(decksList, false)
@@ -100,12 +112,14 @@ class FlashCardActivity : BaseChatActivity() {
             newDefinitionValue?.let {
                 newDefinition = it.toString()
             }
+            val whichBot = it.ref.parent?.key
             val vocab = Vocab(
                 newExpression,
                 newDefinition,
                 image,
                 flashcardType,
-                newIsFavorite
+                newIsFavorite,
+                whichBot
             )
             if (newDefinition.isEmpty()) {
                 val savedDefinition =

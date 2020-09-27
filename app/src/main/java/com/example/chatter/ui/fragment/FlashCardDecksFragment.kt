@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatter.R
 import com.example.chatter.adapters.FlashCardDecksAdapter
+import com.example.chatter.data.BotVocab
 import com.example.chatter.data.QuestionList
 import com.example.chatter.interfaces.DeckSelectedInterface
 import com.example.chatter.ui.activity.FlashCardActivity
@@ -30,6 +31,7 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
     private var isFavoritesFragment = false
     private var selectedDecksArray = arrayListOf<String>()
     private var isMultipleChoiceFragment = false
+    private var completionPercentage: ArrayList<Int> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +47,10 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         setUpTopBar()
         setUpBottomBar()
         setUpDecksRecycler()
+    }
+
+    override fun onResume() {
+        super.onResume()
         if (isFavoritesFragment) {
             fetchMyFavoriteDecks()
         } else {
@@ -64,7 +70,7 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
             top_bar_title.text = "My Favorites"
         } else if (isMultipleChoiceFragment) {
             top_bar_title.text = "Chats"
-        }else {
+        } else {
             top_bar_title.text = "Decks"
         }
     }
@@ -105,6 +111,45 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         botTitles.clear()
         botImages.clear()
         botDescriptions.clear()
+        completionPercentage.clear()
+    }
+
+    private fun sortListsByCompletionPercentage() {
+        var curPos = 0
+        val n = completionPercentage.size
+        while (curPos < n) {
+            var min = 1000
+            var i = curPos
+            var index = curPos
+            while (i < n) {
+                if (completionPercentage[i] < min) {
+                    min = completionPercentage[i]
+                    index = i
+                }
+                i++
+            }
+            swap(curPos, index)
+            curPos++
+        }
+    }
+
+    private fun swap(index1: Int, index2: Int) {
+        swapStringArrayPositions(botTitles, index1, index2)
+        swapStringArrayPositions(botImages, index1, index2)
+        swapStringArrayPositions(botDescriptions, index1, index2)
+        swapIntArrayPositions(completionPercentage, index1, index2)
+    }
+
+    private fun swapStringArrayPositions(list: ArrayList<String>, index1: Int, index2: Int) {
+        val temp = list[index1]
+        list[index1] = list[index2]
+        list[index2] = temp
+    }
+
+    private fun swapIntArrayPositions(list: ArrayList<Int>, index1: Int, index2: Int) {
+        val temp = list[index1]
+        list[index1] = list[index2]
+        list[index2] = temp
     }
 
     private fun fetchMyFavoriteDecks() {
@@ -135,6 +180,23 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         database.child(FLASHCARD_PATH).addChildEventListener(decksListener)
     }
 
+    private fun String.compareLevelTo(otherLevel: String): Int {
+        if (this == otherLevel) return 0
+        when (this) {
+            "Easy" -> {
+                return -1
+            }
+            "Medium" -> {
+                if (otherLevel == "Easy") return 1
+                else return -1
+            }
+            "Hard" -> {
+                return 1
+            }
+        }
+        return 0
+    }
+
     private fun fetchDecks() {
         resetDecks()
         val decksListener = baseChildEventListener { it ->
@@ -147,7 +209,7 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
             level?.let {
                 botLevel = it.toString()
             }
-            if (myLevel.isNotEmpty() && botLevel.compareTo(myLevel) <= 0) {
+            if (myLevel.isNotEmpty() && botLevel.compareLevelTo(myLevel) <= 0) {
                 botImages.add(botImage)
                 botTitles.add(botTitle)
                 if (isMultipleChoiceFragment) {
@@ -162,20 +224,39 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
                     } else {
                         botDescriptions.add(deckDescription.toString())
                     }
+                    completionPercentage.add(preferences.getCompletionRate(botTitle))
                 }
             }
+
             context?.let {
                 Log.d("BotTitles", botTitles.toString())
                 Log.d("BotDesc", botDescriptions.toString())
-                flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
-                    it,
-                    botTitles,
-                    botImages,
-                    null,
-                    botDescriptions,
-                    null,
-                    this
-                )
+                if (isMultipleChoiceFragment) {
+                    flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
+                        it,
+                        botTitles,
+                        botImages,
+                        null,
+                        botDescriptions,
+                        null,
+                        this
+                    )
+                } else {
+                    sortListsByCompletionPercentage()
+                    flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
+                        it,
+                        botTitles,
+                        botImages,
+                        null,
+                        botDescriptions,
+                        null,
+                        this,
+                        null,
+                        null,
+                        null,
+                        completionPercentage
+                    )
+                }
             }
         }
         database.child("BotCatalog").addChildEventListener(decksListener)

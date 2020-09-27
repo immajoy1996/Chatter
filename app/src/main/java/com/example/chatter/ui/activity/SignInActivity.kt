@@ -103,19 +103,19 @@ class SignInActivity : BaseChatActivity() {
             FRAGMENT_REENTER_PASSWORD,
             FRAGMENT_ENTER_PIN
         )
-    val signUpIndividualBotMessages = arrayListOf<String>(
+    private val signUpIndividualBotMessages = arrayListOf<String>(
         "Ok. Enter your email.",
         "Ok. Choose your password?",
-        "Ok, please reenter your password for confirmation.",
-        "Ok, you're all set! We sent a 4 digit pin to your email. Please enter it below."
+        "Ok, please reenter your password for confirmation."
+        //"Ok, you're all set! We sent a 4 digit pin to your email. Please enter it below."
     )
 
-    val signUpThroughMySchoolUserMessages = arrayListOf<Int>(
+    private val signUpThroughMySchoolUserMessages = arrayListOf<Int>(
         FRAGMENT_ENTER_YOUR_SCHOOL_NAME,
         FRAGMENT_ENTER_EMAIL,
         FRAGMENT_CHOOSE_PASSWORD,
-        FRAGMENT_REENTER_PASSWORD,
-        FRAGMENT_ENTER_PIN
+        FRAGMENT_REENTER_PASSWORD
+        //FRAGMENT_ENTER_PIN
     )
 
     val signUpThroughMySchoolBotMessages = arrayListOf<String>(
@@ -140,6 +140,7 @@ class SignInActivity : BaseChatActivity() {
     private var MESSAGE_PADDING = 20
     private var MESSAGE_VERTICAL_SPACING = 50
     private var PROFILE_IMAGE_SIZE = 50
+    private var FIRST_VERTICAL_SPACING = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,6 +159,7 @@ class SignInActivity : BaseChatActivity() {
         MESSAGE_BUBBLE_WIDTH = this.resources.getInteger(R.integer.message_bubble_width)
         MESSAGE_PADDING = this.resources.getInteger(R.integer.message_bubble_padding)
         MESSAGE_VERTICAL_SPACING = this.resources.getInteger(R.integer.message_vertical_spacing)
+        FIRST_VERTICAL_SPACING = 2 * MESSAGE_VERTICAL_SPACING
         PROFILE_IMAGE_SIZE = this.resources.getInteger(R.integer.bot_profile_size)
     }
 
@@ -175,6 +177,7 @@ class SignInActivity : BaseChatActivity() {
 
     override fun showFirstBotMessage() {
         handleNewMessageLogic("Hello, what would you like to do?")
+        addSpaceText()
         loadSignInOptions()
     }
 
@@ -200,11 +203,11 @@ class SignInActivity : BaseChatActivity() {
             .commit()
     }
 
-    fun loadLoadingFragment() {
+    private fun loadLoadingFragment() {
         loadAnimatedLoadingFragment(loadingAnimatedFragment)
     }
 
-    fun loadAnimatedLoadingFragment(fragment: Fragment) {
+    private fun loadAnimatedLoadingFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
             .replace(root_container.id, fragment)
@@ -233,7 +236,7 @@ class SignInActivity : BaseChatActivity() {
         val setStr = "bot is typing"
         handleNewMessageLogic(setStr)
         val botIsTypingId = getMessageTextBubbleId()
-        var botIsTypingTextView: TextView = findViewById<TextView>(botIsTypingId)
+        val botIsTypingTextView: TextView = findViewById<TextView>(botIsTypingId)
         showTypingAnimation(botIsTypingTextView, 300)
     }
 
@@ -484,9 +487,16 @@ class SignInActivity : BaseChatActivity() {
         }
     }
 
+    fun removeWhitespaceCharactersFromUsernameAndPassword() {
+        username?.trim()
+        password?.trim()
+        reenterPassword?.trim()
+    }
+
     fun signUpNewUser() {
         retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Signing Up")
         loadRetrievingOptionsFragment()
+        removeWhitespaceCharactersFromUsernameAndPassword()
         auth.createUserWithEmailAndPassword(username as String, password as String)
             .addOnSuccessListener {
                 createUserDatabaseEntry(
@@ -785,7 +795,7 @@ class SignInActivity : BaseChatActivity() {
         constraintSet.applyTo(messagesInnerLayout)
     }
 
-    fun addSpaceText() {
+    private fun addSpaceText() {
         val spaceMsgId = getIdForSpaceView()
         addSpaceMessage(spaceMsgId)
     }
@@ -812,9 +822,7 @@ class SignInActivity : BaseChatActivity() {
             }
             setPadding(MESSAGE_PADDING)
             setId(spaceId)
-            text = "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
-                    "dfsdfdsfdsfdsfdsfdsfdsdsfdsfds" +
-                    "dsfdsfdsfdshelloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd"
+            text = LOTS_OF_TEXT
             setTypeface(typeface)
             textSize = TEXT_SIZE_MESSAGE
             isFocusableInTouchMode = true
@@ -824,7 +832,15 @@ class SignInActivity : BaseChatActivity() {
 
     private fun addGeneralConstraintsForSpaceView() {
         val textView = messageTextView as TextView
-        if (newSide == "left") {
+        if (msgCount == 1) {
+            constraintSet.connect(
+                textView.id,
+                ConstraintSet.TOP,
+                prevMsgId,
+                ConstraintSet.BOTTOM,
+                FIRST_VERTICAL_SPACING
+            )
+        } else if (newSide == "left") {
             constraintSet.connect(
                 textView.id,
                 ConstraintSet.TOP,
@@ -860,5 +876,9 @@ class SignInActivity : BaseChatActivity() {
         const val FRAGMENT_ENTER_YOUR_SCHOOL_NAME = 70
         const val BEAR_PROFILE_PATH =
             "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/botImages%2Fbusiness_profile.png?alt=media&token=04b44fa6-56ec-4614-b6fb-8a99c84fa96a"
+
+        const val LOTS_OF_TEXT = "helloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd" +
+                "dfsdfdsfdsfdsfdsfdsfdsdsfdsfds" +
+                "dsfdsfdsfdshelloddsklkdkdkdkdkkdkdkdkkdkdkkddsfsdfdsfdsfdsfdsfdsfd"
     }
 }

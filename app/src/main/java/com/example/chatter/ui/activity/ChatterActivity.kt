@@ -30,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -198,7 +199,7 @@ class ChatterActivity : BaseChatActivity(),
     private fun getTranslation(msgId: Int, originalMsg: String, targetLanguage: String) {
         executorService?.submit {
             val result = translate(originalMsg, targetLanguage)
-            Log.d("ExecutorService",result)
+            Log.d("ExecutorService", result)
             runOnUiThread {
                 val translationId = msgId
                 val translationView = findViewById<TextView>(translationId)
@@ -290,10 +291,9 @@ class ChatterActivity : BaseChatActivity(),
             toggleRestartFlag(false)
             finish()
         }
+        showNextButton()
         button_next.setOnClickListener {
-            Log.d("BtnNext","next clicked")
             if (!retrievingOptionsFragment.isVisible) {
-                Log.d("BtnNext","got in")
                 disposeListeners()
                 supportFragmentManager.popBackStack()
                 loadVocabFragment()
@@ -336,7 +336,7 @@ class ChatterActivity : BaseChatActivity(),
         }
     }
 
-    fun loadBotStoryFragment() {
+    private fun loadBotStoryFragment() {
         val botStoryFragment = BotStoryFragment()
         botStoryFragment.let {
             supportFragmentManager
@@ -724,7 +724,7 @@ class ChatterActivity : BaseChatActivity(),
             val otherView = findViewById<TextView>(msgId + 9)
             val str1 = textView.text.toString()
             val str2 = otherView.text.toString()
-            Log.d("Translate",str1+" "+str2)
+            Log.d("Translate", str1 + " " + str2)
             if (str1.contains("bot is typing") || str2.contains("bot is typing")) return@setOnClickListener
             if (str1.contains("getting translation") || str2.contains("getting translation")) {
                 var englishString = str1

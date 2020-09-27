@@ -36,7 +36,7 @@
         android:layout_height="match_parent">
 
         <ProgressBar
-            android:id="@+id/flashcards_progress_bar"
+            android:id="@+id/view_flashcards_progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="15dp"

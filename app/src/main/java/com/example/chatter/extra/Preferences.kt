@@ -3,9 +3,7 @@ package com.example.chatter.extra
 import android.content.Context
 import android.util.Log
 import com.example.chatter.R
-import com.example.chatter.data.MyFavoritesList
-import com.example.chatter.data.QuestionList
-import com.example.chatter.data.Vocab
+import com.example.chatter.data.*
 import com.google.gson.Gson
 
 class Preferences(val context: Context) {
@@ -131,16 +129,17 @@ class Preferences(val context: Context) {
         return sharedPreferences.getString("profile_image", "") ?: ""
     }
 
-    private fun getTranslationKey(word:String,targetLanguage: String):String{
+    private fun getTranslationKey(word: String, targetLanguage: String): String {
         return "${targetLanguage}/${word}"
     }
 
-    fun storeWordAndDefinition(word: String, definition: String,targetLanguage: String) {
-        sharedPreferences.edit().putString(getTranslationKey(word,targetLanguage), definition).apply()
+    fun storeWordAndDefinition(word: String, definition: String, targetLanguage: String) {
+        sharedPreferences.edit().putString(getTranslationKey(word, targetLanguage), definition)
+            .apply()
     }
 
     fun getDefinition(word: String, targetLanguage: String): String {
-        return sharedPreferences.getString(getTranslationKey(word,targetLanguage), "") ?: ""
+        return sharedPreferences.getString(getTranslationKey(word, targetLanguage), "") ?: ""
     }
 
     fun getCurrentTargetLanguage(): String {
@@ -340,6 +339,86 @@ class Preferences(val context: Context) {
 
     private fun getMyFavoritesArrayAsJson(): String {
         return sharedPreferences.getString(MY_FAVORITES, "") ?: ""
+    }
+
+    fun flashcardAlreadySeen(card: Vocab): Boolean {
+        val botTitle = card.whichBot
+        val flashcardHashmap = getFlashcardHashmap()
+        return (flashcardHashmap.get(botTitle)?.seenFlashcards?.contains(card) == true)
+    }
+
+    fun addNewFlashcardToList(newCard: Vocab) {
+        val botTitle = newCard.whichBot
+        val flashcardHashmap = getFlashcardHashmap()
+        val botVocab = flashcardHashmap.get(botTitle)
+        if (botVocab == null) {
+            botTitle?.let {
+                flashcardHashmap.put(it, BotVocab(HashSet<Vocab>(), HashSet<Vocab>()))
+            }
+        }
+        (botVocab?.flashcardList as? HashSet<Vocab>)?.add(newCard)
+        botVocab?.let {
+            if (botTitle != null) {
+                flashcardHashmap.put(botTitle, it)
+            }
+        }
+        storeFlashcardHashmapAsJsonString(flashcardHashmap)
+    }
+
+    fun storeNewFlashcard(newCard: Vocab) {
+        val botTitle = newCard.whichBot
+        val flashcardHashmap = getFlashcardHashmap()
+
+        val botVocab = flashcardHashmap.get(botTitle)
+        Log.d("BotVocab", botVocab.toString())
+        (botVocab?.seenFlashcards as? HashSet<Vocab>)?.add(newCard)
+        botVocab?.let {
+            if (botTitle != null) {
+                flashcardHashmap.put(botTitle, it)
+            }
+        }
+        storeFlashcardHashmapAsJsonString(flashcardHashmap)
+    }
+
+    fun getCompletionRate(botTitle: String): Int {
+        val hashmap = getFlashcardHashmap()
+        val wholeDeckSize = hashmap.get(botTitle)?.flashcardList?.size
+        val seenSize = hashmap.get(botTitle)?.seenFlashcards?.size
+        Log.d("TotalSize", seenSize.toString() + " " + wholeDeckSize.toString())
+        if (wholeDeckSize == null || seenSize == null) return 0
+        return (100.0 * seenSize / wholeDeckSize).toInt()
+    }
+
+    fun storeFlashcardDeckForParticularBot(
+        botTitle: String,
+        flashcardList: Set<Vocab>,
+        seenFlashcards: Set<Vocab>
+    ) {
+        val flashcardHashmap = getFlashcardHashmap()
+        flashcardHashmap.put(botTitle, BotVocab(flashcardList, seenFlashcards))
+        storeFlashcardHashmapAsJsonString(flashcardHashmap)
+    }
+
+    fun getFlashcardHashmap(): HashMap<String, BotVocab> {
+        val jsonStringObject = getFlashcardHashmapAsJsonString()
+        var hashmap = HashMap<String, BotVocab>()
+        jsonStringObject.let {
+            val mapObject = Gson().fromJson(it, AllFlashcards::class.java)
+            mapObject?.let {
+                hashmap = it.flashcardMap
+            }
+        }
+        return hashmap
+    }
+
+    private fun getFlashcardHashmapAsJsonString(): String {
+        return sharedPreferences.getString("flashcard_hashmap", "") ?: ""
+    }
+
+    private fun storeFlashcardHashmapAsJsonString(hashMap: HashMap<String, BotVocab>) {
+        sharedPreferences.edit()
+            .putString("flashcard_hashmap", Gson().toJson(AllFlashcards(hashMap)))
+            .apply()
     }
 
     fun storeMessage(id: Int, msg: String) {

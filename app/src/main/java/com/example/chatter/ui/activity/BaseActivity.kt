@@ -32,6 +32,23 @@ abstract class BaseActivity : AppCompatActivity() {
         return preferences.getCurrentJokeAnswer()
     }
 
+    fun String.compareLevelTo(otherLevel: String): Int {
+        if (this == otherLevel) return 0
+        when (this) {
+            "Easy" -> {
+                return -1
+            }
+            "Medium" -> {
+                if (otherLevel == "Easy") return 1
+                else return -1
+            }
+            "Hard" -> {
+                return 1
+            }
+        }
+        return 0
+    }
+
     val baseChildEventListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->
         val childEventListener = object : ChildEventListener {
             override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {

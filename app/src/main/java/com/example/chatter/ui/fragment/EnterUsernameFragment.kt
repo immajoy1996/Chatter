@@ -42,7 +42,8 @@ class EnterUsernameFragment : Fragment() {
 
     private fun setUpButtons() {
         submit.setOnClickListener {
-            var userInput = user_input.text.toString()
+            val userInput = user_input.text.toString()
+            userInput.trim()
             user_input.hideKeyboard()
             when (fragmentType) {
                 ENTER_USERNAME, ENTER_EMAIL -> (activity as? SignInActivity)?.username = userInput
@@ -52,6 +53,7 @@ class EnterUsernameFragment : Fragment() {
                 ENTER_SCHOOL_NAME -> (activity as? SignInActivity)?.schoolName = userInput
             }
             (activity as? SignInActivity)?.let {
+                it.removeWhitespaceCharactersFromUsernameAndPassword()
                 when (fragmentType) {
                     ENTER_SCHOOL_NAME -> {
                         if (isValidSchoolName(userInput)) {
@@ -69,10 +71,10 @@ class EnterUsernameFragment : Fragment() {
                         }
                     }
                     REENTER_PASSWORD -> {
-                        var myPassword = (activity as? SignInActivity)?.password
+                        val myPassword = (activity as? SignInActivity)?.password
                         if (myPassword != null) {
                             if (isValidReenterPassword(userInput, myPassword)) {
-                                it.runMessageFlow(userInput)
+                                (activity as? SignInActivity)?.signUpNewUser()
                             }
                         }
                     }

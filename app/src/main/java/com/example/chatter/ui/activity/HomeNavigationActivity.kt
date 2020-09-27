@@ -27,6 +27,8 @@ class HomeNavigationActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private var jokesFragment = QuizDescriptionFragment.newInstance(false)
+    private var langHasChanged = false
+    private var targetLanguage = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +82,18 @@ class HomeNavigationActivity : BaseActivity() {
                 setUpPointsProgressBar(it)
             }
         }
+        if (targetLanguage != preferences.getCurrentTargetLanguage()) {
+            newLanguageChosen()
+            targetLanguage = preferences.getCurrentTargetLanguage()
+        }
+    }
+
+    private fun newLanguageChosen() {
+        langHasChanged = true
+    }
+
+    private fun resetLangChangedFlag() {
+        langHasChanged = false
     }
 
     private fun setUpPointsProgressBar(totalPoints: Int) {
@@ -87,7 +101,11 @@ class HomeNavigationActivity : BaseActivity() {
         if (totalPoints >= totalPointsForThisLevel) {
             //You've leveled up!
         } else {
-            home_activity_progress_bar.setProgress(preferences.getLevelCompletionPercentage(totalPoints))
+            home_activity_progress_bar.setProgress(
+                preferences.getLevelCompletionPercentage(
+                    totalPoints
+                )
+            )
             home_activity_level.text = preferences.getMyCurrentLevel(totalPoints)
         }
     }
@@ -137,9 +155,11 @@ class HomeNavigationActivity : BaseActivity() {
         nav_image2.setOnDebouncedClickListener {
             nav_image2.startBounceAnimation {
                 val intent = Intent(this, FlashCardActivity::class.java)
+                intent.putExtra("langChanged", langHasChanged)
                 intent.putExtra("userLevel", home_activity_level.text.toString())
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 startActivity(intent)
+                resetLangChangedFlag()
             }
         }
         nav_image3.setOnDebouncedClickListener {
@@ -187,6 +207,10 @@ class HomeNavigationActivity : BaseActivity() {
         intent.putExtra("GUEST_MODE", true)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+    }
+
+    override fun onBackPressed() {
+        //disable back button
     }
 
     override fun setUpTopBar() {

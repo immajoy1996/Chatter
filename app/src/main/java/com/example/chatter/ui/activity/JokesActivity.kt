@@ -49,7 +49,7 @@ class JokesActivity : BaseActivity() {
             jokesArray.add(Joke(joke, answer, explanation))
         }
         for (item in levelsArray) {
-            if (userLevel.compareTo(item) >= 0) {
+            if (userLevel.compareLevelTo(item) >= 0) {
                 database.child("Jokes").child(item).addChildEventListener(jokeListener)
             }
         }

@@ -5,5 +5,6 @@ data class Vocab(
     var definition: String,
     var image: String?,
     var flashcardType: String?,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    var whichBot: String? = null
 )

@@ -222,7 +222,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     override fun onSpeechGameClicked() {
         loadFragment(loadingAnimatedFragment)
         for (item in levelsArray) {
-            if (userLevel.compareTo(item) >= 0) {
+            if (userLevel.compareLevelTo(item) >= 0) {
                 database.child(SPEECH_GAME_PATH).child(item)
                     .addChildEventListener(baseChildEventListener { dataSnapshot ->
                         val sentence = dataSnapshot.child("sentence").value.toString()

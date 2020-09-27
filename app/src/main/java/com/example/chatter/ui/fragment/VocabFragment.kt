@@ -66,9 +66,15 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
         vocab_screen_back.setOnClickListener {
             fragmentManager?.popBackStack()
             if (activity is ChatterActivity) {
-                (activity as? ChatterActivity)?.loadOptionsMenu()
+                (activity as? ChatterActivity)?.let {
+                    it.loadOptionsMenu()
+                    it.showNextButton()
+                }
             } else if (activity is CreateChatActivity) {
-                (activity as? CreateChatActivity)?.loadOptionsMenu()
+                (activity as? CreateChatActivity)?.let {
+                    it.loadOptionsMenu()
+                    it.showNextButton()
+                }
             }
         }
         if (activity is CreateChatActivity) {
@@ -93,6 +99,7 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
 
     private fun setUpNavButtons() {
         button_back.visibility = View.GONE
+        hideActivityNextButton()
         button_next.visibility = View.GONE
         button_start.visibility = View.VISIBLE
         button_start.text = "Finish"
@@ -100,6 +107,15 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
             activity?.finish()
         }
     }
+
+    private fun hideActivityNextButton() {
+        if (activity is ChatterActivity) {
+            (activity as? ChatterActivity)?.hideNextButton()
+        } else if (activity is CreateChatActivity) {
+            (activity as? CreateChatActivity)?.hideNextButton()
+        }
+    }
+
 
     private fun resetArrays() {
         vocabArray.clear()
