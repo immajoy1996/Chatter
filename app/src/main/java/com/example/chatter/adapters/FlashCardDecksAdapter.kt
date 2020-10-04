@@ -33,9 +33,11 @@ class FlashCardDecksAdapter(
     var concentrationGameClickedInterface: ConcentrationGameClickedInterface? = null,
     var multipleChoiceClickedInterface: MultipleChoiceClickedInterface? = null,
     var speechGameClickedInterface: SpeechGameClickedInterface? = null,
-    var completionPercentage: ArrayList<Int>? = null
+    var completionPercentage: ArrayList<Int>? = null,
+    var isMultipleChoiceDecksFragment: Boolean? = null
 ) :
     RecyclerView.Adapter<FlashCardDecksAdapter.FlashCardLevelsViewHolder>() {
+    private var selectedBotPos = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlashCardLevelsViewHolder {
         return FlashCardLevelsViewHolder(
@@ -60,7 +62,7 @@ class FlashCardDecksAdapter(
             }
         } else {
             botImages?.let {
-                holder.bind(it[position], title, desc, rate)
+                holder.bind(it[position], title, desc, rate, position)
             }
         }
     }
@@ -71,22 +73,29 @@ class FlashCardDecksAdapter(
         private var botImage: ImageView? = null
         private var botTitle: TextView? = null
         private var botDesc: TextView? = null
-        private var botLayout: ConstraintLayout? = null
 
         init {
             botImage = view.flashcard_bot_image
             botTitle = view.flashcard_deck_title
-            //botLayout = view.bot_item_inner_layout
             botDesc = view.flashcard_deck_desc
         }
 
-        fun showProgressAnimation(from: Int, to: Int, progressBar: ProgressBar) {
-            val anim = ProgressBarAnimation(progressBar, from.toFloat(), to.toFloat())
-            anim.duration = 1000
-            progressBar.startAnimation(anim)
+        private fun hideCompletionProgress() {
+            itemView.flashcard_completion_rate.visibility = View.INVISIBLE
+            itemView.decks_progress_bar.visibility = View.INVISIBLE
         }
 
-        fun bind(image: String, title: String, desc: String, completionRate: Int?) {
+        private fun showCompletionProgress() {
+            itemView.flashcard_completion_rate.visibility = View.VISIBLE
+            itemView.decks_progress_bar.visibility = View.VISIBLE
+        }
+
+        fun bind(image: String, title: String, desc: String, completionRate: Int?, position: Int) {
+            if (position == selectedBotPos) {
+                itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#e4e5e9"))
+            } else {
+                itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#ffffff"))
+            }
             if (title.isNotEmpty()) {
                 itemView.create_deck_layout.visibility = View.GONE
                 itemView.normal_decks_layout.visibility = View.VISIBLE
@@ -98,11 +107,20 @@ class FlashCardDecksAdapter(
                     itemView.flashcard_completion_rate.visibility = View.VISIBLE
                     itemView.decks_progress_bar.visibility = View.VISIBLE
                     itemView.flashcard_completion_rate.text = "${completionRate} %"
-                    //showProgressAnimation(0, completionRate, itemView.decks_progress_bar)
                     itemView.decks_progress_bar.setProgress(completionRate)
+                    if (completionRate == 100) {
+                        itemView.flashcard_complete_layout_container.visibility = View.VISIBLE
+                        hideCompletionProgress()
+                    } else if (completionRate == -1) {
+                        itemView.flashcard_complete_layout_container.visibility = View.GONE
+                        hideCompletionProgress()
+                    } else {
+                        itemView.flashcard_complete_layout_container.visibility = View.GONE
+                        showCompletionProgress()
+                    }
                 } else {
-                    itemView.flashcard_completion_rate.visibility = View.GONE
-                    itemView.decks_progress_bar.visibility = View.GONE
+                    itemView.flashcard_complete_layout_container.visibility = View.GONE
+                    hideCompletionProgress()
                 }
                 botImage?.let {
                     Glide.with(context)
@@ -111,7 +129,7 @@ class FlashCardDecksAdapter(
                 }
                 botTitle?.text = title
                 botDesc?.text = desc
-                toggleSelectedDeck(title)
+                toggleSelectedDeck(title, position)
             } else {
                 itemView.decks_progress_bar.visibility = View.INVISIBLE
                 itemView.create_deck_layout.visibility = View.VISIBLE
@@ -129,7 +147,6 @@ class FlashCardDecksAdapter(
             }
             itemView.decks_progress_bar.visibility = View.INVISIBLE
             itemView.flashcard_completion_rate.visibility = View.GONE
-
             onGameSelected(title)
         }
 
@@ -139,17 +156,31 @@ class FlashCardDecksAdapter(
             }
         }
 
-        private fun toggleSelectedDeck(title: String) {
+        private fun refreshAdapter() {
+            notifyDataSetChanged()
+        }
+
+        private fun toggleSelectedDeck(title: String, position: Int) {
             itemView.setOnClickListener {
                 if ((itemView.decks_item_layout.background as ColorDrawable).color == Color.parseColor(
                         "#ffffff"
                     )
                 ) {
                     itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#e4e5e9"))
-                    onDecksSelectedInterface?.onDeckSelected(title)
+                    if (isMultipleChoiceDecksFragment == true) {
+                        selectedBotPos = position
+                        onDecksSelectedInterface?.onDeckSelected(title,true)
+                        refreshAdapter()
+                    }else{
+                        onDecksSelectedInterface?.onDeckSelected(title,false)
+                    }
                 } else {
                     itemView.decks_item_layout.setBackgroundColor(Color.parseColor("#ffffff"))
                     onDecksSelectedInterface?.onDeckUnselected(title)
+                    if (isMultipleChoiceDecksFragment == true) {
+                        selectedBotPos = -1
+                        refreshAdapter()
+                    }
                 }
             }
         }

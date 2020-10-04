@@ -411,6 +411,17 @@ class Preferences(val context: Context) {
         return hashmap
     }
 
+    fun storeMultipleChoiceDeckComplete(botTitle: String) {
+        sharedPreferences.edit()
+            .putString("$MULTIPLE_CHOICE/$botTitle", "Complete")
+            .apply()
+    }
+
+    fun getIsMultipleChoiceDeckComplete(botTitle: String): Boolean {
+        val result = sharedPreferences.getString("$MULTIPLE_CHOICE/$botTitle", "") ?: ""
+        return result.isNotEmpty()
+    }
+
     private fun getFlashcardHashmapAsJsonString(): String {
         return sharedPreferences.getString("flashcard_hashmap", "") ?: ""
     }
@@ -439,6 +450,15 @@ class Preferences(val context: Context) {
         return sharedPreferences.getString("Translate ${id}", "") ?: ""
     }
 
+    fun storeCurrentPath(path: String) {
+        sharedPreferences.edit().putString(path, "seen")
+            .apply()
+    }
+
+    fun haveSeenCurrentPath(path: String): String {
+        return sharedPreferences.getString(path, "") ?: ""
+    }
+
     companion object {
         const val SHARED_PREFERENCES_KEY = "Shared Preferences"
         const val USER_LEVEL = "User Level"
@@ -449,5 +469,6 @@ class Preferences(val context: Context) {
         const val AUDIOS = "Audios/"
         const val QUOTE_INDEX = "QuoteIndex"
         const val MY_FAVORITES = "My favorites"
+        const val MULTIPLE_CHOICE = "Multiple Choice"
     }
 }

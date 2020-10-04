@@ -64,7 +64,7 @@
         android:layout_height="15dp"
         android:indeterminate="false"
         android:indeterminateTint="#0084FF"
-        android:progress="30"
+        android:progress="0"
         android:layout_marginBottom="20dp"
         android:progressDrawable="@drawable/progress_bar_states"
         app:layout_constraintEnd_toEndOf="parent"

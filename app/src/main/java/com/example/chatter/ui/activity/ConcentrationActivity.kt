@@ -64,6 +64,7 @@ class ConcentrationActivity : BaseActivity(),
     private fun loadFragment(easterEggFragment: EasterEggFragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(concentration_root_layout.id, easterEggFragment)
             .addToBackStack(easterEggFragment.javaClass.name)
             .commit()
@@ -249,8 +250,6 @@ class ConcentrationActivity : BaseActivity(),
     override fun endGame() {
         timer.cancel()
         val newScore = concentration_game_timer.text.toString()
-        val newScoreFragment =
-            EasterEggFragment.newInstance("You've set a new high score!", 25L)
         val thanksForPlayingFragment =
             EasterEggFragment.newInstance("Better luck next time!")
         val betterThanOneMinuteFragment =

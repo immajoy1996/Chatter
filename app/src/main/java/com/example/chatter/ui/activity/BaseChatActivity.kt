@@ -1,6 +1,9 @@
 package com.example.chatter.ui.activity
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -64,6 +67,28 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         setUpTranslateService()
         preferences = Preferences(this)
         setUpTextToSpeech()
+    }
+
+    fun canConnectToInternet(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+        if (connectivityManager != null) {
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     fun initializeVariables() {
@@ -131,6 +156,7 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
 
     private fun setUpTextToSpeech() {
         textToSpeech = TextToSpeech(this, this)
+        Toast.makeText(this,"Initializing audio...",Toast.LENGTH_SHORT).show()
         //runThroughVoiceList()
     }
 
@@ -273,13 +299,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         listener: ValueEventListener
     ) {
         valueEventListenerArray.add(Pair(databaseReference, listener))
-    }
-
-    fun storeChildEventListener(
-        databaseReference: DatabaseReference,
-        listener: ChildEventListener
-    ) {
-        childEventListenerArray.add(Pair(databaseReference, listener))
     }
 
     val baseChildEventListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->

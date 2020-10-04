@@ -10,12 +10,15 @@ import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.data.Vocab
+import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.ui.activity.FlashCardActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -65,7 +68,11 @@ class ViewFlashcardsFragment : BaseFragment() {
                 showFlashcardArrowsLayout()
             }
         } else {
-            showNoFlashcardsMessage()
+            if (isFavoriteFragment) {
+                showNoFlashcardsMessage("You have no favorites yet")
+            } else {
+                showNoFlashcardsMessage("No flashcards to show")
+            }
         }
     }
 
@@ -74,9 +81,10 @@ class ViewFlashcardsFragment : BaseFragment() {
         no_favorites_textview.visibility = View.GONE
     }
 
-    private fun showNoFlashcardsMessage() {
+    private fun showNoFlashcardsMessage(msg: String) {
         view_flashcards_root_container.visibility = View.GONE
         no_favorites_textview.visibility = View.VISIBLE
+        no_favorites_textview.text = msg
     }
 
     private fun setUpBackButton() {
@@ -101,9 +109,25 @@ class ViewFlashcardsFragment : BaseFragment() {
         Collections.shuffle(flashCardArray)
     }
 
+    private fun View.startBounceAnimation(doStuff: () -> Unit) {
+        val bounceAni =
+            AnimationUtils.loadAnimation(context, R.anim.bounce)
+        val interpolator = MyBounceInterpolator(0.2, 20.0)
+        bounceAni.interpolator = interpolator
+        this.startAnimation(bounceAni)
+        bounceAni.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(arg0: Animation) {}
+            override fun onAnimationRepeat(arg0: Animation) {}
+            override fun onAnimationEnd(arg0: Animation) {
+                doStuff()
+            }
+        })
+    }
+
     private fun setUpFlashcardArrowClick() {
         val size = flashCardArray.size
-        view_flashcards_right_arrow.setOnClickListener {
+        view_flashcards_right_arrow.setOnDebouncedClickListener {
+
             var index = (cardIndex + 1) % size
             while (index != cardIndex && flashCardArray[index].expression == flashCardArray[cardIndex].expression) {
                 index = (index + 1) % size
@@ -315,16 +339,20 @@ class ViewFlashcardsFragment : BaseFragment() {
             }
         }
         view_flashcards_correct_button.setOnClickListener {
-            updateFlashcardArray(true)
-            setUpNextFlashcard()
-            showFlashcardArrowsLayout()
-            hideCorrectWrongButtons()
+            it.startBounceAnimation {
+                updateFlashcardArray(true)
+                setUpNextFlashcard()
+                showFlashcardArrowsLayout()
+                hideCorrectWrongButtons()
+            }
         }
         view_flashcards_wrong_button.setOnClickListener {
-            updateFlashcardArray(false)
-            setUpNextFlashcard()
-            showFlashcardArrowsLayout()
-            hideCorrectWrongButtons()
+            it.startBounceAnimation {
+                updateFlashcardArray(false)
+                setUpNextFlashcard()
+                showFlashcardArrowsLayout()
+                hideCorrectWrongButtons()
+            }
         }
     }
 

@@ -1,18 +1,25 @@
 package com.example.chatter.ui.activity
 
+import ProgressBarAnimation
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.UserHandle
+import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.data.NativeLanguage
 import com.example.chatter.extra.MyBounceInterpolator
+import com.example.chatter.ui.fragment.EasterEggFragment
 import com.example.chatter.ui.fragment.FlashCardCategoriesFragment
 import com.example.chatter.ui.fragment.NavigationDrawerFragment
 import com.example.chatter.ui.fragment.QuizDescriptionFragment
@@ -29,6 +36,8 @@ class HomeNavigationActivity : BaseActivity() {
     private var jokesFragment = QuizDescriptionFragment.newInstance(false)
     private var langHasChanged = false
     private var targetLanguage = ""
+    private var leveledUpFragment = EasterEggFragment.newInstance("You've leveled up!")
+    private var noInternetFragment = EasterEggFragment.newInstance("Something went wrong. Please check your connection")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +48,15 @@ class HomeNavigationActivity : BaseActivity() {
         setUpButtons()
     }
 
+    fun removePopup(){
+        supportFragmentManager.popBackStack()
+    }
+
     override fun onResume() {
         super.onResume()
+        if(!canConnectToInternet(this)){
+            loadFragment(noInternetFragment)
+        }
         if (auth.currentUser != null) {
             //User signed in
             auth.currentUser?.let {
@@ -96,17 +112,52 @@ class HomeNavigationActivity : BaseActivity() {
         langHasChanged = false
     }
 
+    private fun showProgressAnimation(from: Int, to: Int, progressBar: ProgressBar) {
+        val anim = ProgressBarAnimation(progressBar, from.toFloat(), to.toFloat())
+        anim.duration = 1000
+        progressBar.startAnimation(anim)
+    }
+
     private fun setUpPointsProgressBar(totalPoints: Int) {
         val totalPointsForThisLevel = preferences.getTotalPointsForMyLevel(totalPoints)
         if (totalPoints >= totalPointsForThisLevel) {
-            //You've leveled up!
+            loadFragment(leveledUpFragment)
+        }
+        val from = home_activity_progress_bar.progress
+        val to = preferences.getLevelCompletionPercentage(totalPoints)
+        showProgressAnimation(from, to, home_activity_progress_bar)
+        home_activity_level.text = preferences.getMyCurrentLevel(totalPoints)
+
+    }
+
+    fun updateTotalScore(pointsAdded: Long) {
+        var oldScore: Int? = null
+        var latestScore: Int? = null
+        if (auth.currentUser != null) {
+            auth.currentUser?.uid?.let {
+                val userUid = it
+                val pathRef = database.child(ChatterActivity.USERS).child(userUid).child("points")
+                val pointsListener = baseValueEventListener { dataSnapshot ->
+                    val currentScore = dataSnapshot.value as Long
+                    oldScore = currentScore.toInt()
+                    val newScore = currentScore + pointsAdded
+                    latestScore = newScore.toInt()
+                    database.child(ChatterActivity.USERS).child(userUid).child("points")
+                        .setValue(newScore)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Points added", Toast.LENGTH_SHORT).show()
+                        }
+                }
+                pathRef.addListenerForSingleValueEvent(pointsListener)
+            }
         } else {
-            home_activity_progress_bar.setProgress(
-                preferences.getLevelCompletionPercentage(
-                    totalPoints
-                )
-            )
-            home_activity_level.text = preferences.getMyCurrentLevel(totalPoints)
+            //Guest mode
+            val currentScore = preferences.getCurrentScore()
+            oldScore = currentScore
+            val newScore = currentScore + pointsAdded.toInt()
+            latestScore = newScore
+            preferences.storeCurrentScore(newScore)
+            Toast.makeText(this, "Points added", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -141,6 +192,7 @@ class HomeNavigationActivity : BaseActivity() {
     fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(home_root_layout.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
@@ -187,7 +239,7 @@ class HomeNavigationActivity : BaseActivity() {
         }
     }
 
-    fun View.startBounceAnimation(doStuff: () -> Unit) {
+    private fun View.startBounceAnimation(doStuff: () -> Unit) {
         val bounceAni =
             AnimationUtils.loadAnimation(this@HomeNavigationActivity, R.anim.bounce)
         val interpolator = MyBounceInterpolator(0.2, 20.0)

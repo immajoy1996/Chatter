@@ -121,14 +121,8 @@ class MessageMenuOptionsFragment : BaseFragment() {
             chatterActivity.removeOptionsMenu()
             chatterActivity.addUserMessage(option.text.toString())
             it.handleNewMessageLogic(option.text.toString())
+            it.resetResponseVariables()
             getBotResponse(it.currentPath)
-
-            /*it.currentPath = path
-            it.removeOptionsMenu()
-            val userText = option.text.toString()
-            it.addUserMessage(userText)
-            it.handleNewMessageLogic(userText)
-            getBotResponse(it.currentPath)*/
         }
     }
 
@@ -145,12 +139,18 @@ class MessageMenuOptionsFragment : BaseFragment() {
         val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
             dataSnapshot.value?.let {
                 setTimerTask("showBotIsTyping", 700, {
-                    chatterActivity.addSpaceText()
-                    chatterActivity.showBotIsTypingView()
+                    chatterActivity.apply {
+                        addSpaceText()
+                        showBotIsTypingView()
+                        botIsTypingTextHasBeenAdded()
+                    }
                 })
                 setTimerTask("loadOptionsMenu", 3000, {
-                    chatterActivity.replaceBotIsTyping(it.toString())
-                    chatterActivity.loadOptionsMenu()
+                    chatterActivity.apply {
+                        replaceBotIsTyping(it.toString())
+                        contentHasBeenAdded()
+                        loadOptionsMenu()
+                    }
                 })
             } ?: chatterActivity.loadOptionsMenu()
         }
@@ -159,22 +159,23 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     private fun checkForEasterEggs() {
         chatterActivity.currentPath.let {
+            if (preferences.haveSeenCurrentPath(it) == "seen") {
+                return
+            }
+            preferences.storeCurrentPath(it)
             val pathReference = database.child(it)
             val easterEggListener = chatterActivity.baseChildEventListener { dataSnapshot ->
-                //chatterActivity.enableNextButton()
-                if (dataSnapshot.hasChild("title") && dataSnapshot.hasChild("points") && dataSnapshot.hasChild(
+                if (dataSnapshot.hasChild("title") /*&& dataSnapshot.hasChild("points") && dataSnapshot.hasChild(
                         "id"
-                    )
+                    )*/
                 ) {
                     val title = dataSnapshot.child("title").value.toString()
-                    val points = dataSnapshot.child("points").value as Long
+                    //val points = dataSnapshot.child("points").value as Long
                     val image = dataSnapshot.child("image").value.toString()
-                    chatterActivity.loadEasterEggFragment(title, points, image)
+                    chatterActivity.loadEasterEggFragment(title, null, image)
                 }
             }
             pathReference.addChildEventListener(easterEggListener)
-            //chatterActivity.disableNextButton()
-
         }
     }
 

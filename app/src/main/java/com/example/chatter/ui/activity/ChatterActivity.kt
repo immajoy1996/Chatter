@@ -73,6 +73,8 @@ class ChatterActivity : BaseChatActivity(),
     private val navigationDrawerFragment =
         NavigationDrawerFragment()
     private var wordByWordTranslateFragment = WordByWordTranslateFragment()
+    private var noInternetFragment =
+        EasterEggFragment.newInstance("Something went wrong. Please check your connection")
 
     var currentPath = ""
 
@@ -105,10 +107,13 @@ class ChatterActivity : BaseChatActivity(),
     private var TRANSLATE_BUTTON_DIMENSION = 80
 
     var executorService: ExecutorService? = null
-    private var isRefreshed = false
     var targetLanguage = ""
     private lateinit var audioManager: AudioManager
     private var arrayOpenBubbleMsgCounts = arrayListOf<Int>()
+    private var botIsTypingTextAdded = false
+    private var contentAdded = false
+    private var messageSent = false
+    private var firstMessageAdded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,6 +130,20 @@ class ChatterActivity : BaseChatActivity(),
         setUpWordByWordRecycler()
         loadBotStoryFragment()
         setUpDismissTranslatePopup()
+    }
+
+    fun resetResponseVariables() {
+        botIsTypingTextAdded = false
+        contentAdded = false
+        resetMessageSentFlag(true)
+    }
+
+    fun botIsTypingTextHasBeenAdded() {
+        botIsTypingTextAdded = true
+    }
+
+    fun contentHasBeenAdded() {
+        contentAdded = true
     }
 
     private fun setUpBotImageOnTopBar() {
@@ -186,8 +205,8 @@ class ChatterActivity : BaseChatActivity(),
         val messageListener = baseValueEventListener { dataSnapshot ->
             val botMessage = dataSnapshot.value.toString()
             handleNewMessageLogic(botMessage)
+            firstMessageAdded = true
             loadOptionsMenu()
-            if (isRefreshed) isRefreshed = false
         }
         pathReference.addListenerForSingleValueEvent(messageListener)
     }
@@ -242,26 +261,6 @@ class ChatterActivity : BaseChatActivity(),
     private fun startChatting() {
         showFirstBotMessage()
     }
-
-    private fun getBotResponse(path: String) {
-        val pathReference = database.child(path.plus("/botMessage"))
-        //disableNextButton()
-        val messageListener = baseValueEventListener { dataSnapshot ->
-            val botMessage = dataSnapshot.value.toString()
-            setTimerTask("showBotIsTyping", 700, {
-                addSpaceText()
-                showBotIsTypingView()
-            })
-            setTimerTask("loadOptionsMenu", 2000, {
-                replaceBotIsTyping(botMessage)
-                //addBotMessages(botMessage)
-                loadOptionsMenu()
-                //storeChatMessages()
-            })
-        }
-        pathReference.addListenerForSingleValueEvent(messageListener)
-    }
-
 
     fun addUserMessage(str: String) {
         userMessages.add(str)
@@ -358,16 +357,17 @@ class ChatterActivity : BaseChatActivity(),
             .commit()
     }
 
-    fun loadEasterEggFragment(title: String, points: Long, imageSrc: String) {
+    fun loadEasterEggFragment(title: String, points: Long?, imageSrc: String) {
         playNotificationSound()
         easterEggFragment =
             EasterEggFragment.newInstance(
                 title,
-                points,
+                null,
                 imageSrc
             )
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(chatter_activity_root_container.id, easterEggFragment)
             .addToBackStack(easterEggFragment.javaClass.name)
             .commit()
@@ -376,6 +376,7 @@ class ChatterActivity : BaseChatActivity(),
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(optionsPopupContainer.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
@@ -384,23 +385,33 @@ class ChatterActivity : BaseChatActivity(),
     private fun loadFragmentIntoRoot(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(chatter_activity_root_container.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
     }
 
+    private fun resetMessageSentFlag(flag: Boolean) {
+        messageSent = flag
+    }
+
     fun loadOptionsMenu() {
         //disableNextButton()
         loadRetrievingOptionsFragment()
-        setTimerTask("loadMessageOptionsFragment", 2000, {
+        setTimerTask("loadMessageOptionsFragment", 1000, {
             removeRetrievingOptionsFragment()
             loadFragment(messageOptionsFragment)
+            resetMessageSentFlag(false)
             enableNextButton()
         })
     }
 
     fun showOptionsMenuWithoutLoading() {
         loadFragment(messageOptionsFragment)
+    }
+
+    fun removePopup() {
+        supportFragmentManager.popBackStack()
     }
 
     fun removeOptionsMenu() {
@@ -1189,18 +1200,6 @@ class ChatterActivity : BaseChatActivity(),
                     database.child(USERS).child(userUid).child("points").setValue(newScore)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Points added", Toast.LENGTH_SHORT).show()
-                            if (oldScore != null && latestScore != null && newGemAquired(
-                                    oldScore as Int,
-                                    latestScore as Int
-                                )
-                            ) {
-                                getNewGem(newScore.toInt())?.let {
-                                    loadNewGemAquiredFragment(
-                                        "New gem acquired!",
-                                        it
-                                    )
-                                }
-                            }
                         }.addOnFailureListener {
                             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
                         }
@@ -1214,18 +1213,6 @@ class ChatterActivity : BaseChatActivity(),
             val newScore = currentScore + pointsAdded.toInt()
             latestScore = newScore
             preferences.storeCurrentScore(newScore)
-            if (oldScore != null && latestScore != null && newGemAquired(
-                    oldScore as Int,
-                    latestScore as Int
-                )
-            ) {
-                getNewGem(newScore)?.let {
-                    loadNewGemAquiredFragment(
-                        "New gem acquired!",
-                        it
-                    )
-                }
-            }
             Toast.makeText(this, "Points added", Toast.LENGTH_SHORT).show()
         }
     }
@@ -1350,11 +1337,68 @@ class ChatterActivity : BaseChatActivity(),
         wordByWordRecycler.layoutManager = LinearLayoutManager(this)
     }
 
+    private fun getActualContentBotResponse(path: String) {
+        val pathReference = database.child(path + "/botMessage")
+        disableNextButton()
+        val messageListener = baseValueEventListener { dataSnapshot ->
+            dataSnapshot.value?.let {
+                replaceBotIsTyping(it.toString())
+                contentHasBeenAdded()
+                loadOptionsMenu()
+            } ?: loadOptionsMenu()
+        }
+        pathReference.addListenerForSingleValueEvent(messageListener)
+    }
+
+    private fun getBotResponse(path: String) {
+        removeOptionsMenu()
+        val pathReference = database.child(path + "/botMessage")
+        disableNextButton()
+        val messageListener = baseValueEventListener { dataSnapshot ->
+            dataSnapshot.value?.let {
+                setTimerTask("showBotIsTyping", 700, {
+                    addSpaceText()
+                    showBotIsTypingView()
+                    botIsTypingTextHasBeenAdded()
+                })
+                setTimerTask("loadOptionsMenu", 3000, {
+                    replaceBotIsTyping(it.toString())
+                    contentHasBeenAdded()
+                    loadOptionsMenu()
+                })
+            } ?: loadOptionsMenu()
+        }
+        pathReference.addListenerForSingleValueEvent(messageListener)
+    }
+
+    private fun doResumeLogic() {
+        if (messageSent) {
+            if (!botIsTypingTextAdded && !contentAdded) {
+                getBotResponse(currentPath)
+            } else if (botIsTypingTextAdded && !contentAdded) {
+                getActualContentBotResponse(currentPath)
+            } else if (contentAdded) {
+                loadOptionsMenu()
+            }
+        } else {
+            if (firstMessageAdded) {
+                if (retrievingOptionsFragment.isVisible && !messageOptionsFragment.isVisible) {
+                    loadOptionsMenu()
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (targetLanguage.isEmpty()) {
             targetLanguage = "hi"
         }
+        if (!canConnectToInternet(this)) {
+            supportFragmentManager.popBackStack()
+            loadFragmentIntoRoot(noInternetFragment)
+        }
+        doResumeLogic()
     }
 
     override fun onPause() {

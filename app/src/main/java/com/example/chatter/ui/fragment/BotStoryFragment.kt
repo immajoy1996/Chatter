@@ -1,5 +1,6 @@
 package com.example.chatter.ui.fragment
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import android.view.animation.AnimationUtils
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
+import com.example.chatter.ui.activity.BaseChatActivity
 import com.example.chatter.ui.activity.ChatterActivity
 import com.example.chatter.ui.activity.DashboardActivity
 import com.example.chatter.ui.activity.DashboardActivity.Companion.BOT_TITLE
@@ -49,14 +51,16 @@ class BotStoryFragment : BaseFragment() {
                 val level = dataSnapshot.child("level").value
                 val desc = dataSnapshot.child("botDescription").value
                 val image = dataSnapshot.child("botImage").value
-                level?.let {
-                    setUpLevel(it.toString())
-                }
-                desc?.let {
-                    setUpBotDescription(it.toString())
-                }
-                image?.let {
-                    setUpBotImage(it.toString())
+                if (context != null && (activity as? BaseChatActivity)?.canConnectToInternet(context as Context) == true) {
+                    level?.let {
+                        setUpLevel(it.toString())
+                    }
+                    desc?.let {
+                        setUpBotDescription(it.toString())
+                    }
+                    image?.let {
+                        setUpBotImage(it.toString())
+                    }
                 }
             }
             database.child("BotCatalog").child(it).addListenerForSingleValueEvent(botListener)

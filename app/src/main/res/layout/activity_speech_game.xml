@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
+    android:id="@+id/speech_game_root_container"
     tools:context=".ui.activity.SpeechGameActivity">
 
     <ImageView
@@ -49,7 +50,7 @@
         android:layout_height="20dp"
         android:indeterminate="false"
         android:indeterminateTint="#0084FF"
-        android:progress="30"
+        android:progress="0"
         android:progressDrawable="@drawable/progress_bar_states"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

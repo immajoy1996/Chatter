@@ -212,11 +212,19 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
             if (myLevel.isNotEmpty() && botLevel.compareLevelTo(myLevel) <= 0) {
                 botImages.add(botImage)
                 botTitles.add(botTitle)
+                Log.d("MultipleChoiceFrag", "" + isMultipleChoiceFragment)
                 if (isMultipleChoiceFragment) {
                     if (botDescription == null) {
                         botDescriptions.add("");
                     } else {
                         botDescriptions.add(botDescription.toString())
+                    }
+                    val isComplete =
+                        preferences.getIsMultipleChoiceDeckComplete(botTitle)
+                    if (isComplete) {
+                        completionPercentage.add(100)
+                    } else {
+                        completionPercentage.add(-1)
                     }
                 } else {
                     if (deckDescription == null) {
@@ -226,11 +234,13 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
                     }
                     completionPercentage.add(preferences.getCompletionRate(botTitle))
                 }
+                Log.d("MultipleChoiceComplete", "" + completionPercentage.toString())
             }
 
             context?.let {
                 Log.d("BotTitles", botTitles.toString())
                 Log.d("BotDesc", botDescriptions.toString())
+                sortListsByCompletionPercentage()
                 if (isMultipleChoiceFragment) {
                     flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
                         it,
@@ -239,10 +249,14 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
                         null,
                         botDescriptions,
                         null,
-                        this
+                        this,
+                        null,
+                        null,
+                        null,
+                        completionPercentage,
+                        true
                     )
                 } else {
-                    sortListsByCompletionPercentage()
                     flashcard_decks_recycler.adapter = FlashCardDecksAdapter(
                         it,
                         botTitles,
@@ -262,12 +276,17 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
         database.child("BotCatalog").addChildEventListener(decksListener)
     }
 
-    override fun onDeckSelected(botTitle: String) {
+    override fun onDeckSelected(botTitle: String, isMultipleChoiceFragment: Boolean) {
+        if (isMultipleChoiceFragment) {
+            selectedDecksArray.clear()
+        }
         selectedDecksArray.add(botTitle)
     }
 
     override fun onDeckUnselected(botTitle: String) {
-        selectedDecksArray.remove(botTitle)
+        if (selectedDecksArray.contains(botTitle)) {
+            selectedDecksArray.remove(botTitle)
+        }
     }
 
     companion object {

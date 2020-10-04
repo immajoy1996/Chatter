@@ -1,5 +1,6 @@
 package com.example.chatter.ui.fragment
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -7,12 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.example.chatter.extra.Preferences
 import com.example.chatter.R
-import com.example.chatter.ui.activity.ChatterActivity
-import com.example.chatter.ui.activity.ConcentrationActivity
-import com.example.chatter.ui.activity.CreateChatActivity
-import com.example.chatter.ui.activity.DashboardActivity
+import com.example.chatter.ui.activity.*
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_easter_egg.*
 
@@ -41,6 +41,7 @@ class EasterEggFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        updateUserTotalScore()
         setUpButtons()
         setUpViews()
     }
@@ -52,8 +53,18 @@ class EasterEggFragment : Fragment() {
                 is ConcentrationActivity -> (activity as? ConcentrationActivity)?.updateTotalScore(
                     it
                 )
+                is MultipleChoiceActivity -> (activity as? MultipleChoiceActivity)?.updateTotalScore(
+                    it
+                )
+                is HomeNavigationActivity -> (activity as? HomeNavigationActivity)?.updateTotalScore(
+                    it
+                )
+                is SpeechGameActivity -> (activity as? SpeechGameActivity)?.updateTotalScore(
+                    it
+                )
                 else -> {
-                    //do nothing
+                    Toast.makeText(context, "No method defined to update score", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -61,29 +72,49 @@ class EasterEggFragment : Fragment() {
 
     private fun setUpButtons() {
         easter_egg_close_button.setOnClickListener {
-            if (activity is DashboardActivity) {
-                (activity as? DashboardActivity)?.removeNewBotsAquiredFragment()
-            } else if (activity is ConcentrationActivity) {
-                if (message?.contains("Resume") == true) {
-                    (activity as? ConcentrationActivity)?.let {
-                        it.removeStartGameFragment()
-                        it.resumeGame()
+            when (activity) {
+                is DashboardActivity -> {
+                    (activity as? DashboardActivity)?.removeNewBotsAquiredFragment()
+                }
+                is ConcentrationActivity -> {
+                    if (message?.contains("Resume") == true) {
+                        (activity as? ConcentrationActivity)?.let {
+                            it.removeStartGameFragment()
+                            it.resumeGame()
+                        }
+                    } else {
+                        (activity as? ConcentrationActivity)?.let {
+                            it.removeStartGameFragment()
+                            it.startGame()
+                        }
                     }
-                } else {
-                    (activity as? ConcentrationActivity)?.let {
+                }
+                is MultipleChoiceActivity -> {
+                    (activity as? MultipleChoiceActivity)?.let {
                         it.removeStartGameFragment()
                         it.startGame()
                     }
                 }
-            } else {
-                (activity as? ChatterActivity)?.let {
-                    it.closeEasterEggFragment()
-                    updateUserTotalScore()
+                is SpeechGameActivity -> {
+                    (activity as? SpeechGameActivity)?.let {
+                        it.removeStartGameFragment()
+                        it.startGame()
+                    }
+                }
+                is HomeNavigationActivity -> {
+                    (activity as? HomeNavigationActivity)?.removePopup()
+                }
+                is ChatterActivity -> {
+                    (activity as? ChatterActivity)?.removePopup()
+                }
+                else -> {
+                    Toast.makeText(context, "No method to handle this screen", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
-        }
-        easter_egg_exit_button.setOnClickListener {
-            activity?.finish()
+            easter_egg_exit_button.setOnClickListener {
+                activity?.finish()
+            }
         }
     }
 
@@ -92,8 +123,12 @@ class EasterEggFragment : Fragment() {
             easter_egg_message.text = message
             easter_egg_price_tag_layout.visibility = View.GONE
             new_gem_image.visibility = View.GONE
-            new_bots_image.visibility = View.VISIBLE
+            new_bots_image.visibility = View.GONE
             start_game_image.visibility = View.GONE
+            jackpot_layout.visibility = View.VISIBLE
+            if (message?.toLowerCase()?.contains("something went wrong") == true) {
+                jackpot_image.setImageResource(R.drawable.red_exclamation)
+            }
         } else if (activity is ConcentrationActivity) {
             if (points == null) {
                 easter_egg_message.text = message
@@ -111,22 +146,85 @@ class EasterEggFragment : Fragment() {
                 easter_egg_close_button.text = "Play"
                 easter_egg_exit_button.visibility = View.VISIBLE
             }
-        } else {
+        } else if (activity is MultipleChoiceActivity) {
+            if (points == null) {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.GONE
+                jackpot_layout.visibility = View.VISIBLE
+                jackpot_image.setImageResource(R.drawable.quiz_icon)
+                new_gem_image.visibility = View.GONE
+                easter_egg_close_button.text = "Play"
+                easter_egg_exit_button.visibility = View.VISIBLE
+            } else {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.VISIBLE
+                easter_egg_price.text = points.toString()
+                new_gem_image.visibility = View.GONE
+                easter_egg_close_button.text = "Play"
+                easter_egg_exit_button.visibility = View.VISIBLE
+            }
+        } else if (activity is HomeNavigationActivity) {
+            if (points == null) {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.GONE
+                jackpot_layout.visibility = View.VISIBLE
+                if (message?.toLowerCase()?.contains("something went wrong") == true) {
+                    jackpot_image.setImageResource(R.drawable.red_exclamation)
+                } else {
+                    //change to leveling up image
+                    jackpot_image.setImageResource(R.drawable.climbing)
+                }
+                new_gem_image.visibility = View.GONE
+                easter_egg_close_button.text = "Close"
+                easter_egg_exit_button.visibility = View.GONE
+            } else {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.VISIBLE
+                easter_egg_price.text = points.toString()
+                new_gem_image.visibility = View.GONE
+                easter_egg_close_button.text = "Close"
+                easter_egg_exit_button.visibility = View.GONE
+            }
+        } else if (activity is SpeechGameActivity) {
+            if (points == null) {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.GONE
+                jackpot_layout.visibility = View.VISIBLE
+                jackpot_image.setImageResource(R.drawable.audio)
+                new_gem_image.visibility = View.GONE
+                easter_egg_close_button.text = "Play"
+                easter_egg_exit_button.visibility = View.VISIBLE
+            } else {
+                easter_egg_message.text = message
+                easter_egg_price_tag_layout.visibility = View.VISIBLE
+                easter_egg_price.text = points.toString()
+                new_gem_image.visibility = View.GONE
+                easter_egg_close_button.text = "Play"
+                easter_egg_exit_button.visibility = View.VISIBLE
+            }
+        } else if (activity is ChatterActivity) {
             easter_egg_message.text = message
-            if (points != null) {
+            /*if (points != null) {
                 easter_egg_price_tag_layout.visibility = View.VISIBLE
                 new_gem_image.visibility = View.GONE
                 new_bots_image.visibility = View.GONE
                 start_game_image.visibility = View.GONE
                 easter_egg_price.text = points.toString()
-            } else {
-                easter_egg_price_tag_layout.visibility = View.GONE
-                new_gem_image.visibility = View.VISIBLE
-                new_bots_image.visibility = View.GONE
-                start_game_image.visibility = View.GONE
-                imageGem?.let {
-                    new_gem_image.setImageResource(it)
+            } else */
+            easter_egg_price_tag_layout.visibility = View.GONE
+            new_gem_image.visibility = View.GONE
+            new_bots_image.visibility = View.GONE
+            start_game_image.visibility = View.GONE
+            imageSrc?.let {
+                if (context != null) {
+                    Glide.with(context as Context)
+                        .load(it)
+                        .into(jackpot_image)
                 }
+            }
+            jackpot_layout.visibility = View.VISIBLE
+            if (message?.toLowerCase()?.contains("something went wrong") == true) {
+                jackpot_image.setImageResource(R.drawable.red_exclamation)
             }
         }
     }
@@ -149,7 +247,7 @@ class EasterEggFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(message: String, points: Long, imageSrc: String): EasterEggFragment {
+        fun newInstance(message: String, points: Long?, imageSrc: String): EasterEggFragment {
             val fragment = EasterEggFragment()
             fragment.message = message
             fragment.points = points

@@ -26,6 +26,7 @@ class JokesActivity : BaseActivity() {
     private var index = 0
     private lateinit var database: DatabaseReference
     private var levelsArray = arrayListOf<String>("Easy", "Medium", "Hard")
+    private var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +68,12 @@ class JokesActivity : BaseActivity() {
 
     fun fetchNextJoke(): Joke {
         val size = jokesArray.size
+        count++
+        if (count == TOTAL) {
+            count = 0
+            Toast.makeText(this, "You've finished!", Toast.LENGTH_SHORT).show()
+            return Joke("", "", "")
+        }
         if (size > 0) {
             return jokesArray[(index + 1) % size]
         } else {
@@ -86,16 +93,11 @@ class JokesActivity : BaseActivity() {
             .commit()
     }
 
-    fun showSmilesButtonsLayout() {
-        happy_layout.visibility = View.VISIBLE
-        sad_layout.visibility = View.VISIBLE
-        did_you_get_it.visibility = View.VISIBLE
-    }
-
     fun loadJokesExplanationFragment(explanation: String) {
         jokesExplanationFragment = JokesExplanationFragment.newInstance(explanation)
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(jokes_explanation_root_container.id, jokesExplanationFragment)
             .addToBackStack(jokesExplanationFragment.javaClass.name)
             .commit()
@@ -139,5 +141,9 @@ class JokesActivity : BaseActivity() {
 
     override fun setUpTopBar() {
         //TODO("Not yet implemented")
+    }
+
+    companion object {
+        private const val TOTAL = 5
     }
 }

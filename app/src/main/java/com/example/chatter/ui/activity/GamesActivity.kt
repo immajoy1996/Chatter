@@ -193,6 +193,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
                             removeLoadingFragment()
                             Collections.shuffle(multipleChoiceQuestions)
                             val intent = Intent(this, MultipleChoiceActivity::class.java)
+                            intent.putExtra("botTitle",selectedBots[0])
                             intent.putExtra(
                                 "quizQuestions",
                                 Gson().toJson(QuestionList(multipleChoiceQuestions))

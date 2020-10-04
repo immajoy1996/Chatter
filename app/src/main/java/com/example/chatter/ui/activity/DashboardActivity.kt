@@ -50,6 +50,8 @@ class DashboardActivity : BaseActivity(),
         EasterEggFragment.newInstance("You've acquired new chat bots!")
     private var loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading ...")
     private var mediaPlayer = MediaPlayer()
+    private var noInternetFragment =
+        EasterEggFragment.newInstance("Something went wrong. Please check your connection")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,9 +125,10 @@ class DashboardActivity : BaseActivity(),
     fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(dashboard_root_layout.id, fragment)
             .addToBackStack(fragment.javaClass.name)
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     private fun disableMusic() {
@@ -185,7 +188,7 @@ class DashboardActivity : BaseActivity(),
             .beginTransaction()
             .replace(dashboard_inner_container.id, fragment)
             .addToBackStack(fragment.javaClass.name)
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     private fun loadBots() {
@@ -282,7 +285,7 @@ class DashboardActivity : BaseActivity(),
             val botTitle = it.child("botTitle").value.toString()
             val botCategory = it.child("category").value.toString()
             val isEnabledGuest = it.child("isEnabledInGuestMode").value as Boolean
-            if (loadingAnimatedFragment.isVisible) {
+            if (loadingAnimatedFragment.isVisible && !loadingAnimatedFragment.isStateSaved) {
                 removeLoadingAnimatedFragment()
             }
             var botLevel = it.child("level").value
@@ -411,6 +414,10 @@ class DashboardActivity : BaseActivity(),
         super.onResume()
         if (top_bar_plus_button.visibility == View.VISIBLE) {
             top_bar_plus_button.visibility = View.GONE
+        }
+        if (!canConnectToInternet(this)) {
+            supportFragmentManager.popBackStack()
+            loadFragment(noInternetFragment)
         }
     }
 
