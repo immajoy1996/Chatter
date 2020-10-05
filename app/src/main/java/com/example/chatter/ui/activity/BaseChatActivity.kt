@@ -152,11 +152,24 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
         prevMsgId = newMsgId
     }
 
+    fun undoMessageVariables() {
+        msgCount--
+        newMsgId = 10 * msgCount
+        if (newSide == "left") {
+            newSide = "right"
+        } else {
+            newSide = "left"
+        }
+        isFirst = false
+        prevMsgId = newMsgId
+        //if (msgCount == 1) prevMsgId = -1
+    }
+
     abstract fun addMessage(msg: String)
 
     private fun setUpTextToSpeech() {
         textToSpeech = TextToSpeech(this, this)
-        Toast.makeText(this,"Initializing audio...",Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Initializing audio...", Toast.LENGTH_SHORT).show()
         //runThroughVoiceList()
     }
 

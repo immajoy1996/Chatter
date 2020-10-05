@@ -450,6 +450,15 @@ class Preferences(val context: Context) {
         return sharedPreferences.getString("Translate ${id}", "") ?: ""
     }
 
+    fun storePath(id: Int, path: String) {
+        sharedPreferences.edit().putString("$CURRENT_PATH/$id", path)
+            .apply()
+    }
+
+    fun getPath(id: Int): String {
+        return sharedPreferences.getString("$CURRENT_PATH/$id", "") ?: ""
+    }
+
     fun storeCurrentPath(path: String) {
         sharedPreferences.edit().putString(path, "seen")
             .apply()

@@ -102,9 +102,11 @@ class ChatterActivity : BaseChatActivity(),
     private var MESSAGE_VERTICAL_SPACING = 50
     private var PROFILE_IMAGE_SIZE = 50
     private var BOOK_IMAGE_SIZE = 70
-    private var THREE_BUTTONS_VIEW_WIDTH = 420
+    private var THREE_BUTTONS_VIEW_WIDTH_LEFT_SIDE = 450
+    private var THREE_BUTTONS_VIEW_WIDTH_RIGHT_SIDE = 350
     private var THREE_BUTTONS_VIEW_HEIGHT = 100
     private var TRANSLATE_BUTTON_DIMENSION = 80
+    private var BUTTON_SPACING = 30
 
     var executorService: ExecutorService? = null
     var targetLanguage = ""
@@ -114,6 +116,7 @@ class ChatterActivity : BaseChatActivity(),
     private var contentAdded = false
     private var messageSent = false
     private var firstMessageAdded = false
+    private var arrayMsgIds = arrayListOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +133,42 @@ class ChatterActivity : BaseChatActivity(),
         setUpWordByWordRecycler()
         loadBotStoryFragment()
         setUpDismissTranslatePopup()
+    }
+
+    private fun resetMessageVariables() {
+        msgCount = 0
+        newSide = "left"
+        prevMsgId = -1
+        isFirst = true
+    }
+
+    private fun removeMessagesUntilThisMessage(msgId: Int) {
+        while (arrayMsgIds.last() != msgId) {
+            val msgCount = arrayMsgIds.last() / 10
+            removeMessage(msgCount)
+            undoMessageVariables()
+            arrayMsgIds.remove(arrayMsgIds.last())
+        }
+    }
+
+    private fun resetPathAndLoadOptionsMenu(msgId: Int) {
+        currentPath = preferences.getPath(msgId)
+        loadOptionsMenu()
+    }
+
+    private fun getIdMessageBubble(msgCount: Int): Int {
+        return 10 * msgCount
+    }
+
+    private fun removeMessage(msgCount: Int) {
+        val msgView = findViewById<TextView>(getIdMessageBubble(msgCount))
+        val profileView = findViewById<ImageView>(getIdProfileImageView(msgCount))
+        val translationView = findViewById<TextView>(getIdTranslationView())
+        val spaceTextView = findViewById<TextView>(getIdForSpaceView(msgCount))
+        messagesInnerLayout.removeViewInLayout(msgView)
+        messagesInnerLayout.removeViewInLayout(profileView)
+        messagesInnerLayout.removeViewInLayout(translationView)
+        messagesInnerLayout.removeViewInLayout(spaceTextView)
     }
 
     fun resetResponseVariables() {
@@ -233,7 +272,12 @@ class ChatterActivity : BaseChatActivity(),
         setUpTranslationTextView("getting translation ...")
     }
 
+    private fun addMessageIdToArray(msgId: Int) {
+        arrayMsgIds.add(msgId)
+    }
+
     override fun addMessage(msg: String) {
+        Log.d("ResetBtnAdd", "" + prevMsgId + " " + newMsgId + " " + msgCount)
         setUpMessageTextView(msg)
         setUpTranslationForMessage(msg)
         setupProfileImgView()
@@ -302,12 +346,11 @@ class ChatterActivity : BaseChatActivity(),
 
     override fun onStoriesFinished() {
         initializeMessagesContainer()
-        //loadChatInstructionsFragment()
         startChatting()
     }
 
     fun closeEasterEggFragment() {
-        supportFragmentManager?.popBackStack(
+        supportFragmentManager.popBackStack(
             easterEggFragment.javaClass.name,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
@@ -623,10 +666,17 @@ class ChatterActivity : BaseChatActivity(),
             dismissThreeImagesViewIfVisible()
             val msgCount = textView.id / 10
             arrayOpenBubbleMsgCounts.add(msgCount)
-            setUpThreeButtonsView(msgCount)
+            if (msgCount % 2 == 1) {
+                setUpThreeButtonsView(msgCount, true)
+            } else {
+                setUpThreeButtonsView(msgCount, false)
+            }
+            setUpTranslateImageInThreeButtonsView(msgCount)
             setUpWordByWordImageInThreeButtonsView(msgCount)
             setUpAudioImageInThreeButtonsView(msgCount)
-            setUpTranslateImageInThreeButtonsView(msgCount)
+            if (msgCount % 2 == 1) {
+                setUpResetImageInThreeButtonsView(msgCount)
+            }
             setConstraintsToLayout()
             true
         }
@@ -749,7 +799,7 @@ class ChatterActivity : BaseChatActivity(),
             dismissThreeImagesViewIfVisible()
         }
         val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView(msgCount))
-        val wordByWordImage = findViewById<ImageView>(getIdWordByWordImage(msgCount))
+        val audioImage = findViewById<ImageView>(getIdAudioImage(msgCount))
         val aniWobble = AnimationUtils.loadAnimation(this@ChatterActivity, R.anim.shake_forever)
         translateImageView.startAnimation(aniWobble)
 
@@ -770,14 +820,61 @@ class ChatterActivity : BaseChatActivity(),
             translateImageView.id,
             ConstraintSet.START,
             constraintLayout.id,
-            ConstraintSet.START
+            ConstraintSet.START,
+            20
         )
 
-        constraintSet.connect(
+        /*constraintSet.connect(
             translateImageView.id,
             ConstraintSet.END,
             wordByWordImage.id,
             ConstraintSet.START
+        )*/
+        //setConstraintsToLayout()
+    }
+
+    private fun setUpResetImageInThreeButtonsView(msgCount: Int) {
+        val translateImageView = ImageView(this)
+        translateImageView.apply {
+            setId(getIdResetImage(msgCount))
+            constraintSet.constrainHeight(id, TRANSLATE_BUTTON_DIMENSION)
+            constraintSet.constrainWidth(id, TRANSLATE_BUTTON_DIMENSION)
+            elevation = 10f
+            setImageResource(R.drawable.restart)
+        }
+        addViewToLayout(translateImageView)
+        translateImageView.setOnClickListener {
+            val msgId = 10 * msgCount
+            val textView = findViewById<TextView>(msgId)
+            removeMessagesUntilThisMessage(msgId)
+            resetPathAndLoadOptionsMenu(msgId)
+            Log.d("ResetBtn", "" + prevMsgId + " " + newMsgId + " " + msgCount)
+            dismissThreeImagesViewIfVisible()
+        }
+        val aniWobble = AnimationUtils.loadAnimation(this, R.anim.shake_forever)
+        translateImageView.startAnimation(aniWobble)
+        val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView(msgCount))
+        val audioImage = findViewById<ImageView>(getIdAudioImage(msgCount))
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.BOTTOM,
+            constraintLayout.id,
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.TOP,
+            constraintLayout.id,
+            ConstraintSet.TOP
+        )
+        constraintSet.connect(
+            translateImageView.id,
+            ConstraintSet.START,
+            audioImage.id,
+            ConstraintSet.END,
+            BUTTON_SPACING
         )
     }
 
@@ -817,17 +914,19 @@ class ChatterActivity : BaseChatActivity(),
         )
         constraintSet.connect(
             translateImageView.id,
+            ConstraintSet.START,
+            wordByWordImage.id,
             ConstraintSet.END,
-            constraintLayout.id,
-            ConstraintSet.END
+            BUTTON_SPACING
         )
 
-        constraintSet.connect(
+        /*constraintSet.connect(
             translateImageView.id,
             ConstraintSet.START,
             wordByWordImage.id,
             ConstraintSet.END
-        )
+        )*/
+        //setConstraintsToLayout()
     }
 
     private fun setUpWordByWordImageInThreeButtonsView(msgCount: Int) {
@@ -853,6 +952,7 @@ class ChatterActivity : BaseChatActivity(),
         val aniWobble = AnimationUtils.loadAnimation(this, R.anim.shake_forever)
         translateImageView.startAnimation(aniWobble)
         val constraintLayout = findViewById<ConstraintLayout>(getIdThreeButtonsView(msgCount))
+        val firstTranslateButton = findViewById<ImageView>(getIdTranslateImage(msgCount))
 
         constraintSet.connect(
             translateImageView.id,
@@ -870,16 +970,17 @@ class ChatterActivity : BaseChatActivity(),
         constraintSet.connect(
             translateImageView.id,
             ConstraintSet.START,
-            constraintLayout.id,
-            ConstraintSet.START
+            firstTranslateButton.id,
+            ConstraintSet.END,
+            BUTTON_SPACING
         )
 
-        constraintSet.connect(
+        /*constraintSet.connect(
             translateImageView.id,
             ConstraintSet.END,
             constraintLayout.id,
             ConstraintSet.END
-        )
+        )*/
     }
 
     private fun getIdTranslateImage(msgCount: Int): Int {
@@ -894,13 +995,21 @@ class ChatterActivity : BaseChatActivity(),
         return 1000 * msgCount + 5
     }
 
-    private fun setUpThreeButtonsView(msgCount: Int) {
+    private fun getIdResetImage(msgCount: Int): Int {
+        return 1000 * msgCount + 9
+    }
+
+    private fun setUpThreeButtonsView(msgCount: Int, leftSide: Boolean) {
         val constraintLayout = ConstraintLayout(this)
         val id = getIdThreeButtonsView(msgCount)
         constraintLayout.apply {
             setId(id)
             constraintSet.constrainHeight(id, THREE_BUTTONS_VIEW_HEIGHT)
-            constraintSet.constrainWidth(id, THREE_BUTTONS_VIEW_WIDTH)
+            if (leftSide) {
+                constraintSet.constrainWidth(id, THREE_BUTTONS_VIEW_WIDTH_LEFT_SIDE)
+            } else {
+                constraintSet.constrainWidth(id, THREE_BUTTONS_VIEW_WIDTH_RIGHT_SIDE)
+            }
             setBackgroundResource(R.drawable.three_buttons_background)
             elevation = 10f
         }
@@ -934,6 +1043,7 @@ class ChatterActivity : BaseChatActivity(),
             messageView.id,
             ConstraintSet.END
         )
+        //setConstraintsToLayout()
     }
 
     private fun dismissThreeImagesViewIfVisible() {
@@ -953,6 +1063,9 @@ class ChatterActivity : BaseChatActivity(),
                 messagesInnerLayout.removeViewInLayout(
                     findViewById<ImageView>(getIdTranslateImage(x))
                 )
+                messagesInnerLayout.removeViewInLayout(
+                    findViewById<ImageView>(getIdResetImage(x))
+                )
                 //setConstraintsToLayout()
                 arrayOpenBubbleMsgCounts.remove(x)
             }
@@ -960,6 +1073,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun setUpMessageTextView(msg: String, shouldFocus: Boolean = true) {
+        addMessageIdToArray(newMsgId)
         messageTextView = TextView(this)
         val typeface: Typeface? =
             ResourcesCompat.getFont(this.applicationContext, R.font.avenir_next)
@@ -978,7 +1092,16 @@ class ChatterActivity : BaseChatActivity(),
             text = msg
             textSize = TEXT_SIZE_MESSAGE
             preferences.storeMessage(id, msg)
+            preferences.storePath(id, currentPath)
         }
+    }
+
+    private fun getIdTranslationView(msgCount: Int): Int {
+        return 10 * msgCount + 9
+    }
+
+    private fun getIdTranslationView(): Int {
+        return 10 * msgCount + 9
     }
 
     private fun setUpTranslationTextView(translation: String, shouldFocus: Boolean = true) {
@@ -992,7 +1115,7 @@ class ChatterActivity : BaseChatActivity(),
                 setTextColor(Color.parseColor("#696969"))
             }
             setPadding(MESSAGE_PADDING)
-            setId(newMsgId + 9)
+            setId(getIdTranslationView())
 
             text = translation
             textSize = TEXT_SIZE_MESSAGE
@@ -1028,11 +1151,19 @@ class ChatterActivity : BaseChatActivity(),
         }*/
     }
 
+    private fun getIdProfileImageView(msgCount: Int): Int {
+        return 10 * msgCount + 1
+    }
+
     private fun getIdProfileImageView(): Int {
         return 10 * msgCount + 1
     }
 
     private fun getIdForSpaceView(): Int {
+        return 1000 * msgCount
+    }
+
+    private fun getIdForSpaceView(msgCount: Int): Int {
         return 1000 * msgCount
     }
 
@@ -1105,8 +1236,8 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     fun replaceBotIsTyping(msg: String) {
-        val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView
-        textView.text = msg
+        val textView = messagesInnerLayout.getViewById(getMessageTextBubbleId()) as TextView?
+        textView?.text = msg
         preferences.storeMessage(getMessageTextBubbleId(), msg)
         //setUpTranslationForMessage(getMessageTextBubbleId(), msg, targetLanguage)
     }
