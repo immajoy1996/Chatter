@@ -14,6 +14,7 @@ class Preferences(val context: Context) {
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
     private val pointsForLevel = arrayListOf<Int>(2000, 5000, 9000)
 
+    private var botsInOrder = arrayListOf<String>("Taxi Pete", "Doctor Susan")
     private val quotesArray = arrayListOf<String>(
         "What do you call a dinosaur who gets into an accident?",
         "Why is a leopard so bad at hide an seek?",
@@ -140,6 +141,32 @@ class Preferences(val context: Context) {
 
     fun getDefinition(word: String, targetLanguage: String): String {
         return sharedPreferences.getString(getTranslationKey(word, targetLanguage), "") ?: ""
+    }
+
+    fun getCurrentBotIndex(): Int {
+        return sharedPreferences.getInt("botStoryIndex", -1)
+    }
+
+    fun storeCurrentBotStoryIndex(index: Int) {
+        sharedPreferences.edit().putInt("botStoryIndex", index)
+            .apply()
+    }
+
+    fun incrementCurrentBotStoryIndex() {
+        val index = getCurrentBotIndex()
+        storeCurrentBotStoryIndex(index + 1)
+    }
+
+    fun getCurrentBotStory(): String {
+        var index = getCurrentBotIndex()
+        if (index == -1) {
+            index = 0
+        }
+        if (index < botsInOrder.size) {
+            return botsInOrder[index]
+        } else {
+            return ""
+        }
     }
 
     fun getCurrentTargetLanguage(): String {

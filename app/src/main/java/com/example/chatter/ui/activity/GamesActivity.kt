@@ -37,19 +37,49 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     private lateinit var database: DatabaseReference
     private var launched = false
     private var userLevel = "Easy"
+    private var shouldShowGameOptions = true
+    private var botTitle = ""
+    private var gameType = ""
+
+    private var speechGameSentenceArray = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_games)
         database = FirebaseDatabase.getInstance().reference
+        hideToolbar()
         setUpTopBar()
         setUpUserLevelAndBotSelectionFragment()
-        setUpGamesRecycler()
-        fetchGames()
+        if (shouldShowGameOptions) {
+            setUpGamesRecycler()
+            fetchGames()
+            showToolbar()
+        } else {
+            hideToolbar()
+            when (gameType) {
+                "SpeechGame" -> {
+                    onSpeechGameClicked()
+                }
+                "MultipleChoice"->{
+                    onMultipleChoiceClicked()
+                }
+            }
+        }
+    }
+
+    private fun hideToolbar() {
+        top_bar.visibility = View.GONE
+    }
+
+    private fun showToolbar() {
+        top_bar.visibility = View.VISIBLE
     }
 
     private fun setUpUserLevelAndBotSelectionFragment() {
         userLevel = intent?.getStringExtra("userLevel") ?: "Easy"
+        botTitle = intent?.getStringExtra("botTitle") ?: ""
+        shouldShowGameOptions = intent?.getBooleanExtra("shouldShowGameOptions", true) ?: true
+        gameType = intent?.getStringExtra("gameType") ?: ""
         botSelectionFragment = FlashCardDecksFragment.newInstance(true, userLevel)
     }
 
@@ -66,6 +96,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(games_root_layout.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
@@ -138,9 +169,9 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
         loadFragment(botSelectionFragment)
     }
 
-    fun loadMultipleChoiceQuestions(selectedBots: ArrayList<String>){
+    fun loadMultipleChoiceQuestions(selectedBots: ArrayList<String>) {
         loadFragment(loadingAnimatedFragment)
-        setTimerTask("loadMultipleChoice",2000){
+        setTimerTask("loadMultipleChoice", 2000) {
             showMultipleChoiceQuestions(selectedBots)
         }
     }
@@ -193,7 +224,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
                             removeLoadingFragment()
                             Collections.shuffle(multipleChoiceQuestions)
                             val intent = Intent(this, MultipleChoiceActivity::class.java)
-                            intent.putExtra("botTitle",selectedBots[0])
+                            intent.putExtra("botTitle", selectedBots[0])
                             intent.putExtra(
                                 "quizQuestions",
                                 Gson().toJson(QuestionList(multipleChoiceQuestions))
@@ -215,26 +246,25 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     }
 
     override fun onMultipleChoiceClicked() {
-        loadBotSelectionScreen()
+        if (botTitle.isNotEmpty()) {
+            loadMultipleChoiceQuestions(arrayListOf(botTitle))
+        }
+        //loadBotSelectionScreen()
     }
-
-    private var speechGameSentenceArray = arrayListOf<String>()
 
     override fun onSpeechGameClicked() {
         loadFragment(loadingAnimatedFragment)
-        for (item in levelsArray) {
-            if (userLevel.compareLevelTo(item) >= 0) {
-                database.child(SPEECH_GAME_PATH).child(item)
-                    .addChildEventListener(baseChildEventListener { dataSnapshot ->
-                        val sentence = dataSnapshot.child("sentence").value.toString()
-                        speechGameSentenceArray.add(sentence)
-                    })
-            }
+        if (botTitle.isNotEmpty()) {
+            database.child("$SPEECH_GAME_PATH/$botTitle")
+                .addChildEventListener(baseChildEventListener { dataSnapshot ->
+                    val sentence = dataSnapshot.child("sentence").value.toString()
+                    speechGameSentenceArray.add(sentence)
+                })
+            setTimerTask("loadingSpeechGame", 2000L, {
+                supportFragmentManager.popBackStack()
+                loadSpeechGameActivity(speechGameSentenceArray)
+            })
         }
-        setTimerTask("loadingSpeechGame", 1000L, {
-            supportFragmentManager.popBackStack()
-            loadSpeechGameActivity(speechGameSentenceArray)
-        })
     }
 
     private fun loadSpeechGameActivity(sentenceArray: ArrayList<String>) {
@@ -248,6 +278,6 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
         private const val NUM_BOTS = 9
         private const val MULTIPLE_CHOICE_PATH = "Games/MultipleChoice/"
         private const val SPEECH_GAME_PATH = "Games/SpeechGame/"
-        private const val MAX_QUESTIONS = 2
+        private const val MAX_QUESTIONS = 1
     }
 }

@@ -8,6 +8,7 @@ import android.os.Handler
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -599,18 +600,20 @@ class SignInActivity : BaseChatActivity() {
         //retrievingOptionsFragment = RetrievingOptionsFragment.newInstance("Guest Mode")
         //loadRetrievingOptionsFragment()
         //loadingAnimatedFragment = LoadingAnimatedFragment.newInstance("Loading Guest Mode ...")
-        loadAnimatedLoadingFragment(loadingAnimatedFragment)
+        //loadAnimatedLoadingFragment(loadingAnimatedFragment)
         if (auth.currentUser != null) {
             auth.signOut()
         }
-        setTimerTask("signInAsGuest", 2000, {
-            removeLoadingAnimatedFragment()
+        setTimerTask("signInAsGuest", 0, {
+            //removeLoadingAnimatedFragment()
             toggleRestartFlag(false)
             var intent: Intent? = null
             if (preferences.getCurrentTargetLanguage()
                     .isNotEmpty() && preferences.getCurrentTargetLanguageFlag().isNotEmpty()
             ) {
-                intent = Intent(this@SignInActivity, HomeNavigationActivity::class.java)
+                //intent = Intent(this@SignInActivity, HomeNavigationActivity::class.java)
+                intent = Intent(this@SignInActivity, BotStoryActivity::class.java)
+                intent.putExtra("botStoryTitle",preferences.getCurrentBotStory())
             } else {
                 intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             }

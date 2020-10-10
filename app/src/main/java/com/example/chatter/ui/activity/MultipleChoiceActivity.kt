@@ -119,7 +119,11 @@ class MultipleChoiceActivity : BaseActivity() {
             if (size % 2 == 0) {
                 multipleChoiceQuestions.add(multipleChoiceQuestions[0])
             } else {
-                multipleChoiceQuestions.add(multipleChoiceQuestions[1])
+                if (size > 1) {
+                    multipleChoiceQuestions.add(multipleChoiceQuestions[1])
+                } else {
+                    multipleChoiceQuestions.add(multipleChoiceQuestions[0])
+                }
             }
         }
     }

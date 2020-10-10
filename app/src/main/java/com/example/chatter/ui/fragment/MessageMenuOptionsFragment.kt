@@ -285,6 +285,14 @@ class MessageMenuOptionsFragment : BaseFragment() {
         })
     }
 
+    fun showMenu(){
+        message_menu_root_layout.visibility=View.VISIBLE
+    }
+
+    fun hideMenu(){
+        message_menu_root_layout.visibility=View.GONE
+    }
+
     companion object {
         private const val MATCH_PERCENTAGE = 0.7
         fun newInstance(): MessageMenuOptionsFragment {

@@ -3,45 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="10dp"
-    android:id="@+id/message_menu_root_layout"
+    android:layout_height="250dp"
+    android:background="@drawable/easter_egg_background"
+    android:elevation="20dp"
+
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
     tools:context=".ui.fragment.MessageMenuOptionsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/options_menu_layout"
+        android:id="@+id/bot_story_options_menu_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/restart"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/refresh"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
 
         <TextView
             android:id="@+id/message_question"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/avenir_next"
-            android:visibility="gone"
-            android:text="What would you like to say?"
+            android:text="Select an option"
             android:textColor="#939799"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/optionA"
+            android:id="@+id/bot_story_optionA"
             android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -49,6 +47,7 @@
             android:fontFamily="@font/avenir_next"
             android:gravity="center"
             android:padding="10dp"
+            android:text="Study Mode"
             android:textColor="#ffffff"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -56,7 +55,7 @@
             app:layout_constraintTop_toBottomOf="@id/message_question"></TextView>
 
         <TextView
-            android:id="@+id/optionB"
+            android:id="@+id/bot_story_optionB"
             android:layout_width="@dimen/option_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -64,42 +63,12 @@
             android:fontFamily="@font/avenir_next"
             android:gravity="center"
             android:padding="10dp"
+            android:text="Newsreel"
             android:textColor="#ffffff"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/optionA"></TextView>
-
-        <TextView
-            android:id="@+id/optionC"
-            android:layout_width="@dimen/option_width"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/option_bubble"
-            android:fontFamily="@font/avenir_next"
-            android:gravity="center"
-            android:padding="10dp"
-            android:textColor="#ffffff"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/optionB"></TextView>
-
-        <TextView
-            android:id="@+id/conversation_end_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/avenir_next"
-            android:gravity="center"
-            android:text="You've reached the end of the conversation. Click the refresh button to try a new flow."
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:textStyle="normal"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/restart" />
+            app:layout_constraintTop_toBottomOf="@+id/bot_story_optionA"></TextView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

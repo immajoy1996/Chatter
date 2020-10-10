@@ -41,6 +41,7 @@ import com.example.chatter.adapters.WordByWordAdapter
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.ExpressionClickInterface
 import com.example.chatter.interfaces.StoryBoardFinishedInterface
+import com.example.chatter.ui.activity.BotStoryActivity.Companion.GAME_TYPE
 import com.example.chatter.ui.activity.DashboardActivity.Companion.TARGET_LANGUAGE
 import com.example.chatter.ui.fragment.*
 import com.example.chatter.ui.fragment.StoryBoardOneFragment.Companion.PERMISSION_REQUEST_CODE
@@ -75,6 +76,7 @@ class ChatterActivity : BaseChatActivity(),
     private var wordByWordTranslateFragment = WordByWordTranslateFragment()
     private var noInternetFragment =
         EasterEggFragment.newInstance("Something went wrong. Please check your connection")
+    private var chatterNextMenuOptionsFragment = ChatterOptionsFragment()
 
     var currentPath = ""
 
@@ -86,6 +88,7 @@ class ChatterActivity : BaseChatActivity(),
 
     private lateinit var botTitle: String
     private lateinit var botImagePath: String
+    private var gameType = ""
 
     private var auth = FirebaseAuth.getInstance()
     private lateinit var database: DatabaseReference
@@ -117,6 +120,7 @@ class ChatterActivity : BaseChatActivity(),
     private var messageSent = false
     private var firstMessageAdded = false
     private var arrayMsgIds = arrayListOf<Int>()
+    private var shouldShowStoryFrag = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,8 +135,41 @@ class ChatterActivity : BaseChatActivity(),
         setUpBotImageOnTopBar()
         setUpNavButtons()
         setUpWordByWordRecycler()
-        loadBotStoryFragment()
         setUpDismissTranslatePopup()
+        setUpDismissNextMenuOptions()
+        if (shouldShowStoryFrag) {
+            loadBotStoryFragment()
+        } else {
+            onStoriesFinished()
+        }
+    }
+
+    fun getGameType(): String {
+        return gameType
+    }
+
+    private fun removeChatterNextMenuOptions() {
+        supportFragmentManager.popBackStack()
+    }
+
+    private fun setUpDismissNextMenuOptions() {
+        chatter_activity_root_container.setOnClickListener {
+            if (chatterNextMenuOptionsFragment.isVisible) {
+                removeChatterNextMenuOptions()
+                if (!messageOptionsFragment.isVisible) {
+                    messageOptionsFragment.showMenu()
+                }
+            }
+        }
+    }
+
+    private fun loadChatterMenuOptionsFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
+            .replace(chatter_menu_options_root_layout.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
     }
 
     private fun resetMessageVariables() {
@@ -313,6 +350,9 @@ class ChatterActivity : BaseChatActivity(),
     private fun setUpStoryBoardFragments() {
         botTitle = intent?.getStringExtra(BOT_TITLE) ?: ""
         botImagePath = intent?.getStringExtra(IMAGE_PATH) ?: ""
+        shouldShowStoryFrag = intent?.getBooleanExtra(SHOULD_SHOW_STORY, true) ?: true
+        gameType = intent?.getStringExtra(GAME_TYPE) ?: ""
+
         storyBoardOneFragment =
             StoryBoardOneFragment.newInstance(
                 botTitle
@@ -336,11 +376,19 @@ class ChatterActivity : BaseChatActivity(),
         }
         showNextButton()
         button_next.setOnClickListener {
-            if (!retrievingOptionsFragment.isVisible) {
+            /*if (!retrievingOptionsFragment.isVisible) {
                 disposeListeners()
                 supportFragmentManager.popBackStack()
                 loadVocabFragment()
-            }
+            }*/
+            loadNextMenuOptions()
+        }
+    }
+
+    private fun loadNextMenuOptions() {
+        loadChatterMenuOptionsFragment(chatterNextMenuOptionsFragment)
+        if (messageOptionsFragment.isVisible) {
+            messageOptionsFragment.hideMenu()
         }
     }
 
@@ -360,7 +408,7 @@ class ChatterActivity : BaseChatActivity(),
         loadFragmentIntoRoot(BotDescriptionFragment())
     }
 
-    private fun loadVocabFragment() {
+    fun loadVocabFragment() {
         supportFragmentManager
             .beginTransaction()
             .replace(chatter_activity_root_container.id, vocabFragment)
@@ -1549,5 +1597,6 @@ class ChatterActivity : BaseChatActivity(),
         const val IMAGE_PATH = "IMAGE_PATH"
         const val BOT_CONVERSATIONS = "BotConversations"
         const val USERS = "Users"
+        const val SHOULD_SHOW_STORY = "should_show_story"
     }
 }
