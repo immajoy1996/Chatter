@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/airport_stock_photov1"
     tools:context=".ui.BotStoryFragmentUsed">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bot_story_card_container"
         android:layout_width="300dp"
