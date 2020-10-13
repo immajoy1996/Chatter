@@ -43,6 +43,7 @@ import kotlinx.android.synthetic.main.activity_chatter.messagesInnerLayout
 import kotlinx.android.synthetic.main.activity_chatter.optionsPopupContainer
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.android.synthetic.main.top_bar.*
+import pl.droidsonroids.gif.GifImageView
 import java.util.*
 import javax.mail.*
 import javax.mail.Message
@@ -167,7 +168,7 @@ class SignInActivity : BaseChatActivity() {
     override fun setUpTopBar() {
         top_bar_title.visibility = View.GONE
         top_bar_messaging_image_container.visibility = View.VISIBLE
-        top_bar_title_desc.text = "Helper Monkey"
+        top_bar_title_desc.text = "Samson"
         top_bar_mic.visibility = View.INVISIBLE
         home.visibility = View.GONE
         home_refresh.visibility = View.VISIBLE
@@ -612,8 +613,9 @@ class SignInActivity : BaseChatActivity() {
                     .isNotEmpty() && preferences.getCurrentTargetLanguageFlag().isNotEmpty()
             ) {
                 //intent = Intent(this@SignInActivity, HomeNavigationActivity::class.java)
-                intent = Intent(this@SignInActivity, BotStoryActivity::class.java)
-                intent.putExtra("botStoryTitle",preferences.getCurrentBotStory())
+                //intent = Intent(this@SignInActivity, BotStoryActivity::class.java)
+                //intent.putExtra("botStoryTitle",preferences.getCurrentBotStory())
+                intent = Intent(this@SignInActivity, HomeNavActivityUsed::class.java)
             } else {
                 intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             }
@@ -695,15 +697,16 @@ class SignInActivity : BaseChatActivity() {
     }
 
     fun setupProfileImgView() {
-        profileImgView = ImageView(this)
+        profileImgView = GifImageView(this)
         profileImgView?.apply {
             id = getIdProfileImageView()
-            setImageDrawable(
+            setImageResource(R.drawable.robot_walking_pin)
+            /*setImageDrawable(
                 ContextCompat.getDrawable(
                     context,
                     R.drawable.business_profile
                 )
-            )
+            )*/
         }
     }
 

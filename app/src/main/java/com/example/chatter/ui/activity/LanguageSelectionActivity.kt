@@ -79,8 +79,8 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                         database.child("Users/${uid}").child("nativeLanguage")
                             .setValue(langObject).addOnSuccessListener {
                                 Toast.makeText(this, "Selection Saved", Toast.LENGTH_LONG).show()
-                                val intent = Intent(this, HomeNavigationActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                val intent = Intent(this, HomeNavActivityUsed::class.java)
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                 startActivity(intent)
                             }.addOnFailureListener {
                                 Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
@@ -92,10 +92,10 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                     languageMap[selectedLang as String]?.let {
                         preferences.storeNativeLanguageSelection(it)
                         preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
-                        val intent = Intent(this, HomeNavigationActivity::class.java)
-                        intent.putExtra("GUEST_MODE", true)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        val intent = Intent(this, HomeNavActivityUsed::class.java)
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
+                        intent.putExtra("GUEST_MODE", true)
                     } ?: Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show()
                 }
             } else {

@@ -16,6 +16,7 @@ import com.example.chatter.ui.activity.ChatterActivity.Companion.BOT_TITLE
 import com.example.chatter.ui.activity.ChatterActivity.Companion.IMAGE_PATH
 import com.example.chatter.ui.activity.ChatterActivity.Companion.SHOULD_SHOW_STORY
 import com.example.chatter.ui.fragment.BaseFragment
+import com.example.chatter.ui.fragment.BeginYourJourneyFragment
 import com.example.chatter.ui.fragment.BotStoryOptionsFragment
 import com.example.chatter.ui.fragment.LoadingAnimatedFragment
 import com.google.firebase.auth.FirebaseAuth
@@ -39,6 +40,8 @@ class BotStoryActivity : BaseActivity() {
     private var loadingAnimatedFragment = LoadingAnimatedFragment()
     private var optionsMenu = BotStoryOptionsFragment()
     private var gameType = ""
+    private var beginYourJourneyFragment = BeginYourJourneyFragment()
+    private var loadBeginYourJourney = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +66,9 @@ class BotStoryActivity : BaseActivity() {
 
     private fun setUpTopBarButtons() {
         bot_story_menu.setOnDebouncedClickListener {
-            loadMenuOptionsFragment(optionsMenu)
+            val intent = Intent(this, HomeNavActivityUsed::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
         }
     }
 
@@ -79,7 +84,7 @@ class BotStoryActivity : BaseActivity() {
         supportFragmentManager.popBackStack()
     }
 
-    private fun loadNextStoryFragment() {
+    fun loadNextStoryFragment() {
         if (currentIndex + 1 < fragmentArray.size) {
             removeStoryFragment()
             loadFragmentMoveLeftOut(fragmentArray[currentIndex + 1].fragment)
@@ -125,7 +130,9 @@ class BotStoryActivity : BaseActivity() {
     }
 
     private fun loadFirstStoryFragment() {
-        loadFragmentMoveLeftOut(fragmentArray.first().fragment)
+        if (fragmentArray.isNotEmpty()) {
+            loadFragmentMoveLeftOut(fragmentArray.first().fragment)
+        }
     }
 
     private fun incrementCurrentIndex() {
@@ -145,15 +152,36 @@ class BotStoryActivity : BaseActivity() {
             .commit()
     }
 
-    private fun fetchAndShowStoryFragments() {
-        loadAnimatedLoadingFragment(loadingAnimatedFragment)
+    fun weDontWantToSeeBeginYourJourneyScreenAgain(){
+        preferences.storeCurrentBotStoryIndex(0)
+    }
+
+    fun resetBeginYourJourneyFlag() {
+        loadBeginYourJourney = false
+    }
+
+    fun fetchAndShowStoryFragments() {
+        if (currentIndex == 0 && preferences.getCurrentBotIndex() == -1) {
+            loadFragment(beginYourJourneyFragment)
+            loadBeginYourJourney = true
+        } else {
+            loadAnimatedLoadingFragment(loadingAnimatedFragment)
+            loadBeginYourJourney = false
+        }
         fetchStoryFragments()
-        setTimerTask("fetchStories", 2000) {
-            removeLoadingAnimatedFragment()
-            loadFirstStoryFragment()
-            setUpBottomNavBar(0)
+        if (!loadBeginYourJourney) {
+            setTimerTask("fetchStories", 3000) {
+                setUpFirstStoryScreen()
+            }
         }
     }
+
+    fun setUpFirstStoryScreen(){
+        removeLoadingAnimatedFragment()
+        loadFirstStoryFragment()
+        setUpBottomNavBar(0)
+    }
+
 
     fun removeStoryFragment() {
         supportFragmentManager.popBackStack()
@@ -298,6 +326,15 @@ class BotStoryActivity : BaseActivity() {
             .beginTransaction()
             .setCustomAnimations(R.anim.slide_right, R.anim.slide_left)
             .replace(bot_story_card_root_layout.id, fragment)
+            .addToBackStack(fragment.javaClass.name)
+            .commit()
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
+            .replace(bot_story_root_layout.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
     }

@@ -39,7 +39,7 @@ class GetStartedActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        playTypewriterSound()
+        //playTypewriterSound()
         if (!landingSequenceStarted) {
             landingSequenceStarted = true
             showLandingPageSequence()
@@ -162,7 +162,7 @@ class GetStartedActivity : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        stopTypewriterSound()
+        //stopTypewriterSound()
         if (landingSequenceStarted) {
             showFinalTextFields()
         }

@@ -65,18 +65,17 @@
             android:id="@+id/top_bar_bot_image_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/circle_backgroun"
             android:padding="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <pl.droidsonroids.gif.GifImageView
                 android:id="@+id/top_bar_bot_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="30dp"
                 android:layout_marginEnd="10dp"
-                android:src="@drawable/business_profile"
+                android:src="@drawable/robot_walking_pin"
                 android:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

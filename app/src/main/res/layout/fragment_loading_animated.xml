@@ -16,7 +16,7 @@
             android:id="@+id/loading_typewriter"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:src="@drawable/typewriter"
+            android:src="@drawable/robot_walking_pin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
