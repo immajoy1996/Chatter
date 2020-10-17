@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
+import com.example.chatter.interfaces.SmallIconClickInterface
 import com.example.chatter.ui.activity.DashboardActivity
 import kotlinx.android.synthetic.main.bot_layout.view.*
 import kotlinx.android.synthetic.main.fragment_story_board_one.*
@@ -21,7 +22,8 @@ import kotlinx.android.synthetic.main.small_item_view.view.*
 
 class SmallButtonsAdapter(
     val context: Context,
-    var imageList: ArrayList<Int>
+    var imageList: ArrayList<Int>,
+    var onSmallIconClickInterface: SmallIconClickInterface
 ) :
     RecyclerView.Adapter<SmallButtonsAdapter.SmallButtonsViewHolder>() {
 
@@ -51,10 +53,13 @@ class SmallButtonsAdapter(
 
         fun bind(resId: Int) {
             icon?.setImageResource(resId)
+            setOnClickListener(resId)
         }
 
-        fun setOnClickListener(imagePath: String) {
-
+        fun setOnClickListener(resId: Int) {
+            icon?.setOnClickListener {
+                onSmallIconClickInterface.onSmallIconClick(resId)
+            }
         }
     }
 }
