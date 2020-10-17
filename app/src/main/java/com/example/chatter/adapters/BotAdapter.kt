@@ -42,7 +42,7 @@ class BotAdapter(
         val title = botTitles[position]
         val isAllowedInGuestMode = isGuestModeEnabled[position]
         val botLevel = levelList[position]
-        holder.bind(imagePath, title, isAllowedInGuestMode, botLevel)
+        holder.bind(imagePath, title, isAllowedInGuestMode, botLevel, position)
     }
 
     override fun getItemCount(): Int = botTitles.size
@@ -62,7 +62,13 @@ class BotAdapter(
             botLockedImage = view.bot_locked_image
         }
 
-        fun bind(imagePath: String, title: String, isEnabled: Boolean, botLevel: String) {
+        fun bind(
+            imagePath: String,
+            title: String,
+            isEnabled: Boolean,
+            botLevel: String,
+            position: Int
+        ) {
             val aniShakeForever = AnimationUtils.loadAnimation(
                 context,
                 R.anim.shake_forever
@@ -75,7 +81,13 @@ class BotAdapter(
             if (Math.random() > .5) {
                 animPicked = aniWobbleForever
             }
-            itemView.bot_level.text = botLevel
+            if (position == 0) {
+                itemView.bot_level.text = "In Progress"
+                itemView.bot_level_banner.setBackgroundResource(R.drawable.bot_level_banner_background)
+            } else {
+                itemView.bot_level.text = "Done"
+                itemView.bot_level_banner.setBackgroundResource(R.drawable.image_test)
+            }
             botImage?.startAnimation(animPicked)
             botImage?.let {
                 Glide.with(context)

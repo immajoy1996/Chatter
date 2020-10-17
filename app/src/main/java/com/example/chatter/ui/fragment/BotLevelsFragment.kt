@@ -17,12 +17,10 @@ class BotLevelsFragment : BaseFragment() {
     private var levelNames =
         arrayListOf<String>(
             "Homeless",
-            "Apprentice",
             "Citizen"
         )
     private var levelImages = arrayListOf<Int>(
         R.drawable.homeless,
-        R.drawable.blacksmith,
         R.drawable.citizen
     )
 

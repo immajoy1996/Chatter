@@ -18,10 +18,9 @@
             android:id="@+id/user_level_image_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:elevation="0dp"
             android:background="@drawable/image_test"
-            >
+            android:elevation="0dp"
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/user_level_image"
@@ -33,18 +32,40 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/user_level_desc"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/user_level_what_is_it_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:fontFamily="@font/avenir_next"
-            android:text="Homeless"
-            android:textColor="#000000"
-            android:textSize="25sp"
+            android:elevation="0dp"
+            android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/user_level_image_layout"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <TextView
+                android:id="@+id/user_level_what_is_it"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:fontFamily="@font/avenir_next"
+                android:text="Language Level:"
+                android:textColor="#0084FF"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/user_level_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:fontFamily="@font/avenir_next"
+                android:text="Homeless"
+                android:textColor="#000000"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@id/user_level_what_is_it" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/lock_image"

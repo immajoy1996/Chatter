@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chatter.*
 import com.example.chatter.adapters.BotAdapter
 import com.example.chatter.adapters.BotGridItemDecoration
+import com.example.chatter.data.BotInfo
 import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.BotClickInterface
 import com.example.chatter.ui.fragment.*
@@ -52,6 +53,7 @@ class DashboardActivity : BaseActivity(),
     private var mediaPlayer = MediaPlayer()
     private var noInternetFragment =
         EasterEggFragment.newInstance("Something went wrong. Please check your connection")
+    private var botInfoArray = arrayListOf<BotInfo>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,9 +75,10 @@ class DashboardActivity : BaseActivity(),
         back.setOnClickListener {
             finish()
         }
-        top_bar_categories.setOnClickListener {
+        top_bar_categories.visibility = View.GONE
+        /*top_bar_categories.setOnClickListener {
             loadCategoriesSelectionScreen()
-        }
+        }*/
         home.setOnClickListener {
             loadNavigationDrawer()
         }
@@ -200,7 +203,7 @@ class DashboardActivity : BaseActivity(),
     }
 
     private fun setUpBotGridView() {
-        resetArrays()
+        resetAllArrays()
         dashboard_recycler.layoutManager = GridLayoutManager(
             this,
             NUM_COLUMNS
@@ -270,6 +273,16 @@ class DashboardActivity : BaseActivity(),
         guestMode = flag
     }
 
+    private fun resetAllArrays() {
+        titleList.clear()
+        imageList.clear()
+        isEnabledInGuestMode.clear()
+        levelList.clear()
+        categoryList.clear()
+        botInfoArray.clear()
+    }
+
+
     private fun resetArrays() {
         titleList.clear()
         imageList.clear()
@@ -279,7 +292,7 @@ class DashboardActivity : BaseActivity(),
     }
 
     private fun setUpBots() {
-        resetArrays()
+        resetAllArrays()
         database.child("BotCatalog").addChildEventListener(baseChildEventListener {
             val botImage = it.child("botImage").value.toString()
             val botTitle = it.child("botTitle").value.toString()
@@ -294,30 +307,53 @@ class DashboardActivity : BaseActivity(),
             } else {
                 botLevel = it.child("level").value.toString()
             }
+            val haveSeen = haveSeenThisBot(botTitle)
+            if (haveSeen) {
+                botLevel = preferences.getBotIndexValue(botTitle).toString()
+            }
             if (auth.currentUser != null) {
                 auth.currentUser?.uid?.let {
-                    val levelRef = database.child(USERS.plus(it)).child("level")
-                    val levelListener = baseValueEventListener { dataSnapshot ->
-                        val userLevel = dataSnapshot.value.toString()
-                        var botEnabled = true
-                        if (botLevel.compareTo(userLevel) > 0) {
-                            botEnabled = false
-                        }
-                        placeNewBotByLevel(botImage, botTitle, botCategory, botEnabled, botLevel)
+                    if (haveSeen) {
+                        placeNewBotByLevel(botImage, botTitle, botCategory, true, botLevel)
                         setBotAdapter()
                     }
-                    levelRef.addListenerForSingleValueEvent(levelListener)
+                    /*val levelRef = database.child(USERS.plus(it)).child("level")
+                    val levelListener = baseValueEventListener { dataSnapshot ->
+                        val userLevel = dataSnapshot.value.toString()
+                        val botEnabled = true
+                        /*if (botLevel.compareTo(userLevel) > 0) {
+                            botEnabled = false
+                        }*/
+
+                    }
+                    levelRef.addListenerForSingleValueEvent(levelListener)*/
                 }
             } else {
                 val botEnabled = isEnabledGuest
-                placeNewBotByLevel(botImage, botTitle, botCategory, botEnabled, botLevel)
-                setBotAdapter()
+                if (haveSeen) {
+                    placeNewBotByLevel(botImage, botTitle, botCategory, true, botLevel)
+                    setBotAdapter()
+                }
                 removeLoadingAnimatedFragment()
             }
         })
     }
 
+    private fun setUpBotAdapterFromBotInfoArray() {
+        resetArrays()
+        if (botInfoArray.isNotEmpty()) {
+            Log.d("Dashboard", botInfoArray[0].title)
+            for (itemIndex in 0 until botInfoArray.size) {
+                imageList.add(botInfoArray[itemIndex].image)
+                titleList.add(botInfoArray[itemIndex].title)
+                isEnabledInGuestMode.add(botInfoArray[itemIndex].isEnabledInGuest)
+                levelList.add(botInfoArray[itemIndex].level)
+            }
+        }
+    }
+
     private fun setBotAdapter() {
+        setUpBotAdapterFromBotInfoArray()
         val botAdapter = BotAdapter(
             this,
             imageList,
@@ -328,6 +364,12 @@ class DashboardActivity : BaseActivity(),
         dashboard_recycler.adapter = botAdapter
     }
 
+    private fun haveSeenThisBot(
+        botTitle: String
+    ): Boolean {
+        return preferences.haveSeenThisBot(botTitle)
+    }
+
     private fun placeNewBotByLevel(
         botImage: String,
         botTitle: String,
@@ -335,7 +377,16 @@ class DashboardActivity : BaseActivity(),
         botEnabled: Boolean,
         botLevel: String
     ) {
-        var index = 0
+        /*imageList.add(botImage)
+        titleList.add(botTitle)
+        categoryList.add(botCategory)
+        isEnabledInGuestMode.add(botEnabled)
+        levelList.add(botLevel)*/
+
+        botInfoArray.add(BotInfo(botTitle, botImage, botCategory, botLevel, botEnabled))
+        botInfoArray.sortByDescending { botLevel }
+
+        /*var index = 0
         val n = levelList.size
         while (index < n && botLevel.compareLevelTo(levelList[index]) >= 0) {
             index++
@@ -352,7 +403,7 @@ class DashboardActivity : BaseActivity(),
             categoryList.add(index, botCategory)
             isEnabledInGuestMode.add(index, botEnabled)
             levelList.add(index, botLevel)
-        }
+        }*/
     }
 
     private fun handleNewBot(

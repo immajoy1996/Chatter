@@ -2,6 +2,7 @@ package com.example.chatter.ui.activity
 
 import ProgressBarAnimation
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -15,6 +16,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
@@ -40,7 +42,7 @@ class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
     var ncorrect = 0
     var gotItWrong = false
     private var wonGameFragment =
-        EasterEggFragment.newInstance("Congrats! You've passed.", 100L)
+        EasterEggFragment.newInstance("Congrats! You've completed Taxi Pete.")
     private var lostGameFragment =
         EasterEggFragment.newInstance("Better luck next time")
     private lateinit var auth: FirebaseAuth
@@ -58,6 +60,13 @@ class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
         setUpUserInput()
         setUpCheckButton()
         sayItForFirstTime()
+    }
+
+    fun returnToBotStoryActivity() {
+        val intent = Intent(this, BotStoryActivity::class.java)
+        intent.putExtra("botStoryTitle", preferences.getCurrentBotStory())
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     private fun loadGameResultsPopup(fragment: Fragment) {
@@ -370,6 +379,17 @@ class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
     override fun setUpTopBar() {
         speech_game_back_button.setOnClickListener {
             finish()
+        }
+        speech_game_won_game_button.setOnClickListener {
+            loadGameResultsPopup(wonGameFragment)
+        }
+        speech_game_top_message.setOnLongClickListener {
+            if (speech_game_won_game_button.visibility == View.VISIBLE) {
+                speech_game_won_game_button.visibility = View.GONE
+            } else {
+                speech_game_won_game_button.visibility = View.VISIBLE
+            }
+            true
         }
     }
 

@@ -137,7 +137,7 @@
 
     <Button
         android:id="@+id/easter_egg_close_button"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:background="@drawable/close_button_background"
         android:elevation="10dp"
@@ -152,7 +152,7 @@
 
     <Button
         android:id="@+id/easter_egg_exit_button"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:background="@drawable/close_button_background"
         android:elevation="10dp"

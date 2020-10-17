@@ -137,11 +137,12 @@ class ChatterActivity : BaseChatActivity(),
         setUpWordByWordRecycler()
         setUpDismissTranslatePopup()
         setUpDismissNextMenuOptions()
-        if (shouldShowStoryFrag) {
+        onStoriesFinished()
+        /*if (shouldShowStoryFrag) {
             loadBotStoryFragment()
         } else {
             onStoriesFinished()
-        }
+        }*/
     }
 
     fun getGameType(): String {

@@ -157,6 +157,25 @@ class Preferences(val context: Context) {
         storeCurrentBotStoryIndex(index + 1)
     }
 
+    fun haveSeenThisBot(
+        botTitle: String
+    ): Boolean {
+        val index = getCurrentBotIndex()
+        for (p in 0 until (index + 1)) {
+            if (botsInOrder[p] == botTitle) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun getBotIndexValue(botTitle: String): Int {
+        if (botsInOrder.contains(botTitle)) {
+            return botsInOrder.indexOf(botTitle)
+        }
+        return -1000
+    }
+
     fun getCurrentBotStory(): String {
         var index = getCurrentBotIndex()
         if (index == -1) {

@@ -39,14 +39,14 @@ class HomeNavActivityUsed : BaseActivity(), SmallIconClickInterface {
         setUpDismissMyLevelPopup()
     }
 
-    private fun setUpDismissMyLevelPopup(){
+    private fun setUpDismissMyLevelPopup() {
         home_nav_used_root_layout.setOnClickListener {
             dismissLevelPopupIfShown()
         }
     }
 
-    private fun dismissLevelPopupIfShown(){
-        if(possibleLevelsFragment.isVisible){
+    private fun dismissLevelPopupIfShown() {
+        if (possibleLevelsFragment.isVisible) {
             supportFragmentManager.popBackStack()
         }
     }
@@ -94,10 +94,20 @@ class HomeNavActivityUsed : BaseActivity(), SmallIconClickInterface {
             .commit()
     }
 
+    private fun launchDashboardActivityAsGuest() {
+        val intent = Intent(this, DashboardActivity::class.java)
+        intent.putExtra("GUEST_MODE", true)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+    }
+
     override fun onSmallIconClick(id: Int) {
         when (id) {
             R.drawable.homeless -> {
                 loadFragment(possibleLevelsFragment)
+            }
+            R.drawable.chat_box -> {
+                launchDashboardActivityAsGuest()
             }
             else -> {
                 Toast.makeText(this, "This button hasn't been implemented", Toast.LENGTH_SHORT)

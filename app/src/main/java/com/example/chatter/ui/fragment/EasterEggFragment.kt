@@ -96,10 +96,9 @@ class EasterEggFragment : Fragment() {
                     }
                 }
                 is SpeechGameActivity -> {
-                    (activity as? SpeechGameActivity)?.let {
-                        it.removeStartGameFragment()
-                        it.startGame()
-                    }
+                    preferences.incrementCurrentBotStoryIndex()
+                    (activity as? SpeechGameActivity)?.returnToBotStoryActivity()
+
                 }
                 is HomeNavigationActivity -> {
                     (activity as? HomeNavigationActivity)?.removePopup()
@@ -112,8 +111,15 @@ class EasterEggFragment : Fragment() {
                         .show()
                 }
             }
-            easter_egg_exit_button.setOnClickListener {
-                activity?.finish()
+            easter_egg_exit_button.setOnClickListener {//Play again button
+                when (activity) {
+                    is SpeechGameActivity -> {
+                        (activity as? SpeechGameActivity)?.let {
+                            it.removeStartGameFragment()
+                            it.startGame()
+                        }
+                    }
+                }
             }
         }
     }
@@ -192,8 +198,9 @@ class EasterEggFragment : Fragment() {
                 jackpot_layout.visibility = View.VISIBLE
                 jackpot_image.setImageResource(R.drawable.audio)
                 new_gem_image.visibility = View.GONE
-                easter_egg_close_button.text = "Play"
+                easter_egg_close_button.text = "Continue Story"
                 easter_egg_exit_button.visibility = View.VISIBLE
+                easter_egg_exit_button.text = "Play Again"
             } else {
                 easter_egg_message.text = message
                 easter_egg_price_tag_layout.visibility = View.VISIBLE

@@ -152,7 +152,7 @@ class BotStoryActivity : BaseActivity() {
             .commit()
     }
 
-    fun weDontWantToSeeBeginYourJourneyScreenAgain(){
+    fun weDontWantToSeeBeginYourJourneyScreenAgain() {
         preferences.storeCurrentBotStoryIndex(0)
     }
 
@@ -176,7 +176,7 @@ class BotStoryActivity : BaseActivity() {
         }
     }
 
-    fun setUpFirstStoryScreen(){
+    fun setUpFirstStoryScreen() {
         removeLoadingAnimatedFragment()
         loadFirstStoryFragment()
         setUpBottomNavBar(0)
@@ -212,7 +212,7 @@ class BotStoryActivity : BaseActivity() {
                 setGameType(it.toString())
             }
             Log.d("BotStories", "${cardTitle.toString()} ${order.toString()}")
-            if (cardTitle != null && cardText != null && image != null && soundEffect != null && order != null) {
+            if (cardTitle != null && cardText != null /*&& image != null && soundEffect != null */&& order != null) {
                 addToFragmentArray(
                     cardTitle.toString(),
                     cardText.toString(),
@@ -295,7 +295,7 @@ class BotStoryActivity : BaseActivity() {
                 button_next.visibility = View.GONE
                 button_start.visibility = View.VISIBLE
             }
-            2 -> {
+            2, 3 -> {
                 button_back.visibility = View.VISIBLE
                 button_next.visibility = View.VISIBLE
                 button_start.visibility = View.GONE
