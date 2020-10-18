@@ -200,6 +200,7 @@ class SignInActivity : BaseChatActivity() {
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(optionsPopupContainer.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()
@@ -212,6 +213,7 @@ class SignInActivity : BaseChatActivity() {
     private fun loadAnimatedLoadingFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(root_container.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()

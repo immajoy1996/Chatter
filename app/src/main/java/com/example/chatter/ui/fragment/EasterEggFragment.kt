@@ -196,7 +196,7 @@ class EasterEggFragment : Fragment() {
                 easter_egg_message.text = message
                 easter_egg_price_tag_layout.visibility = View.GONE
                 jackpot_layout.visibility = View.VISIBLE
-                jackpot_image.setImageResource(R.drawable.audio)
+                jackpot_image.setImageResource(R.drawable.trophy)
                 new_gem_image.visibility = View.GONE
                 easter_egg_close_button.text = "Continue Story"
                 easter_egg_exit_button.visibility = View.VISIBLE

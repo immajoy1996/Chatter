@@ -124,16 +124,6 @@ class CreateBotOptionsFragment : BaseFragment() {
         }
     }
 
-    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
-        timerTask = Timer(name, false).schedule(delay) {
-            chatterActivity.runOnUiThread {
-                doit()
-            }
-        }
-        chatterActivity.timerTaskArray.add(timerTask)
-        timerTask
-    }
-
     private fun initializeScrollContainerAndOptionButtons() {
         chatterActivity.let {
             it.initializeMessagesContainer()

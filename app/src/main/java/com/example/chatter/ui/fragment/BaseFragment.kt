@@ -13,6 +13,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.*
+import kotlin.concurrent.schedule
 
 abstract class BaseFragment : Fragment() {
     var timerTaskArray = arrayListOf<TimerTask>()
@@ -37,6 +38,16 @@ abstract class BaseFragment : Fragment() {
         for (timerTask in timerTaskArray) {
             timerTask.cancel()
         }
+    }
+
+    val setTimerTask: (name: String, delay: Long, () -> Unit) -> TimerTask = { name, delay, doit ->
+        val timerTask = Timer(name, false).schedule(delay) {
+            activity?.runOnUiThread {
+                doit()
+            }
+        }
+        timerTaskArray.add(timerTask)
+        timerTask
     }
 
     val baseChildEventListener: ((DataSnapshot) -> Unit) -> ChildEventListener = { doit ->

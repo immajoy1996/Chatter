@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.bot_story_toolbar.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
 import kotlinx.android.synthetic.main.fragment_bot_story_layout.*
 
-class BotStoryActivity : BaseActivity() {
+class BotStoryActivity : BaseChatActivity() {
     private var fragmentArray = arrayListOf<BotStoryModel>()
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
@@ -345,6 +345,18 @@ class BotStoryActivity : BaseActivity() {
 
     override fun setUpTopBar() {
         //not impl
+    }
+
+    override fun addMessage(msg: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun initializeMessagesContainer() {
+        //TODO("Not yet implemented")
+    }
+
+    override fun showFirstBotMessage() {
+        //TODO("Not yet implemented")
     }
 
     companion object {
