@@ -617,7 +617,7 @@ class SignInActivity : BaseChatActivity() {
                 //intent = Intent(this@SignInActivity, HomeNavigationActivity::class.java)
                 //intent = Intent(this@SignInActivity, BotStoryActivity::class.java)
                 //intent.putExtra("botStoryTitle",preferences.getCurrentBotStory())
-                intent = Intent(this@SignInActivity, HomeNavActivityUsed::class.java)
+                intent = Intent(this@SignInActivity, HomeNavActivityLatest::class.java)
             } else {
                 intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             }

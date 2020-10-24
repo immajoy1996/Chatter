@@ -92,7 +92,7 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
                     languageMap[selectedLang as String]?.let {
                         preferences.storeNativeLanguageSelection(it)
                         preferences.storeNativeLanguageFlagSelection(selectedFlagImg as String)
-                        val intent = Intent(this, HomeNavActivityUsed::class.java)
+                        val intent = Intent(this, HomeNavActivityLatest::class.java)
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
                         intent.putExtra("GUEST_MODE", true)
