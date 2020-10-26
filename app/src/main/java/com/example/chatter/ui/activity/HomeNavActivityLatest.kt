@@ -118,6 +118,5 @@ class HomeNavActivityLatest : BaseActivity() {
                 }
             }
         }
-
     }
 }

@@ -14,8 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.HomeNavActivityLatest"
+            android:name=".ui.activity.BotStoryActivityLatest"
             android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <activity
+            android:name=".ui.activity.HomeNavActivityLatest"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".ui.activity.HomeNavActivityUsed"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

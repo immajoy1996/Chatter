@@ -101,9 +101,9 @@ class VocabFragment : BaseFragment(), SubmitExpressionInterface {
         button_back.visibility = View.GONE
         hideActivityNextButton()
         button_next.visibility = View.GONE
-        button_start.visibility = View.VISIBLE
-        button_start.text = "Finish"
-        button_start.setOnClickListener {
+        start_button.visibility = View.VISIBLE
+        start_button.text = "Finish"
+        start_button.setOnClickListener {
             activity?.finish()
         }
     }

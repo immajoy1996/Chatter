@@ -56,7 +56,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
             android:layout_marginTop="15dp"
             android:background="@drawable/user_profile_item_card_grey_background"
             app:layout_constraintEnd_toEndOf="parent"
@@ -88,6 +87,7 @@
                 app:layout_constraintTop_toTopOf="@id/location_pin" />
 
             <Button
+                android:id="@+id/full_card_launch_button"
                 android:layout_width="170dp"
                 android:layout_height="30dp"
                 android:layout_marginTop="10dp"
@@ -101,6 +101,12 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="@id/location_name"
                 app:layout_constraintTop_toBottomOf="@id/location_name" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                app:layout_constraintTop_toBottomOf="@id/full_card_launch_button" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -124,12 +124,15 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     private fun getBotResponse(path: String) {
         chatterActivity.removeOptionsMenu()
-        val pathReference = database.child(path + "/botMessage")
+        val pathReference = database.child("${path}botMessage")
         chatterActivity.disableNextButton()
+        Log.d("Hello", path)
         val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
             dataSnapshot.value?.let {
                 setTimerTask("showBotIsTyping", 700, {
-                    chatterActivity.apply {
+                    Log.d("Hello", "i got in here1")
+                    (activity as? ChatterActivity)?.apply {
+                        Log.d("Hello", "i got in here")
                         addSpaceText()
                         showBotIsTypingView()
                         botIsTypingTextHasBeenAdded()
@@ -275,12 +278,12 @@ class MessageMenuOptionsFragment : BaseFragment() {
         })
     }
 
-    fun showMenu(){
-        message_menu_root_layout.visibility=View.VISIBLE
+    fun showMenu() {
+        message_menu_root_layout.visibility = View.VISIBLE
     }
 
-    fun hideMenu(){
-        message_menu_root_layout.visibility=View.GONE
+    fun hideMenu() {
+        message_menu_root_layout.visibility = View.GONE
     }
 
     companion object {

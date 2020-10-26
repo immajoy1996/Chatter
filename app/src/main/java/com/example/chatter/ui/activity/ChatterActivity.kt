@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
@@ -51,6 +52,8 @@ import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.bottom_nav_bar.button_back
+import kotlinx.android.synthetic.main.fragment_story_board_two.*
 import kotlinx.android.synthetic.main.top_bar.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -364,10 +367,16 @@ class ChatterActivity : BaseChatActivity(),
             )
     }
 
+    private fun returnToAppDashboard(){
+        val intent= Intent(this,HomeNavActivityLatest::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+    }
+
     private fun setUpNavButtons() {
         //word_by_word_translate_button.visibility = View.VISIBLE
         button_back.visibility = View.GONE
-        button_refresh.visibility = View.VISIBLE
+        button_refresh.visibility = View.GONE
         button_refresh.setOnDebouncedClickListener {
             refreshChatMessages()
         }
@@ -375,7 +384,11 @@ class ChatterActivity : BaseChatActivity(),
             toggleRestartFlag(false)
             finish()
         }
-        showNextButton()
+        continue_button.visibility = View.VISIBLE
+        continue_button.setOnClickListener {
+            returnToAppDashboard()
+        }
+        hideNextButton()
         button_next.setOnClickListener {
             /*if (!retrievingOptionsFragment.isVisible) {
                 disposeListeners()
@@ -1292,6 +1305,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     fun addSpaceText() {
+        Log.d("SpaceText","showing it")
         val spaceMsgId = getIdForSpaceView()
         addSpaceMessage(spaceMsgId)
     }

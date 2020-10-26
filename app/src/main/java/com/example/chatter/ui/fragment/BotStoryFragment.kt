@@ -104,8 +104,8 @@ class BotStoryFragment : BaseFragment() {
     private fun setUpBottomNavBar() {
         button_back.visibility = View.GONE
         button_next.visibility = View.GONE
-        button_start.visibility = View.VISIBLE
-        button_start.setOnClickListener {
+        start_button.visibility = View.VISIBLE
+        start_button.setOnClickListener {
             fragmentManager?.popBackStack()
             (activity as? ChatterActivity)?.onStoriesFinished()
         }

@@ -1,6 +1,7 @@
 package com.example.chatter.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import com.bumptech.glide.Glide
 import com.example.chatter.R
 import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.extra.NOTIFICATION_TYPE
+import com.example.chatter.ui.activity.BotStoryActivity
+import com.example.chatter.ui.activity.BotStoryActivityLatest
 import com.example.chatter.ui.activity.DashboardActivity
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.bot_layout.view.*
@@ -81,6 +84,9 @@ class UserProfileDashboardAdapter(
         val locationName = locationNames[position]
         val subtitle = cardSubtitles[position]
         when (getItemViewType(position)) {
+            NOTIFICATION_TYPE.STUDYMODE.type -> {
+                holder.bindStoryModeCard(imagePath, subtitle, locationName)
+            }
             NOTIFICATION_TYPE.LEVEL_REACHED.type -> {
                 holder.bindLevelNotification(imagePath, subtitle)
             }
@@ -93,6 +99,17 @@ class UserProfileDashboardAdapter(
     override fun getItemCount(): Int = imageList.size
 
     inner class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        fun bindStoryModeCard(
+            imagePath: Int,
+            subTitle: String,
+            locationName: String
+        ) {
+            itemView.card_image.setImageResource(imagePath)
+            itemView.location_name.text = locationName
+            itemView.card_subtitle.text = subTitle
+            setItemClickListener()
+        }
 
         fun bind(
             imagePath: Int,
@@ -110,6 +127,15 @@ class UserProfileDashboardAdapter(
         ) {
             itemView.card_image.setImageResource(imagePath)
             itemView.card_subtitle.text = subTitle
+        }
+
+        private fun setItemClickListener() {
+            itemView.full_card_launch_button.setOnClickListener {
+                val intent = Intent(context, BotStoryActivityLatest::class.java)
+                intent.putExtra("botStoryTitle", "Doctor Susan")
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                context.startActivity(intent)
+            }
         }
 
 

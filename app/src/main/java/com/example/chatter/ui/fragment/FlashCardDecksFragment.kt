@@ -77,8 +77,8 @@ class FlashCardDecksFragment : BaseFragment(), DeckSelectedInterface {
 
     private fun setUpBottomBar() {
         button_back.visibility = View.GONE
-        button_start.visibility = View.VISIBLE
-        button_start.setOnDebouncedClickListener {
+        start_button.visibility = View.VISIBLE
+        start_button.setOnDebouncedClickListener {
             if (selectedDecksArray.isEmpty()) {
                 if (isMultipleChoiceFragment) {
                     Toast.makeText(context, "Select a bot to test!", Toast.LENGTH_SHORT).show()

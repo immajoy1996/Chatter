@@ -2,9 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="55dp"
-    android:background="#000000"
-    android:padding="5dp"
+    android:background="#300084FF"
     android:clickable="false"
+    android:padding="5dp"
     app:layout_constraintBottom_toBottomOf="parent">
 
     <Button
@@ -15,6 +15,7 @@
         android:background="@drawable/bottom_nav_buttons"
         android:text="Back"
         android:textColor="#ffffff"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -31,17 +32,23 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_start"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginStart="10dp"
-        android:background="@drawable/bottom_nav_buttons"
-        android:text="Start"
-        android:visibility="gone"
+        android:id="@+id/start_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/continue_button_background"
+        android:elevation="10dp"
+        android:fontFamily="@font/avenir_next"
+        android:padding="5dp"
+        android:stateListAnimator="@null"
+        android:text="Continue"
+        android:textAllCaps="false"
         android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -63,6 +70,18 @@
         android:background="@drawable/bottom_nav_buttons"
         android:text="Next"
         android:textColor="#ffffff"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/continue_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/next_button1"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

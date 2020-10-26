@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#ffffff"
+    android:layout_marginBottom="10dp"
+    app:layout_constraintBottom_toTopOf="@+id/start_chatting_button_guideline"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/first_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@drawable/dots_background_filled" />
+
+        <TextView
+            android:id="@+id/second_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/dots_background"
+            app:layout_constraintStart_toEndOf="@id/first_dot" />
+
+        <TextView
+            android:id="@+id/third_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/dots_background"
+            app:layout_constraintStart_toEndOf="@id/second_dot" />
+
+        <TextView
+            android:id="@+id/fourth_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/dots_background"
+            app:layout_constraintStart_toEndOf="@id/third_dot" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

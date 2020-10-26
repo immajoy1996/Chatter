@@ -27,7 +27,9 @@ import kotlinx.android.synthetic.main.activity_chatter.*
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.android.synthetic.main.bot_story_toolbar.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.bottom_nav_bar.button_back
 import kotlinx.android.synthetic.main.fragment_bot_story_layout.*
+import kotlinx.android.synthetic.main.fragment_story_board_two.*
 
 class BotStoryActivity : BaseChatActivity() {
     private var fragmentArray = arrayListOf<BotStoryModel>()
@@ -212,7 +214,7 @@ class BotStoryActivity : BaseChatActivity() {
                 setGameType(it.toString())
             }
             Log.d("BotStories", "${cardTitle.toString()} ${order.toString()}")
-            if (cardTitle != null && cardText != null /*&& image != null && soundEffect != null */&& order != null) {
+            if (cardTitle != null && cardText != null /*&& image != null && soundEffect != null */ && order != null) {
                 addToFragmentArray(
                     cardTitle.toString(),
                     cardText.toString(),
@@ -237,7 +239,7 @@ class BotStoryActivity : BaseChatActivity() {
         soundEffect: String,
         order: Long
     ) {
-        fragmentArray.add(
+        /*fragmentArray.add(
             BotStoryModel(
                 order.toInt(),
                 BotStoryFragmentUsed.newInstance(
@@ -248,7 +250,7 @@ class BotStoryActivity : BaseChatActivity() {
                     order.toInt()
                 )
             )
-        )
+        )*/
         fragmentArray.sortBy {
             it.order
         }
