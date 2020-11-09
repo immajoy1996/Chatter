@@ -5,31 +5,30 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
+import android.view.animation.TranslateAnimation
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.chatter.R
+import com.example.chatter.data.NotificationItem
 import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.extra.NOTIFICATION_TYPE
-import com.example.chatter.ui.activity.BotStoryActivity
 import com.example.chatter.ui.activity.BotStoryActivityLatest
-import com.example.chatter.ui.activity.DashboardActivity
-import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.android.synthetic.main.bot_layout.view.*
-import kotlinx.android.synthetic.main.fragment_story_board_one.*
+import com.example.chatter.ui.activity.GamesActivity
+import com.example.chatter.ui.activity.SpeechGameActivity
+import kotlinx.android.synthetic.main.quiz_notification_card_layout.view.*
 import kotlinx.android.synthetic.main.user_profile_item_card.view.*
+import kotlinx.android.synthetic.main.user_profile_item_card.view.card_subtitle
+import kotlinx.android.synthetic.main.user_profile_item_card.view.card_title
+import kotlinx.android.synthetic.main.user_profile_item_card.view.location_name
+
 
 class UserProfileDashboardAdapter(
     val context: Context,
-    var notificationType: ArrayList<NOTIFICATION_TYPE>,
-    var imageList: ArrayList<Int>,
-    var cardSubtitles: ArrayList<String>,
-    var locationNames: ArrayList<String>
-
+    var notificationList: ArrayList<NotificationItem>
 ) :
     RecyclerView.Adapter<UserProfileDashboardAdapter.CardViewHolder>() {
 
@@ -62,6 +61,24 @@ class UserProfileDashboardAdapter(
                     )
                 )
             }
+            NOTIFICATION_TYPE.PRACTICE_GAMES.type -> {
+                return CardViewHolder(
+                    LayoutInflater.from(context).inflate(
+                        R.layout.practice_games_notification_card_layout,
+                        parent,
+                        false
+                    )
+                )
+            }
+            NOTIFICATION_TYPE.PRACTICE_FLASHCARDS.type -> {
+                return CardViewHolder(
+                    LayoutInflater.from(context).inflate(
+                        R.layout.practice_flashcards_notification_card_layout,
+                        parent,
+                        false
+                    )
+                )
+            }
 
             else -> {
                 return CardViewHolder(
@@ -76,68 +93,116 @@ class UserProfileDashboardAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return notificationType[position].type
+        return notificationList[position].notificationType.type
     }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        val imagePath = imageList[position]
-        val locationName = locationNames[position]
-        val subtitle = cardSubtitles[position]
+        val imagePath = notificationList[position].image
+        val subtitle = notificationList[position].subtitle
+        val title = notificationList[position].title
+        val locationName = notificationList[position].locationName
         when (getItemViewType(position)) {
             NOTIFICATION_TYPE.STUDYMODE.type -> {
-                holder.bindStoryModeCard(imagePath, subtitle, locationName)
+                if (imagePath != null && title != null && subtitle != null) {
+                    holder.bindStoryModeCard(imagePath, title, subtitle, locationName)
+                }
             }
             NOTIFICATION_TYPE.LEVEL_REACHED.type -> {
-                holder.bindLevelNotification(imagePath, subtitle)
+                if (imagePath != null && subtitle != null) {
+                    holder.bindLevelNotification(imagePath, subtitle)
+                }
             }
-            else -> {
-                holder.bind(imagePath, subtitle, locationName)
+            NOTIFICATION_TYPE.QUIZ.type -> {
+                if (imagePath != null && title != null && subtitle != null) {
+                    holder.bindQuizNotification(imagePath, title, subtitle)
+                }
+            }
+            NOTIFICATION_TYPE.PRACTICE_GAMES.type -> {
+                holder.bindGamesNotification()
+            }
+            NOTIFICATION_TYPE.PRACTICE_FLASHCARDS.type -> {
+                holder.bindFlashcardsNotification()
             }
         }
     }
 
-    override fun getItemCount(): Int = imageList.size
+    override fun getItemCount(): Int = notificationList.size
 
     inner class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         fun bindStoryModeCard(
             imagePath: Int,
+            title: String,
             subTitle: String,
-            locationName: String
+            locationName: String?
         ) {
-            itemView.card_image.setImageResource(imagePath)
-            itemView.location_name.text = locationName
+            itemView.story_card_image.setImageResource(imagePath)
+            if (locationName != null) {
+                itemView.location_name.text = locationName
+            }
             itemView.card_subtitle.text = subTitle
-            setItemClickListener()
+            itemView.card_title.text = title
+            itemView.user_profile_item_card_layout.startBounceAnimation()
+            val botTitle = subTitle
+            setItemClickListener(botTitle)
         }
 
-        fun bind(
+        fun bindQuizNotification(
             imagePath: Int,
             subTitle: String,
             locationName: String
         ) {
-            itemView.card_image.setImageResource(imagePath)
+            //itemView.card_image.setImageResource(imagePath)
             itemView.location_name.text = locationName
             itemView.card_subtitle.text = subTitle
+            itemView.quiz_inner_container.startBounceAnimation()
+            setQuizItemClickNotification()
         }
 
         fun bindLevelNotification(
             imagePath: Int,
             subTitle: String
         ) {
-            itemView.card_image.setImageResource(imagePath)
+            //itemView.card_image.setImageResource(imagePath)
             itemView.card_subtitle.text = subTitle
+            //itemView.showBounceAnimation()
         }
 
-        private fun setItemClickListener() {
+        fun bindFlashcardsNotification() {
+
+        }
+
+        fun bindGamesNotification() {
+
+        }
+
+        private fun setQuizItemClickNotification() {
+            itemView.quiz_inner_container.setOnClickListener {
+                val intent = Intent(context, GamesActivity::class.java)
+                intent.putExtra("gameType", "SpeechGame")
+                intent.putExtra("shouldShowGameOptions", false)
+                intent.putExtra("botTitle", "Doctor Susan")
+                context.startActivity(intent)
+            }
+        }
+
+        private fun setItemClickListener(botTitle: String) {
             itemView.full_card_launch_button.setOnClickListener {
                 val intent = Intent(context, BotStoryActivityLatest::class.java)
-                intent.putExtra("botStoryTitle", "Doctor Susan")
+                var botTitleNew = botTitle
+                if (botTitleNew == "Doctor Hum-Vee") {
+                    botTitleNew = "Doctor Susan"
+                }
+                intent.putExtra("botStoryTitle", botTitleNew)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 context.startActivity(intent)
             }
         }
 
-
+        private fun View.startBounceAnimation() {
+            this.startAnimation(
+                AnimationUtils.loadAnimation(context, R.anim.bounce)
+            )
+        }
     }
 }

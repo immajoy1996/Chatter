@@ -619,6 +619,8 @@ class SignInActivity : BaseChatActivity() {
                 //intent.putExtra("botStoryTitle",preferences.getCurrentBotStory())
                 intent = Intent(this@SignInActivity, HomeNavActivityLatest::class.java)
             } else {
+                preferences.shouldShowNewStoryNotifcation(true)
+                preferences.shouldShowLevelUpNotification(true)
                 intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)
             }
             //intent.putExtra("GUEST_MODE", true)

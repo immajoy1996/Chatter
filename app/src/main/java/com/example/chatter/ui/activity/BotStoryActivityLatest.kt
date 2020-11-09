@@ -106,7 +106,7 @@ class BotStoryActivityLatest : BaseActivity(
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
+            //.setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(bot_story_latest_root_layout.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()

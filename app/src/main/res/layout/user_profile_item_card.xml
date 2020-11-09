@@ -2,9 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/user_profile_item_card_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -20,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/card_image"
+            android:id="@+id/story_card_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/hotel"
@@ -37,8 +39,8 @@
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/card_image"
-            app:layout_constraintTop_toTopOf="@id/card_image" />
+            app:layout_constraintStart_toEndOf="@id/story_card_image"
+            app:layout_constraintTop_toTopOf="@id/story_card_image" />
 
         <TextView
             android:id="@+id/card_subtitle"
@@ -50,7 +52,7 @@
             android:textColor="#808080"
             android:textSize="15sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/card_image"
+            app:layout_constraintStart_toEndOf="@id/story_card_image"
             app:layout_constraintTop_toBottomOf="@id/card_title" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -60,7 +62,7 @@
             android:background="@drawable/user_profile_item_card_grey_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_image">
+            app:layout_constraintTop_toBottomOf="@id/story_card_image">
 
             <ImageView
                 android:id="@+id/location_pin"

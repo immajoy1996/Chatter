@@ -1,6 +1,7 @@
 package com.example.chatter.ui.fragment
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -96,9 +97,16 @@ class EasterEggFragment : Fragment() {
                     }
                 }
                 is SpeechGameActivity -> {
+                    val formerLevel = preferences.getCurrentLevelFromMap()
                     preferences.incrementCurrentBotStoryIndex()
-                    (activity as? SpeechGameActivity)?.returnToBotStoryActivity()
-
+                    val newLevel = preferences.getCurrentLevelFromMap()
+                    //check is leveled up first
+                    if (formerLevel != newLevel) {
+                        preferences.setCurrentStateId(false, true)
+                    } else {
+                        preferences.setCurrentStateId(false, false)
+                    }
+                    returnToAppDashboard()
                 }
                 is HomeNavigationActivity -> {
                     (activity as? HomeNavigationActivity)?.removePopup()
@@ -122,6 +130,12 @@ class EasterEggFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun returnToAppDashboard() {
+        val intent = Intent(context, HomeNavActivityLatest::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
     }
 
     private fun setUpViews() {

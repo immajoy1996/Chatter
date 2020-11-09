@@ -381,6 +381,7 @@ class SpeechGameActivity : BaseChatActivity(), TextToSpeech.OnInitListener {
             finish()
         }
         speech_game_won_game_button.setOnClickListener {
+            //preferences.incrementCurrentBotStoryIndex()
             loadGameResultsPopup(wonGameFragment)
         }
         speech_game_top_message.setOnLongClickListener {

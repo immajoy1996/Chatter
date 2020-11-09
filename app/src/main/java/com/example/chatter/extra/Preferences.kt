@@ -14,7 +14,7 @@ class Preferences(val context: Context) {
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
     private val pointsForLevel = arrayListOf<Int>(2000, 5000, 9000)
 
-    private var botsInOrder = arrayListOf<String>("Taxi Pete", "Doctor Susan")
+    private var botsInOrder = arrayListOf<String>("Taxi Pete", "Doctor Hum-Vee")
     private val quotesArray = arrayListOf<String>(
         "What do you call a dinosaur who gets into an accident?",
         "Why is a leopard so bad at hide an seek?",
@@ -23,6 +23,74 @@ class Preferences(val context: Context) {
         "What do you call a ship that sits at the bottom of the ocean and twitches?"
     )
 
+    private val storyModeMap = HashMap<String, StoryModeDataItem>()
+    private val newLevelsMap = HashMap<String, NewLevelDataItem>()
+    private val quizMap = HashMap<String, QuizDataItem>()
+
+    fun getStoryModeDataItems(): HashMap<String, StoryModeDataItem> {
+        return storyModeMap
+    }
+
+    fun getNewLevelsDataItems(): HashMap<String, NewLevelDataItem> {
+        return newLevelsMap
+    }
+
+    fun getCurrentLevelFromMap(): String {
+        val curBot = getCurrentBotStory()
+        return newLevelsMap[curBot]?.levelName ?: "something went wrong"
+    }
+
+    fun storeCurrentLevel(levelName: String) {
+        sharedPreferences.edit().putString("currentLevel", levelName)
+            .apply()
+    }
+
+    fun getStoredLevel(): String {
+        return sharedPreferences.getString("currentLevel", "") ?: ""
+    }
+
+    private fun setUpQuizMap() {
+        quizMap.put("Taxi Pete", QuizDataItem("Taxi Pete", "SpeechGame"))
+        quizMap.put("Doctor Hum-Vee", QuizDataItem("Doctor Hum-Vee", "MultipleChoice"))
+    }
+
+    private fun setUpNewLevelsMap() {
+        newLevelsMap.put("Taxi Pete", NewLevelDataItem("Taxi Pete", "Homeless", ""))
+        newLevelsMap.put("Doctor Hum-Vee", NewLevelDataItem("Doctor Hum-Vee", "Scrub", ""))
+    }
+
+    private fun setUpStoryModeMap() {
+        storyModeMap.put(
+            "Doctor Hum-Vee",
+            StoryModeDataItem(
+                "Doctor Hum-Vee",
+                R.drawable.hotel,
+                "Story",
+                "Doctor Hum-Vee",
+                "Saint Jude's Hospital, NY"
+            )
+        )
+        storyModeMap.put(
+            "Taxi Pete",
+            StoryModeDataItem(
+                "Taxi Pete",
+                R.drawable.taxi1,
+                "Story",
+                "Taxi Pete",
+                "La Guardia Airport, NY"
+            )
+        )
+    }
+
+    init {
+        setUpStoryModeMap()
+        setUpNewLevelsMap()
+        setUpQuizMap()
+    }
+
+    fun getStoredQuizMap(): HashMap<String, QuizDataItem> {
+        return quizMap
+    }
 
     fun getMyCurrentLevel(myPoints: Int): String {
         if (myPoints < pointsForLevel[0]) {
@@ -153,7 +221,10 @@ class Preferences(val context: Context) {
     }
 
     fun incrementCurrentBotStoryIndex() {
-        val index = getCurrentBotIndex()
+        var index = getCurrentBotIndex()
+        if (index == -1) {
+            index = 0
+        }
         storeCurrentBotStoryIndex(index + 1)
     }
 
@@ -281,7 +352,7 @@ class Preferences(val context: Context) {
     }
 
     fun storeChatStatePath(userUid: String, botTitle: String, curPath: String) {
-        var key = getCurrentPathKey(userUid, botTitle)
+        val key = getCurrentPathKey(userUid, botTitle)
         sharedPreferences.edit().putString(key, curPath).apply()
     }
 
@@ -332,8 +403,8 @@ class Preferences(val context: Context) {
 
     private fun createMessagesArrayFromSerializedString(result: String): Pair<ArrayList<String>, ArrayList<String>> {
         val messageList = result.split("*")
-        var botMessages = arrayListOf<String>()
-        var userMessages = arrayListOf<String>()
+        val botMessages = arrayListOf<String>()
+        val userMessages = arrayListOf<String>()
         var botsTurn = true
         for (item in messageList) {
             if (botsTurn) {
@@ -411,6 +482,24 @@ class Preferences(val context: Context) {
         storeFlashcardHashmapAsJsonString(flashcardHashmap)
     }
 
+    fun storeCurrentNotificationList(notificationList: ArrayList<NotificationItem>) {
+        sharedPreferences.edit()
+            .putString("notification_list", Gson().toJson(NotificationListModel(notificationList)))
+            .apply()
+    }
+
+    fun getCurrentNotificationList(): ArrayList<NotificationItem> {
+        val jsonStringObject = getNotificationListAsJsonString()
+        var notificationList = arrayListOf<NotificationItem>()
+        jsonStringObject.let {
+            val mapObject = Gson().fromJson(it, NotificationListModel::class.java)
+            mapObject?.let {
+                notificationList = it.notificationList
+            }
+        }
+        return notificationList
+    }
+
     fun storeNewFlashcard(newCard: Vocab) {
         val botTitle = newCard.whichBot
         val flashcardHashmap = getFlashcardHashmap()
@@ -468,6 +557,10 @@ class Preferences(val context: Context) {
         return result.isNotEmpty()
     }
 
+    private fun getNotificationListAsJsonString(): String {
+        return sharedPreferences.getString("notification_list", "") ?: ""
+    }
+
     private fun getFlashcardHashmapAsJsonString(): String {
         return sharedPreferences.getString("flashcard_hashmap", "") ?: ""
     }
@@ -512,6 +605,78 @@ class Preferences(val context: Context) {
 
     fun haveSeenCurrentPath(path: String): String {
         return sharedPreferences.getString(path, "") ?: ""
+    }
+
+    fun getCurrentStateId(): Int {
+        return sharedPreferences.getInt("stateId", 0)
+    }
+
+    fun shouldShowNewStoryNotifcation(showStory: Boolean) {
+        val showStoryInt = if (showStory) 1 else 0
+        val stateId = getCurrentStateId()
+
+        sharedPreferences.edit()
+            .putInt("stateId", stateId + NotificationManager.Constants.STORY * showStoryInt)
+            .apply()
+    }
+
+    private fun alreadyShowedThisNotification(
+        stateId: Int,
+        notificationType: NOTIFICATION_TYPE
+    ): Boolean {
+        when (notificationType) {
+            NOTIFICATION_TYPE.QUIZ -> {
+                return ((stateId / NotificationManager.Constants.QUIZ) % 10 == 1)
+            }
+            NOTIFICATION_TYPE.LEVEL_REACHED -> {
+                return ((stateId / NotificationManager.Constants.LEVEL) % 10 == 1)
+            }
+            else -> {
+                return false
+            }
+        }
+    }
+
+    fun shouldShowQuizNotification(showQuiz: Boolean) {
+        val showQuizInt = if (showQuiz) 1 else 0
+        val stateId = getCurrentStateId()
+        if (alreadyShowedThisNotification(stateId, NOTIFICATION_TYPE.QUIZ)) {
+            return
+        }
+        sharedPreferences.edit()
+            .putInt("stateId", stateId + NotificationManager.Constants.QUIZ * showQuizInt)
+            .apply()
+    }
+
+    fun shouldShowLevelUpNotification(showLevelUp: Boolean) {
+        val showLevelUpInt = if (showLevelUp) 1 else 0
+        val stateId = getCurrentStateId()
+        if (alreadyShowedThisNotification(stateId, NOTIFICATION_TYPE.LEVEL_REACHED)) {
+            return
+        }
+        sharedPreferences.edit()
+            .putInt("stateId", stateId + NotificationManager.Constants.LEVEL * showLevelUpInt)
+            .apply()
+    }
+
+    fun setCurrentStateId(
+        showQuiz: Boolean?,
+        leveledUp: Boolean?,
+        showPracticeNotification: Boolean? = null
+    ) {
+        var currentBotIndex = getCurrentBotIndex()
+        if (currentBotIndex == -1) {
+            currentBotIndex = 0
+        }
+        val showQuizInt = if (showQuiz == true) 1 else 0
+        val leveledUpInt = if (leveledUp == true) 1 else 0
+        val showPracticeInt = if (showPracticeNotification == true) 1 else 0
+        sharedPreferences.edit()
+            .putInt(
+                "stateId",
+                NotificationManager.Constants.STORY * currentBotIndex + NotificationManager.Constants.QUIZ * showQuizInt + NotificationManager.Constants.LEVEL * leveledUpInt + NotificationManager.Constants.PRACTICE * showPracticeInt
+            )
+            .apply()
     }
 
     companion object {

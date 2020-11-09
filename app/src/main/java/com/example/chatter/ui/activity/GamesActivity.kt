@@ -96,7 +96,7 @@ class GamesActivity : BaseActivity(), ConcentrationGameClickedInterface,
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
+            //.setCustomAnimations(R.anim.slide_in, R.anim.slide_out)
             .replace(games_root_layout.id, fragment)
             .addToBackStack(fragment.javaClass.name)
             .commit()

@@ -36,8 +36,12 @@ class StudyModeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpBackButton()
-        setUpStudyModeRecycler()
         setUpTabLayout()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setUpStudyModeRecycler()
     }
 
     private fun setUpTabLayout() {

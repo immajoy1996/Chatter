@@ -19,6 +19,9 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.bot_layout.view.*
 import kotlinx.android.synthetic.main.fragment_story_board_one.*
 import kotlinx.android.synthetic.main.user_profile_item_card.view.*
+import kotlinx.android.synthetic.main.user_profile_item_card.view.card_subtitle
+import kotlinx.android.synthetic.main.user_profile_item_card.view.card_title
+import kotlinx.android.synthetic.main.user_profile_item_half_card.view.*
 
 class StudyModeAdapter(
     val context: Context,
@@ -58,6 +61,13 @@ class StudyModeAdapter(
             itemView.card_image.setImageResource(imagePath)
             itemView.card_title.text = title
             itemView.card_subtitle.text = subTitle
+            //itemView.inner_layout.startBounceAnimation()
+        }
+
+        private fun View.startBounceAnimation() {
+            this.startAnimation(
+                AnimationUtils.loadAnimation(context, R.anim.bounce)
+            )
         }
     }
 }

@@ -17,6 +17,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_language_selection.*
 import kotlinx.android.synthetic.main.bottom_nav_bar.*
+import kotlinx.android.synthetic.main.bottom_nav_bar.button_back
+import kotlinx.android.synthetic.main.fragment_story_board_two.*
 import kotlinx.android.synthetic.main.top_bar.*
 
 class LanguageSelectionActivity : BaseSelectionActivity(),
@@ -64,7 +66,7 @@ class LanguageSelectionActivity : BaseSelectionActivity(),
         button_back.setOnClickListener {
             this.finish()
         }
-        button_next.setOnClickListener {
+        continue_button.setOnClickListener {
             if (selectedLang != null && selectedFlagImg != null && languageMap.containsKey(
                     selectedLang as String
                 )

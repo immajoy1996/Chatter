@@ -367,8 +367,8 @@ class ChatterActivity : BaseChatActivity(),
             )
     }
 
-    private fun returnToAppDashboard(){
-        val intent= Intent(this,HomeNavActivityLatest::class.java)
+    private fun returnToAppDashboard() {
+        val intent = Intent(this, HomeNavActivityLatest::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
     }
@@ -386,6 +386,7 @@ class ChatterActivity : BaseChatActivity(),
         }
         continue_button.visibility = View.VISIBLE
         continue_button.setOnClickListener {
+            preferences.setCurrentStateId(true, true, true)
             returnToAppDashboard()
         }
         hideNextButton()
@@ -1305,7 +1306,7 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     fun addSpaceText() {
-        Log.d("SpaceText","showing it")
+        Log.d("SpaceText", "showing it")
         val spaceMsgId = getIdForSpaceView()
         addSpaceMessage(spaceMsgId)
     }
