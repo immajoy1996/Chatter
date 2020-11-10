@@ -471,6 +471,6 @@ abstract class BaseChatActivity : AppCompatActivity(), RecognitionListener,
     companion object {
         private const val MIN_TIME_BETWEEN_CLICKS = 700L
         const val TRANSLATE_API_URL =
-            "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/TranslateApi%2Ftranslate_api.json?alt=media&token=e6a7cd6a-15af-45e3-98a7-654ed48257fb"
+            "https://firebasestorage.googleapis.com/v0/b/chatter-f7ae2.appspot.com/o/TranslateApi%2Fchatter-f7ae2-75eff5610fbd.json?alt=media&token=c6cef0f5-8649-4282-ac54-1ec0cac56153"
     }
 }

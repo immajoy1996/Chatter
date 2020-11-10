@@ -1545,7 +1545,7 @@ class ChatterActivity : BaseChatActivity(),
         pathReference.addListenerForSingleValueEvent(messageListener)
     }
 
-    private fun getBotResponse(path: String) {
+    fun getBotResponse(path: String) {
         removeOptionsMenu()
         val pathReference = database.child(path + "/botMessage")
         disableNextButton()

@@ -112,7 +112,8 @@ class MessageMenuOptionsFragment : BaseFragment() {
             chatterActivity.addUserMessage(option.text.toString())
             it.handleNewMessageLogic(option.text.toString())
             it.resetResponseVariables()
-            getBotResponse(it.currentPath)
+            Log.d("HELLO", it.currentPath)
+            it.getBotResponse(it.currentPath)
         }
     }
 
@@ -120,34 +121,6 @@ class MessageMenuOptionsFragment : BaseFragment() {
         setUpMenuOptionClickListener(currentPath, optionA, "optionA")
         setUpMenuOptionClickListener(currentPath, optionB, "optionB")
         setUpMenuOptionClickListener(currentPath, optionC, "optionC")
-    }
-
-    private fun getBotResponse(path: String) {
-        chatterActivity.removeOptionsMenu()
-        val pathReference = database.child("${path}botMessage")
-        chatterActivity.disableNextButton()
-        Log.d("Hello", path)
-        val messageListener = chatterActivity.baseValueEventListener { dataSnapshot ->
-            dataSnapshot.value?.let {
-                setTimerTask("showBotIsTyping", 700, {
-                    Log.d("Hello", "i got in here1")
-                    (activity as? ChatterActivity)?.apply {
-                        Log.d("Hello", "i got in here")
-                        addSpaceText()
-                        showBotIsTypingView()
-                        botIsTypingTextHasBeenAdded()
-                    }
-                })
-                setTimerTask("loadOptionsMenu", 3000, {
-                    chatterActivity.apply {
-                        replaceBotIsTyping(it.toString())
-                        contentHasBeenAdded()
-                        loadOptionsMenu()
-                    }
-                })
-            } ?: chatterActivity.loadOptionsMenu()
-        }
-        pathReference.addListenerForSingleValueEvent(messageListener)
     }
 
     private fun checkForEasterEggs() {
@@ -225,7 +198,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
                 chatterActivity.removeOptionsMenu()
                 chatterActivity.addUserMessage(userText)
                 it.handleNewMessageLogic(userText)
-                getBotResponse(it.currentPath)
+                it.getBotResponse(it.currentPath)
             }
         }
     }
