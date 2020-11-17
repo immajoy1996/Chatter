@@ -16,9 +16,7 @@ import com.example.chatter.R
 import com.example.chatter.data.NotificationItem
 import com.example.chatter.extra.MyBounceInterpolator
 import com.example.chatter.extra.NOTIFICATION_TYPE
-import com.example.chatter.ui.activity.BotStoryActivityLatest
-import com.example.chatter.ui.activity.GamesActivity
-import com.example.chatter.ui.activity.SpeechGameActivity
+import com.example.chatter.ui.activity.*
 import kotlinx.android.synthetic.main.quiz_notification_card_layout.view.*
 import kotlinx.android.synthetic.main.user_profile_item_card.view.*
 import kotlinx.android.synthetic.main.user_profile_item_card.view.card_subtitle
@@ -169,11 +167,18 @@ class UserProfileDashboardAdapter(
         }
 
         fun bindFlashcardsNotification() {
-
+            setFlashcardClickNotification()
         }
 
         fun bindGamesNotification() {
 
+        }
+
+        private fun setFlashcardClickNotification() {
+            itemView.quiz_inner_container.setOnClickListener {
+                val intent = Intent(context, FlashCardActivity::class.java)
+                context.startActivity(intent)
+            }
         }
 
         private fun setQuizItemClickNotification() {
@@ -188,12 +193,12 @@ class UserProfileDashboardAdapter(
 
         private fun setItemClickListener(botTitle: String) {
             itemView.full_card_launch_button.setOnClickListener {
-                val intent = Intent(context, BotStoryActivityLatest::class.java)
-                var botTitleNew = botTitle
+                val intent = Intent(context, StoryPathActivity::class.java)
+                /*var botTitleNew = botTitle
                 if (botTitleNew == "Doctor Hum-Vee") {
                     botTitleNew = "Doctor Susan"
                 }
-                intent.putExtra("botStoryTitle", botTitleNew)
+                intent.putExtra("botStoryTitle", botTitleNew)*/
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 context.startActivity(intent)
             }

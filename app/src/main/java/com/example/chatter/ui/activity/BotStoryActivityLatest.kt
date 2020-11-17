@@ -44,8 +44,14 @@ class BotStoryActivityLatest : BaseActivity(
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
         getBotTitle()
-        disableStartChattingButton()
+        hideStartChattingButton()
+        //disableStartChattingButton()
+        showStoryPathPage()
         showLoadingAndFetchStories()
+    }
+
+    private fun showStoryPathPage() {
+        //impl this
     }
 
     fun setUpImagePath(image: String) {

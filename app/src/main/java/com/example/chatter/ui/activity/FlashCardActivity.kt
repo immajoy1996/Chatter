@@ -37,8 +37,9 @@ class FlashCardActivity : BaseChatActivity() {
         database = FirebaseDatabase.getInstance().reference
         executorService = Executors.newFixedThreadPool(5)
         langChanged = intent?.getBooleanExtra("langChanged", false) ?: false
-        initializeDecksFragment()
-        loadFlashCardsCategoriesFragment()
+        //initializeDecksFragment()
+        loadViewFlashCardsFragment(arrayListOf<String>(), false)
+        //loadFlashCardsCategoriesFragment()
     }
 
     private fun initializeDecksFragment() {
