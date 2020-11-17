@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:layout_marginTop="10dp"
+    android:background="#ffffff"
     app:layout_constraintTop_toBottomOf="@+id/story_path_view_pager"
     >
 
