@@ -164,6 +164,7 @@ class BotStoryActivityLatest : BaseActivity(
             }else{
                 Log.d("My path", "sorry its null")
             }
+            
             if (cardTitle != null && cardText != null /*&& image != null && soundEffect != null */ && order != null && currentStoryCount < storyCount - 1) {
                 addToFragmentArray(
                     cardTitle.toString(),

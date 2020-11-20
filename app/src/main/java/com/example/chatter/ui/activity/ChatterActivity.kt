@@ -288,7 +288,7 @@ class ChatterActivity : BaseChatActivity(),
         top_bar_bot_image.setOnLongClickListener {
             finish()
             preferences.incrementUserState()
-            val intent = Intent(this, StoryPathActivity::class.java)
+            val intent = Intent(this, BotStoryActivityLatest::class.java)
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
             true
