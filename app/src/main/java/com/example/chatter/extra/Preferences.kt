@@ -13,7 +13,13 @@ class Preferences(val context: Context) {
     private val levelNames = arrayListOf<String>("Pawn", "Knight", "Bishop", "Rook")
     private val pointsRemaining = arrayListOf<Long>(2000, 3000, 4000, 5000)
     private val pointsForLevel = arrayListOf<Int>(2000, 5000, 9000)
-
+    
+    private var botStoriesInOrder =
+        arrayListOf<BotStoryInfo>(
+            BotStoryInfo("Taxi Pete", R.drawable.taxi1, "", "", -1, 4),
+            BotStoryInfo("Manager Marge", R.drawable.hotel, "", "", 0, 4),
+            BotStoryInfo("Manager Marge", R.drawable.hotel, "", "", 0, 4)
+        )
     private var botsInOrder = arrayListOf<String>("Taxi Pete", "Doctor Hum-Vee")
     private val quotesArray = arrayListOf<String>(
         "What do you call a dinosaur who gets into an accident?",
@@ -212,7 +218,7 @@ class Preferences(val context: Context) {
     }
 
     fun getCurrentBotIndex(): Int {
-        return sharedPreferences.getInt("botStoryIndex", -1)
+        return sharedPreferences.getInt("botStoryIndex", 0)
     }
 
     fun storeCurrentBotStoryIndex(index: Int) {
@@ -226,6 +232,18 @@ class Preferences(val context: Context) {
             index = 0
         }
         storeCurrentBotStoryIndex(index + 1)
+    }
+
+    fun getMyCurrentBotStory(): BotStoryInfo {
+        var index = getCurrentBotIndex()
+        if (index == -1) {
+            index = 0
+        }
+        if (index < botStoriesInOrder.size) {
+            return botStoriesInOrder[index]
+        } else {
+            return botStoriesInOrder[0]
+        }
     }
 
     fun haveSeenThisBot(
@@ -659,6 +677,31 @@ class Preferences(val context: Context) {
             .apply()
     }
 
+    fun getCurrentStoryInfo(): StoryPathInfo? {
+        val jsonStringObject = getStoryInfoAsJsonString()
+        if (jsonStringObject.isEmpty()) {
+            return null
+        }
+        var storyPathInfo: StoryPathInfo? = null
+        jsonStringObject.let {
+            val storyObject = Gson().fromJson(it, StoryPathInfo::class.java)
+            storyObject?.let {
+                storyPathInfo = it
+            }
+        }
+        return storyPathInfo
+    }
+
+    private fun getStoryInfoAsJsonString(): String {
+        return sharedPreferences.getString("story_path_info", "") ?: ""
+    }
+
+    fun storeStoryInfo(storyPathInfo: StoryPathInfo) {
+        sharedPreferences.edit()
+            .putString("story_path_info", Gson().toJson(storyPathInfo))
+            .apply()
+    }
+
     fun setCurrentStateId(
         showQuiz: Boolean?,
         leveledUp: Boolean?,
@@ -679,6 +722,77 @@ class Preferences(val context: Context) {
             .apply()
     }
 
+    fun getCurrentStoryPath(): String {
+        val userState = getUserState()
+        val botIndex = userState.botIndex
+        val currentBotStoryTitle = botStoriesInOrder[botIndex].botTitle
+        val currentBotStoryItem = userState.currentPart + 1
+        val path = "${BOT_STORIES}/${currentBotStoryTitle}/Part${currentBotStoryItem}"
+        return path
+    }
+
+    fun getCurrentConversationPath(): String {
+        val userState = getUserState()
+        val botIndex = userState.botIndex
+        val currentBotStoryTitle = botStoriesInOrder[botIndex].botTitle
+        val currentBotStoryItem = userState.currentPart + 1
+        val path = "${BOT_CONVERSATIONS}/${currentBotStoryTitle}/Conversation${currentBotStoryItem}"
+        return path
+    }
+
+    fun initializeUserState() {
+        storeUserState(UserState(0, 0))
+    }
+
+    fun incrementUserState() {
+        val userState = getUserState()
+        val currentBotIndex = getCurrentBotIndex()
+        val botStory = botStoriesInOrder[currentBotIndex]
+        if (userState.currentPart + 1 <= botStory.totalParts) {
+            userState.currentPart++
+        } else {
+            userState.botIndex++
+            userState.currentPart = 0
+            incrementCurrentBotStoryIndex()
+        }
+        storeUserState(userState)
+    }
+
+    fun getUserState(): UserState {
+        val jsonString = getUserStateAsJsonString()
+        var userState = UserState(-1, -1)
+        jsonString.let {
+            val storyObject = Gson().fromJson(it, UserState::class.java)
+            storyObject?.let {
+                userState = it
+            }
+        }
+        return userState
+    }
+
+    fun storeUserState(userState: UserState) {
+        storeUserStateAsJsonString(userState)
+    }
+
+    private fun storeUserStateAsJsonString(userState: UserState) {
+        sharedPreferences.edit().putString(USER_STATE, Gson().toJson(userState))
+            .apply()
+    }
+
+    private fun getUserStateAsJsonString(): String {
+        return sharedPreferences.getString(USER_STATE, "") ?: ""
+    }
+
+    fun getCurrentBotStoryTitle(): String {
+        val currentBotIndex = getCurrentBotIndex()
+        return botStoriesInOrder[currentBotIndex].botTitle
+    }
+
+    fun getCurrentBotStoryImage(): Int {
+        val currentBotIndex = getCurrentBotIndex()
+        return botStoriesInOrder[currentBotIndex].botImage
+    }
+
     companion object {
         const val SHARED_PREFERENCES_KEY = "Shared Preferences"
         const val USER_LEVEL = "User Level"
@@ -690,5 +804,8 @@ class Preferences(val context: Context) {
         const val QUOTE_INDEX = "QuoteIndex"
         const val MY_FAVORITES = "My favorites"
         const val MULTIPLE_CHOICE = "Multiple Choice"
+        const val USER_STATE = "User State"
+        const val BOT_CONVERSATIONS = "BotConversations"
+        const val BOT_STORIES = "BotStories"
     }
 }

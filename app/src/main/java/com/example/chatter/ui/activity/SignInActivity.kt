@@ -20,6 +20,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import com.example.chatter.R
+import com.example.chatter.data.StoryPathInfo
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.CHOOSE_PASSWORD
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.ENTER_EMAIL
 import com.example.chatter.ui.fragment.EnterUsernameFragment.Companion.ENTER_PASSWORD
@@ -619,6 +620,7 @@ class SignInActivity : BaseChatActivity() {
                 //intent.putExtra("botStoryTitle",preferences.getCurrentBotStory())
                 intent = Intent(this@SignInActivity, HomeNavActivityLatest::class.java)
             } else {
+                preferences.initializeUserState()
                 preferences.shouldShowNewStoryNotifcation(true)
                 preferences.shouldShowLevelUpNotification(true)
                 intent = Intent(this@SignInActivity, LanguageSelectionActivity::class.java)

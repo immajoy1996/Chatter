@@ -43,15 +43,14 @@ class BotStoryActivityLatest : BaseActivity(
         setContentView(R.layout.activity_bot_story_latest)
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
-        getBotTitle()
-        hideStartChattingButton()
-        //disableStartChattingButton()
-        showStoryPathPage()
-        showLoadingAndFetchStories()
+        initializeViews()
+        //getBotTitle()
     }
 
-    private fun showStoryPathPage() {
-        //impl this
+    fun initializeViews() {
+        hideStartChattingButton()
+        //disableStartChattingButton()
+        showLoadingAndFetchStories()
     }
 
     fun setUpImagePath(image: String) {
@@ -101,7 +100,7 @@ class BotStoryActivityLatest : BaseActivity(
     }
 
     private fun getBotTitle() {
-        botTitle = intent.getStringExtra("botStoryTitle") ?: ""
+        //botTitle = intent.getStringExtra("botStoryTitle") ?: ""
         Log.d(TAG, botTitle.toString())
     }
 
@@ -127,23 +126,25 @@ class BotStoryActivityLatest : BaseActivity(
     }
 
     private fun showLoadingAndFetchStories() {
-        loadLoadingFragment()
+        //loadLoadingFragment()
         hideStartChattingButton()
-        setTimerTask("fetchStories", 2000, {
-            fetchStories()
-        })
+        //setTimerTask("fetchStories", 2000, {
+        fetchStories()
+        //})
     }
 
     private fun fetchStories() {
         resetStoryCount()
+        val storyPath = preferences.getCurrentStoryPath()
+        Log.d("My Path", storyPath)
         val storyCountListener = baseValueEventListener { dataSnapshot ->
             val storyCount = dataSnapshot.value as Long?
             storyCount?.let {
-                val botStoryPathRef = database.child("BotStories/$botTitle")
+                val botStoryPathRef = database.child(storyPath)
                 botStoryPathRef.addChildEventListener(getStoryEventListener(it.toInt()))
             }
         }
-        val storyCountRef = database.child("BotStories/$botTitle").child("screenCount")
+        val storyCountRef = database.child(storyPath).child("contextCount")
         storyCountRef.addValueEventListener(storyCountListener)
     }
 
@@ -152,11 +153,16 @@ class BotStoryActivityLatest : BaseActivity(
             val cardTitle = dataSnapshot.child("cardTitle").value
             val cardText = dataSnapshot.child("cardText").value
             val image = dataSnapshot.child("cardImage").value
-            val soundEffect = dataSnapshot.child("soundEffect").value
+            //val soundEffect = dataSnapshot.child("soundEffect").value
             val order = dataSnapshot.child("order").value
-            val gameType = dataSnapshot.child("gameType").value
-            gameType?.let {
+            //val gameType = dataSnapshot.child("gameType").value
+            /*gameType?.let {
                 setGameType(it.toString())
+            }*/
+            if(cardTitle!=null) {
+                Log.d("My path", cardTitle.toString())
+            }else{
+                Log.d("My path", "sorry its null")
             }
             if (cardTitle != null && cardText != null /*&& image != null && soundEffect != null */ && order != null && currentStoryCount < storyCount - 1) {
                 addToFragmentArray(
@@ -169,6 +175,7 @@ class BotStoryActivityLatest : BaseActivity(
                 currentStoryCount++
             } else if (currentStoryCount == storyCount - 1) {
                 currentStoryCount++
+                Log.d("Blah blah", "" + currentStoryCount + " " +  cardTitle+" "+order)
                 addToFragmentArray(
                     cardTitle.toString(),
                     cardText.toString(),
@@ -176,7 +183,6 @@ class BotStoryActivityLatest : BaseActivity(
                     order as Long,
                     storyCount
                 )
-                Log.d("Blah blah", "" + currentStoryCount + " " + order)
                 sortFragmentArray()
                 val viewPager = createViewPager()
                 viewPager?.let {
@@ -185,7 +191,7 @@ class BotStoryActivityLatest : BaseActivity(
                 }
                 hideUnnecessaryPins(storyCount)
                 setUpPageChangeListener()
-                removeLoadingFragment()
+                //removeLoadingFragment()
             } else {
                 //Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
                 //Log.d(TAG, "something went wrong")

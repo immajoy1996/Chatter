@@ -31,6 +31,7 @@ class StoryPathActivity : BaseActivity() {
         home.visibility = View.GONE
         back.visibility = View.VISIBLE
         top_bar_title.text = "Story Mode"
+        setUpBackButton()
     }
     
     private fun setUpFragmentArray(){
@@ -42,6 +43,12 @@ class StoryPathActivity : BaseActivity() {
         val viewPager = createViewPager()
         viewPager?.let {
             setViewPager(it)
+        }
+    }
+    
+    private fun setUpBackButton(){
+        back.setOnClickListener{
+            finish()
         }
     }
 

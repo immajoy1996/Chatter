@@ -43,6 +43,7 @@ import com.example.chatter.extra.Preferences
 import com.example.chatter.interfaces.ExpressionClickInterface
 import com.example.chatter.interfaces.StoryBoardFinishedInterface
 import com.example.chatter.ui.activity.BotStoryActivity.Companion.GAME_TYPE
+import com.example.chatter.ui.activity.CreateChatActivity.Companion.BOT_CONVERSATIONS
 import com.example.chatter.ui.activity.DashboardActivity.Companion.TARGET_LANGUAGE
 import com.example.chatter.ui.fragment.*
 import com.example.chatter.ui.fragment.StoryBoardOneFragment.Companion.PERMISSION_REQUEST_CODE
@@ -90,7 +91,7 @@ class ChatterActivity : BaseChatActivity(),
     private var translationTextView: TextView? = null
 
     private lateinit var botTitle: String
-    private lateinit var botImagePath: String
+    private var botImagePath: Int? = null
     private var gameType = ""
 
     private var auth = FirebaseAuth.getInstance()
@@ -124,6 +125,7 @@ class ChatterActivity : BaseChatActivity(),
     private var firstMessageAdded = false
     private var arrayMsgIds = arrayListOf<Int>()
     private var shouldShowStoryFrag = true
+    private var conversationIndex = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,6 +148,18 @@ class ChatterActivity : BaseChatActivity(),
         } else {
             onStoriesFinished()
         }*/
+    }
+
+    fun getConversationIndex(): Int {
+        return conversationIndex
+    }
+
+    fun setConversationIndex(index: Int) {
+        conversationIndex = index
+    }
+
+    fun updatePath(path: String) {
+        currentPath = "BotConversations/${botTitle}/Conversation${conversationIndex}"
     }
 
     fun getGameType(): String {
@@ -227,10 +241,8 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun setUpBotImageOnTopBar() {
-        top_bar_bot_image?.let {
-            Glide.with(this)
-                .load(botImagePath)
-                .into(it)
+        botImagePath?.let {
+            top_bar_bot_image.setImageResource(it)
         }
         top_bar_title_desc.text = botTitle
     }
@@ -273,14 +285,23 @@ class ChatterActivity : BaseChatActivity(),
                 top_bar_mic.setImageResource(R.drawable.microphone_listening)
             }
         }
+        top_bar_bot_image.setOnLongClickListener {
+            finish()
+            preferences.incrementUserState()
+            val intent = Intent(this, StoryPathActivity::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+            true
+        }
         home.setOnClickListener {
             refreshChatMessages()
         }
     }
 
     override fun showFirstBotMessage() {
-        currentPath = "$BOT_CONVERSATIONS/$botTitle/"
-        val pathReference = database.child(currentPath.plus("botMessage"))
+        currentPath = preferences.getCurrentConversationPath()
+        Log.d("CurrentPath", currentPath)
+        val pathReference = database.child(currentPath.plus("/botMessage"))
         //disableNextButton()
         val messageListener = baseValueEventListener { dataSnapshot ->
             val botMessage = dataSnapshot.value.toString()
@@ -352,8 +373,11 @@ class ChatterActivity : BaseChatActivity(),
     }
 
     private fun setUpStoryBoardFragments() {
-        botTitle = intent?.getStringExtra(BOT_TITLE) ?: ""
-        botImagePath = intent?.getStringExtra(IMAGE_PATH) ?: ""
+        /*botTitle = intent?.getStringExtra(BOT_TITLE) ?: ""
+        botImagePath = intent?.getStringExtra(IMAGE_PATH) ?: ""*/
+        botTitle = preferences.getCurrentBotStoryTitle()
+        botImagePath = preferences.getCurrentBotStoryImage()
+
         shouldShowStoryFrag = intent?.getBooleanExtra(SHOULD_SHOW_STORY, true) ?: true
         gameType = intent?.getStringExtra(GAME_TYPE) ?: ""
 
@@ -463,10 +487,11 @@ class ChatterActivity : BaseChatActivity(),
             .commit()
     }
 
-    fun loadEasterEggFragment(title: String, points: Long?, imageSrc: String) {
+    fun loadEasterEggFragment(type: String, title: String, points: Long?, imageSrc: String) {
         playNotificationSound()
         easterEggFragment =
             EasterEggFragment.newInstance(
+                type,
                 title,
                 null,
                 imageSrc
@@ -817,10 +842,8 @@ class ChatterActivity : BaseChatActivity(),
             id = getIdProfileImageView()
             //setImageDrawable(ContextCompat.getDrawable(context, R.drawable.business_profile))
         }
-        profileImgView?.let {
-            Glide.with(this)
-                .load(botImagePath)
-                .into(it)
+        botImagePath?.let {
+            profileImgView?.setImageResource(it)
         }
     }
 

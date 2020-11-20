@@ -2,6 +2,7 @@ package com.example.chatter.ui.fragment
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -17,13 +18,13 @@ import com.example.chatter.ui.activity.*
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_easter_egg.*
 
-class EasterEggFragment : Fragment() {
+class EasterEggFragment : BaseFragment() {
     var message: String? = null
     var points: Long? = null
     var imageSrc: String? = null
     var imageGem: Int? = null
+    var type: String = ""
     private lateinit var database: DatabaseReference
-    private lateinit var preferences: Preferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,9 +36,6 @@ class EasterEggFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         database = FirebaseDatabase.getInstance().reference
-        context?.let {
-            preferences = Preferences(it)
-        }
     }
 
     override fun onResume() {
@@ -112,7 +110,23 @@ class EasterEggFragment : Fragment() {
                     (activity as? HomeNavigationActivity)?.removePopup()
                 }
                 is ChatterActivity -> {
-                    (activity as? ChatterActivity)?.removePopup()
+                    (activity as? ChatterActivity)?.let {
+                        if (type == "Success") {
+                            //Move On
+                            /*it.removePopup()
+                            val convoIndex = it.getConversationIndex()
+                            it.setConversationIndex(convoIndex + 1)
+                            it.refreshChatMessages()*/
+                            it.finish()
+                            preferences.incrementUserState()
+                            val intent = Intent(context, BotStoryActivityLatest::class.java)
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            startActivity(intent)
+                        } else {
+                            //Leave
+                            it.finish()
+                        }
+                    }
                 }
                 else -> {
                     Toast.makeText(context, "No method to handle this screen", Toast.LENGTH_SHORT)
@@ -233,17 +247,26 @@ class EasterEggFragment : Fragment() {
                 easter_egg_price.text = points.toString()
             } else */
             easter_egg_price_tag_layout.visibility = View.GONE
-            new_gem_image.visibility = View.GONE
+            new_gem_image.visibility = View.VISIBLE
             new_bots_image.visibility = View.GONE
             start_game_image.visibility = View.GONE
-            imageSrc?.let {
+            /*imageSrc?.let {
                 if (context != null) {
                     Glide.with(context as Context)
                         .load(it)
                         .into(jackpot_image)
                 }
-            }
+            }*/
             jackpot_layout.visibility = View.VISIBLE
+            if (type == "Success") {
+                easter_egg_layout.setBackgroundResource(R.drawable.bottom_popup_success)
+                jackpot_image.setImageResource(R.drawable.green_check)
+                easter_egg_message.setTextColor(Color.parseColor("#3cb371"))
+            } else {
+                easter_egg_layout.setBackgroundResource(R.drawable.bottom_popup_games)
+                jackpot_image.setImageResource(R.drawable.x_icon)
+                easter_egg_message.setTextColor(Color.parseColor("#90ff0000"))
+            }
             if (message?.toLowerCase()?.contains("something went wrong") == true) {
                 jackpot_image.setImageResource(R.drawable.red_exclamation)
             }
@@ -268,8 +291,14 @@ class EasterEggFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(message: String, points: Long?, imageSrc: String): EasterEggFragment {
+        fun newInstance(
+            type: String,
+            message: String,
+            points: Long?,
+            imageSrc: String
+        ): EasterEggFragment {
             val fragment = EasterEggFragment()
+            fragment.type = type
             fragment.message = message
             fragment.points = points
             fragment.imageSrc = imageSrc

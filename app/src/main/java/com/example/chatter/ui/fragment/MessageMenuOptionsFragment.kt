@@ -86,9 +86,9 @@ class MessageMenuOptionsFragment : BaseFragment() {
     }
 
     private fun setUpOptionsMenu(currentPath: String) {
-        val pathA = currentPath + "optionA"
-        val pathB = currentPath + "optionB"
-        val pathC = currentPath + "optionC"
+        val pathA = currentPath + "/optionA"
+        val pathB = currentPath + "/optionB"
+        val pathC = currentPath + "/optionC"
         setUpOptionMenuText(pathA, optionA)
         setUpOptionMenuText(pathB, optionB)
         setUpOptionMenuText(pathC, optionC)
@@ -106,7 +106,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     private fun handleOptionClick(path: String, option: TextView, optionType: String) {
         chatterActivity.let {
-            val path = it.currentPath + optionType + "/"
+            val path = it.currentPath + "/" + optionType + "/"
             it.currentPath = path
             chatterActivity.removeOptionsMenu()
             chatterActivity.addUserMessage(option.text.toString())
@@ -125,20 +125,19 @@ class MessageMenuOptionsFragment : BaseFragment() {
 
     private fun checkForEasterEggs() {
         chatterActivity.currentPath.let {
-            if (preferences.haveSeenCurrentPath(it) == "seen") {
+            /*if (preferences.haveSeenCurrentPath(it) == "seen") {
                 return
-            }
-            preferences.storeCurrentPath(it)
+            }*/
+            //preferences.storeCurrentPath(it)
             val pathReference = database.child(it)
             val easterEggListener = chatterActivity.baseChildEventListener { dataSnapshot ->
-                if (dataSnapshot.hasChild("title") /*&& dataSnapshot.hasChild("points") && dataSnapshot.hasChild(
-                        "id"
-                    )*/
+                if (dataSnapshot.hasChild("title") && dataSnapshot.hasChild("type")
                 ) {
+                    val type = dataSnapshot.child("type").value.toString()
                     val title = dataSnapshot.child("title").value.toString()
                     //val points = dataSnapshot.child("points").value as Long
                     val image = dataSnapshot.child("image").value.toString()
-                    chatterActivity.loadEasterEggFragment(title, null, image)
+                    chatterActivity.loadEasterEggFragment(type, title, null, image)
                 }
             }
             pathReference.addChildEventListener(easterEggListener)
@@ -150,7 +149,7 @@ class MessageMenuOptionsFragment : BaseFragment() {
         optionA.visibility = View.GONE
         optionB.visibility = View.GONE
         optionC.visibility = View.GONE
-        conversation_end_message.visibility = View.VISIBLE
+        conversation_end_message.visibility = View.GONE
     }
 
     private fun setUpOptionMenuText(path: String, option: TextView) {

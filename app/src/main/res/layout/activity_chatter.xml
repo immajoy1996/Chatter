@@ -113,6 +113,7 @@
         android:layout_height="match_parent" />
 
     <include
+        android:visibility="gone"
         android:id="@+id/bottom_layout"
         layout="@layout/bottom_nav_bar" />
 

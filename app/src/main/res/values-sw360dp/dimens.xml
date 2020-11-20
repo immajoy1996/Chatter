@@ -8,7 +8,7 @@
     <dimen name="option_width">300dp</dimen>
     <dimen name="message_container_height">350dp</dimen>
     <integer name="message_bubble_text_size">20</integer>
-    <integer name="message_bubble_width">500</integer>
+    <integer name="message_bubble_width">800</integer>
     <integer name="message_bubble_padding">20</integer>
     <integer name="message_vertical_spacing">50</integer>
     <integer name="bot_profile_size">100</integer>

@@ -193,7 +193,7 @@ class UserProfileDashboardAdapter(
 
         private fun setItemClickListener(botTitle: String) {
             itemView.full_card_launch_button.setOnClickListener {
-                val intent = Intent(context, StoryPathActivity::class.java)
+                val intent = Intent(context, BotStoryActivityLatest::class.java)
                 /*var botTitleNew = botTitle
                 if (botTitleNew == "Doctor Hum-Vee") {
                     botTitleNew = "Doctor Susan"
